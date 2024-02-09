@@ -1,0 +1,21 @@
+[package]
+name = "quic_backend"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1"
+bytes = "1"
+clap = { version = "4", features = ["derive"] }
+env_logger = "0.11"
+log = "0.4"
+quinn = "0.10"
+# quinn-proto = "0.10"
+ring = "0.17"
+rustls = "0.21"  # upgrade in the future. 
+rustls-pemfile = "1"
+rustls-pki-types = { version = "1" }
+tokio = { version = "1.36", features = ["full"] }
+webtransport-quinn = "0.7"
