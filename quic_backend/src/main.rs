@@ -15,8 +15,12 @@ use webtransport_quinn::{RecvStream, SendStream, Session};
 
 // https://stackoverflow.com/questions/73429672/how-do-i-import-a-file-from-a-folder-in-main
 // use server_config ::*;
+use routes::*;
+use controller::*;
 
 // mod server_config;
+mod routes;
+mod controller;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -143,16 +147,15 @@ async fn run_session(session: Session, path: String) -> anyhow::Result<()> {
             res = session.accept_bi() => {
                 let (send, recv) = res?;
 
-                handle_path_bi(send, recv, path.clone()).await;
+                handle_bi(send, recv, path.clone()).await;
             },
             res = session.read_datagram() => {
                 let msg = res?;
+
+                handle_datagram(session.clone(), msg, path.clone()).await;
             }
         }
     }
 }
 
 
-async fn handle_path_bi(send: SendStream, recv: RecvStream, path: String) {
-    
-}
