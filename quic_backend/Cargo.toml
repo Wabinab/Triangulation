@@ -17,5 +17,7 @@ ring = "0.17"
 rustls = "0.21"  # upgrade in the future. 
 rustls-pemfile = "1"
 rustls-pki-types = { version = "1" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
 tokio = { version = "1.36", features = ["full"] }
 webtransport-quinn = "0.7"
