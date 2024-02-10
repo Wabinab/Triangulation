@@ -34,7 +34,7 @@ struct Args {
 
 async fn main_resp(_: Request<hyper::body::Incoming>) -> Result<Response<Full<Bytes>>, Infallible> {
     let args = Args::parse();
-    let root = args.cert_path.as_path().clone();  // to change to ./cert
+    let root = args.cert_path.as_path().clone(); 
 
     check_and_renew(root);
 
