@@ -4,7 +4,7 @@ use std::{
     path::{self, Path, PathBuf},
 };
 
-use anyhow::{Context, Result};
+use anyhow::{Context};
 use log::{info, error};
 
 use bytes::Bytes;
@@ -145,14 +145,25 @@ async fn run_session(session: Session, path: String) -> anyhow::Result<()> {
     loop {
         tokio::select! {
             res = session.accept_bi() => {
-                let (send, recv) = res?;
+                let (mut send, mut recv) = res?;
 
-                handle_bi(send, recv, path.clone()).await;
+                let msg = recv.read_to_end(8192).await?;
+                // handle_bi(send, recv, path.clone()).await;
+                match routes_handler(msg.try_into().unwrap(), path.clone()) {
+                    Ok(Some(value)) => send.write_all(value.as_bytes()).await?,
+                    Err(err) => send.write_all(err.as_bytes()).await?,
+                    _ => {}  // all none no need send anything back. 
+                }
             },
             res = session.read_datagram() => {
                 let msg = res?;
 
-                handle_datagram(session.clone(), msg, path.clone()).await;
+                // handle_datagram(session.clone(), msg, path.clone()).await;
+                match routes_handler(msg, path.clone()) {
+                    Ok(Some(value)) => session.send_datagram(value.try_into().unwrap()).await?,
+                    Err(err) => session.send_datagram(err.try_into().unwrap()).await?,
+                    _ => {}
+                }
             }
         }
     }
