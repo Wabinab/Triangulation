@@ -1,13 +1,29 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { SharedModule } from './shared/shared.module';
+import { TranslateService } from '@ngx-translate/core';
+import { ToastrService } from 'ngx-toastr';
+import { faGear } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, SharedModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
-  title = 'frontend';
+  faSettings = faGear;
+
+  constructor(public translate: TranslateService, private toastr: ToastrService) {
+    translate.addLangs(['en', 'fr']);
+    translate.setDefaultLang('en');
+
+    const browserLang = translate.getBrowserLang() ?? 'en';
+    translate.use(browserLang.match(/en|fr/) ? browserLang : 'en');
+  }
+
+  showSuccess() {
+    this.toastr.success("Hello world!", "Toastr fun!");
+  }
 }

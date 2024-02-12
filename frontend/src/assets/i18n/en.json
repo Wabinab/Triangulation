@@ -1,0 +1,12 @@
+{
+  "header": {
+    "title": "Triangulation",
+    "NotFound": "Not Found"
+  },
+  "notFound": {
+    "404": "404",
+    "pageNotFound": "Page does not exist.",
+    "backToHome": "Back to home"
+  }
+}
+  

@@ -1,0 +1,9 @@
+<header class="pageHeader">
+    <h3><fa-icon [icon]="faExcCirc" class="page-caption"></fa-icon> {{'header.NotFound' | translate}}</h3>
+</header>
+
+<div class="container-center">
+    <div class="icon-container"><fa-icon [icon]="faExcCirc"></fa-icon> {{'notFound.404' | translate}}</div>
+    <div class="text-muted error-description">{{'notFound.pageNotFound' | translate}}</div>
+    <div><a class="btn btn-primary" routerLink="/"><fa-icon [icon]="faHouse"></fa-icon> {{'notFound.backToHome' | translate}}</a></div>
+</div>
