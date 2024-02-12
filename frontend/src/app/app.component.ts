@@ -3,7 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { SharedModule } from './shared/shared.module';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { faGear } from '@fortawesome/free-solid-svg-icons';
+import { faGear, faGlobe } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-root',
@@ -14,6 +14,7 @@ import { faGear } from '@fortawesome/free-solid-svg-icons';
 })
 export class AppComponent {
   faSettings = faGear;
+  faGlobe = faGlobe;
 
   constructor(public translate: TranslateService, private toastr: ToastrService) {
     translate.addLangs(['en', 'fr']);
@@ -25,5 +26,11 @@ export class AppComponent {
 
   showSuccess() {
     this.toastr.success("Hello world!", "Toastr fun!");
+  }
+
+  closeMenu() {
+    if (document.getElementById('navButton')?.getAttribute('aria-expanded') === 'true') {
+      document.getElementById('navButton')?.click();
+    }
   }
 }

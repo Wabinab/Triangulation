@@ -31,17 +31,25 @@
           <li class="nav-item ms-lg-auto me-lg-2" routerLinkActive="active">
             <a class="nav-link" routerLink="/settings"><fa-icon [icon]="faSettings"></fa-icon></a>
           </li>
-          <li class="nav-item ms-lg-auto me-lg-2" routerLinkActive="active">
-            <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Dropdown
-            </a>
-          </li>
         </ul>
         <ul class="nav nav-pills flex-column flex-lg-row ms-lg-1">
-          <li class="nav-item">
-            <!-- <a class="nav-link" href="javascript:;" (click)="logout()">
+          <!-- <li class="nav-item dropdown" routerLinkActive="active">
+            <a class="nav-link" href="javascript:;" (click)="logout()">
               <i class="fa fa-sign-out"></i> {{'mainMenu.Logout' | translate}}
-            </a> -->
+            </a>
+          </li> -->
+          <li class="nav-item dropdown" routerLinkActive="active">
+            <a class="nav-link dropdown-toggle" href="javascript:void(0)" role="button" 
+            data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+              <fa-icon [icon]="faGlobe"></fa-icon>
+            </a>
+
+            <ul class="dropdown-menu dropdown-menu-lg-end">
+              <li class="dropdown-item" *ngFor="let lang of translate.getLangs()"
+              (click)="translate.use(lang)" [class]="lang === translate.currentLang ? 'special-active' : ''">
+                {{ lang }}
+              </li>
+            </ul>
           </li>
         </ul>
       </div>
