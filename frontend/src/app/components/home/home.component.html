@@ -1,0 +1,34 @@
+<div class="pt-6"></div>
+
+<div class="border border-2 border-primary">
+	<nav class="navbar navbar-expand-lg">
+			<div class="container-fluid">
+				<button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbarHome">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+
+				<div class="collapse navbar-collapse navbarHome" id="navbarHome">
+						<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+							<li class="nav-item">
+								<a class="nav-link" role="button" (click)="new_proj()">New Project</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" role="button" (click)="new_temp()">New Template</a>
+							</li>
+						</ul>
+				</div>
+			</div>
+	</nav>
+</div>
+
+<div class="container row">
+	<div class="col-md-3 col-xxl-2 pt-3">
+		<h5>Filters</h5>
+		<ul class="navbar-nav">
+			<li class="nav-item nav-mod" [ngClass]="is_active('proj')"><a class="nav-link" role="button" (click)="set_filter('proj')">All Projects</a></li>
+			<li class="nav-item nav-mod" [ngClass]="is_active('templ')"><a class="nav-link" role="button" (click)="set_filter('templ')">All Templates</a></li>
+		</ul>
+	</div>
+</div>
+
+

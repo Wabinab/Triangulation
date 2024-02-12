@@ -1,0 +1,16 @@
+.nav-mod {
+    padding-left: 1em;
+    border-top-right-radius: 1em;
+    border-bottom-right-radius: 3em;
+
+    &:hover {
+        background-color: aliceblue;
+        color: black;
+    }
+}
+
+.nav-mod-active {
+    background-color: rgba($color: rgb(138, 43, 226), $alpha: 0.75);
+    color: whitesmoke;
+}
+

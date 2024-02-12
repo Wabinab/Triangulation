@@ -1,5 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 
+// @import 'assets/themes/orange.scss';
 // @import 'app/assets/styles/custom-vendor';
 @import 'bootstrap/scss/bootstrap';
 @import 'ngx-toastr/toastr-bs5-alert';
@@ -440,3 +441,13 @@ a:not([class*="btn"]):hover {
   top: 50%;
   transform: translateY(-50%);
 }
+
+.pt-6 {
+  padding-top: 6rem;
+}
+
+// .bg-outline-primary {
+//   --bs-bg-opacity: 1;
+//   border-color: black;
+//   border-radius: 1em;
+// }
