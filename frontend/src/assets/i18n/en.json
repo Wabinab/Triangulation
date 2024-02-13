@@ -7,6 +7,12 @@
     "404": "404",
     "pageNotFound": "Page does not exist.",
     "backToHome": "Back to home"
+  },
+  "home": {
+    "newProject": "New Project",
+    "newTemplate": "New Template",
+    "allProject": "All Projects",
+    "allTemplate": "All Templates"
   }
 }
   

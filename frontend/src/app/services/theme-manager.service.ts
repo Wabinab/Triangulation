@@ -22,6 +22,8 @@ export class ThemeManager {
 
   constructor(private toast: ToastrService) { }
 
+  // TBD: Implement save theme to localStorage later. 
+
   setTheme(id: number) {
     const theme = this.themes.find(theme => theme.id == id);
     if (!theme) { 
