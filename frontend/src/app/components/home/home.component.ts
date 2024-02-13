@@ -3,11 +3,12 @@ import { SharedModule } from '../../shared/shared.module';
 import { ToastrService } from 'ngx-toastr';
 import { faRoad, faRoute } from '@fortawesome/free-solid-svg-icons';
 import { HomeView } from '../../models/home-view';
+import { NewProjModalComponent } from './new-proj-modal/new-proj-modal.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [SharedModule],
+  imports: [SharedModule, NewProjModalComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
@@ -18,7 +19,7 @@ export class HomeComponent {
 
   curr_view: HomeView = HomeView.Home;  // home, new (proj/temp) views.
   curr_filter: string = 'proj';
-  constructor(private toastr: ToastrService) {console.warn(HomeView.NewProj);}
+  constructor(private toastr: ToastrService) {}
 
   new_proj() {
     // Cancellation before continue. 

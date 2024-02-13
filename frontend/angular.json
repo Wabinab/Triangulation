@@ -34,7 +34,18 @@
               "src/styles.scss",
               {
                 "input": "src/assets/themes/orange.scss",
-                "inject": false
+                "inject": false,
+                "bundleName": "orange"
+              },
+              {
+                "input": "src/assets/themes/green.scss",
+                "inject": false,
+                "bundleName": "green"
+              },
+              {
+                "input": "src/assets/themes/purple.scss",
+                "inject": false,
+                "bundleName": "purple"
               }
             ],
             "scripts": [

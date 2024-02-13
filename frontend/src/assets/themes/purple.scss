@@ -1,0 +1,15 @@
+// @import "bootstrap/scss/functions"; 
+// @import "bootstrap/scss/variables";
+
+$primary: #af52de;
+// $primary: $purple;
+
+// $theme-colors: map-merge($theme-colors, (
+//   "primary": $primary
+// ));
+
+@import "../../styles.scss";
+
+.btn-primary {
+    --bs-btn-color: #fff;
+}
