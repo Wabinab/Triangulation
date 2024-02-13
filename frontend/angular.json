@@ -31,7 +31,11 @@
             ],
             "styles": [
               "node_modules/@fortawesome/fontawesome-svg-core/styles.css",
-              "src/styles.scss"
+              "src/styles.scss",
+              {
+                "input": "src/assets/themes/orange.scss",
+                "inject": false
+              }
             ],
             "scripts": [
               "node_modules/@popperjs/core/dist/umd/popper.min.js",

@@ -1,0 +1,8 @@
+<div class="pt-6"></div>
+<label for="theme">Themes</label>
+<select name="theme" id="theme" (change)="change_theme($event.target)">
+    <option value="-1">None</option>
+    <option *ngFor="let t of themes" [value]="t.id">{{ t.name }}</option>
+</select>
+
+<!-- {{ themes | json }} -->
