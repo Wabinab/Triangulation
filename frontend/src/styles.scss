@@ -472,8 +472,33 @@ a:not([class*="btn"]):hover {
   padding-top: 6rem;
 }
 
+.form-modal {
+  padding-top: 4.5em;
+}
+
 // .bg-outline-primary {
 //   --bs-bg-opacity: 1;
 //   border-color: black;
 //   border-radius: 1em;
 // }
+
+// =======================================================
+[data-bs-theme="light"] {
+  .nav-tab-active {
+      background-color: blueviolet;
+
+      a {
+        color: #eee;
+      }
+  }
+}
+
+[data-bs-theme="dark"] {
+  .nav-tab-active {
+      background-color: rgb(203, 221, 236);
+      
+      a {
+        color: #555;
+      }
+  }
+}

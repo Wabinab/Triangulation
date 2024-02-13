@@ -13,6 +13,21 @@
     "newTemplate": "Nouveau Modèle",
     "allProject": "Tous les Projets",
     "allTemplate": "Tous les Modèle"
-  }
+  },
+  "newProj": {
+    "title": "Créer une Nouveau Projet",
+    "name": "Nom du Projet",
+    "description": "Description",
+    "template": "Modèle",
+    "letsGo": "Allons-y!"
+  },
+  "err": {
+    "required": "Requis.",
+    "min": "Valeur minimum: {{ value }}",
+    "max": "Valeur maximal: {{ value }}",
+    "minLength": "Au moins {{ value }} caractère",
+    "maxLength": "{{ value }} caractère au plus"
+  },
+  "cancel": "Annuler"
 }
   

@@ -1,3 +1,47 @@
-<div class="container-center">
-	<p>Test</p>
+<div class="container row form-modal">
+	<div class="col-sm-6 offset-sm-3">
+		<h3 class="text-center">{{ 'newProj.title' | translate }}</h3>
+		<div class="pb-3"></div>
+		<form [formGroup]="myForm" (ngSubmit)="onSubmit()">
+			<div class="form-floating">
+				<input type="text" class="form-control" formControlName="name" id="name" 
+				placeholder="{{ 'newProj.name' | translate}}" />
+				<label for="name">{{ 'newProj.name' | translate}}</label>
+			</div>
+			<app-error [form]="myForm" control="name"></app-error>
+
+			<div class="pt-2"></div>
+			<div class="form-floating">
+				<textarea name="description" id="description" style="height: 7em;" class="form-control" 
+				formControlName="description" placeholder="{{ 'newProj.description' | translate }}"></textarea>
+				<label for="description">{{ 'newProj.description' | translate }}</label>
+			</div>
+			<app-error [form]="myForm" control="description"></app-error>
+
+			<div class="pt-2"></div>
+			<div class="form-floating">
+				<select class="form-select" id="template_cid" formControlName="template_cid">
+					<option *ngFor="let t of templates" [value]="t.cid">{{ t.name }}</option>
+				</select>
+				<label for="template_cid">{{ 'newProj.template' | translate }}</label>
+			</div>
+			<!-- No app error -->
+
+			<div class="float-end pt-3">
+				<div class="d-flex gap-1">
+					<span class="loader" *ngIf="loading">&nbsp;&nbsp;</span>
+					<button type="button" (click)="cancel()" class="btn btn-danger" [disabled]>{{ 'cancel' | translate }}</button>
+					<button type="submit" class="btn btn-primary" [disabled]="!myForm.valid || loading || submitting">
+						{{ 'newProj.letsGo' | translate }}
+					</button>
+				</div>
+			</div>
+		</form>
+	</div>
+
 </div>
+
+<!-- {{ errors | json }} -->
+<!-- {{ myForm.valid }} -->
+<!-- {{ findInvalidControls() | json }} -->
+<!-- {{ myForm.value | json }} -->

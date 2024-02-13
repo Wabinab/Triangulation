@@ -13,6 +13,21 @@
     "newTemplate": "New Template",
     "allProject": "All Projects",
     "allTemplate": "All Templates"
-  }
+  },
+  "newProj": {
+    "title": "Create a New Project",
+    "name": "Project Name",
+    "description": "Description",
+    "template": "Template",
+    "letsGo": "Let's Go!"
+  },
+  "err": {
+    "required": "Required.",
+    "min": "Min value: {{ value }}",
+    "max": "Max value: {{ value }}",
+    "minLength": "Min {{ value }} char.",
+    "maxLength": "Max {{ value }} char."
+  },
+  "cancel": "Cancel"
 }
   

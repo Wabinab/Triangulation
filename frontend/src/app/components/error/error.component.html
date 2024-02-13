@@ -1,0 +1,5 @@
+<div [ngClass]="get_class()" *ngIf="display_errors.length > 0">
+  <ul>
+    <li *ngFor="let err of display_errors">{{ err }}</li>
+  </ul>
+</div>

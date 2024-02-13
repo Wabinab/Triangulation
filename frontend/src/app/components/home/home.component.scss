@@ -1,4 +1,4 @@
-.nav-mod {
+.nav-filter {
     padding-left: 1em;
     border-top-right-radius: 1em;
     border-bottom-right-radius: 3em;
@@ -9,12 +9,24 @@
     }
 }
 
-.nav-mod-active {
+.nav-filter-active {
     background-color: rgba($color: rgb(138, 43, 226), $alpha: 0.75);
     color: whitesmoke;
 }
 
-.nav-link-mod {
+// [data-bs-theme="light"] {
+//     .nav-tab-active {
+//         background-color: blueviolet;
+//     }
+// }
+
+// [data-bs-theme="dark"] {
+//     .nav-tab-active {
+//         background-color: aliceblue;
+//     }
+// }
+
+.nav-tab-link-mod {
     vertical-align: top;
     display: inline-block;
     text-align: center;

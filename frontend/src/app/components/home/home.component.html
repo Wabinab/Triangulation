@@ -9,11 +9,13 @@
 
 				<div class="navbarHome" id="navbarHome">
 						<ul class="navbar-nav me-auto mb-2 mb-lg-0">
-							<li class="nav-item"><a class="nav-link nav-link-mod" role="button" (click)="new_proj()">
+							<li class="nav-item" [ngClass]="tab_active(1)"><a class="nav-link nav-tab-link-mod" 
+							role="button" (click)="new_proj()">
 								<fa-icon [icon]="faProj"></fa-icon>
 								<span class="caption">{{ 'home.newProject' | translate }}</span>
 							</a></li>
-							<li class="nav-item"><a class="nav-link nav-link-mod" role="button" (click)="new_templ()">
+							<li class="nav-item" [ngClass]="tab_active(2)"><a class="nav-link nav-tab-link-mod" 
+							role="button" (click)="new_templ()">
 								<fa-icon [icon]="faTempl"></fa-icon>
 								<span class="caption">{{ 'home.newTemplate' | translate }}</span>
 							</a></li>
@@ -28,9 +30,9 @@
 		<div class="col-md-4 col-xl-3 col-xxl-2 pt-3">
 			<h5>Filters</h5>
 			<ul class="navbar-nav">
-				<li class="nav-item nav-mod" [ngClass]="is_active('proj')"><a class="nav-link" role="button" 
+				<li class="nav-item nav-filter" [ngClass]="is_active('proj')"><a class="nav-link" role="button" 
 					(click)="set_filter('proj')">{{ 'home.allProject' | translate }}</a></li>
-				<li class="nav-item nav-mod" [ngClass]="is_active('templ')"><a class="nav-link" role="button" 
+				<li class="nav-item nav-filter" [ngClass]="is_active('templ')"><a class="nav-link" role="button" 
 					(click)="set_filter('templ')">{{ 'home.allTemplate' | translate }}</a></li>
 			</ul>
 		</div>
