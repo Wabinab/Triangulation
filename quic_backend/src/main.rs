@@ -1,8 +1,9 @@
 use std::{
-    fs::{self},
-    io::{self},
+    fs::{self, File},
+    io::{self, prelude::*},
     path::{self},
 };
+use serde_json::Value;
 
 use anyhow::Context;
 use log::{info, error};
@@ -19,11 +20,13 @@ use webtransport_quinn::Session;
 use routes::*;
 use controller::*;
 use dto::*;
+use data::*;
 
 // mod server_config;
 mod routes;
 mod controller;
 mod dto;
+mod data;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -38,6 +41,9 @@ struct Args {
     /// Use the private key at this path, encoded as PEM.
     #[arg(long, default_value = "../cert/localhost.key")]
     pub tls_key: path::PathBuf,
+
+    #[arg(long, default_value = "../data")]
+    pub data_path: path::PathBuf,
 }
 
 #[tokio::main]
@@ -48,6 +54,19 @@ async fn main() -> anyhow::Result<()>  {
 
     let args = Args::parse();
 
+    // Create data path
+    {
+        let root = args.data_path.clone();
+        let root2 = root.as_path();
+        // This is where they save their files. 
+        let _ = fs::create_dir_all(root2.join("template"));
+        let _ = fs::create_dir_all(root2.join("projects"));
+        // We define some sample. 
+        let _ = fs::create_dir_all(root2.join("sample_proj"));
+        let _ = fs::create_dir_all(root2.join("sample_templ"));
+    }
+
+    // Think of how to re-read cert after renew without restarting server later. 
     // Read the PEM certificate chain
     let chain = fs::File::open(args.tls_cert.clone()).context("failed to open cert file")?;
     let mut chain = io::BufReader::new(chain);
