@@ -19,7 +19,17 @@
     "name": "Nom du Projet",
     "description": "Description",
     "template": "Modèle",
-    "letsGo": "Allons-y!"
+    "letsGo": "Allons-y!",
+    "charRemain": "caractères restants",
+    "charOver": "characters dépassant la limite"
+  },
+  "newTempl": {
+    "title": "Créer une Nouveau Modèle",
+    "name": "Nom du Modèle",
+    "description": "Description",
+    "letsGo": "Allons-y!",
+    "charRemain": "caractères restants",
+    "charOver": "characters dépassant la limite"
   },
   "err": {
     "required": "Requis.",

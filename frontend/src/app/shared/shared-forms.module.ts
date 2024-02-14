@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ErrorComponent } from '../components/error/error.component';
+import { CancellationComponent } from '../components/cancellation/cancellation.component';
 
 
 
@@ -9,12 +10,14 @@ import { ErrorComponent } from '../components/error/error.component';
   declarations: [],
   imports: [
     CommonModule, 
-    ErrorComponent
+    ErrorComponent, 
+    CancellationComponent
   ],
   exports: [
     FormsModule,
     ReactiveFormsModule,
-    ErrorComponent
+    ErrorComponent, 
+    CancellationComponent
   ]
 })
 export class SharedFormsModule { }

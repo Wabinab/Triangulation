@@ -4,11 +4,12 @@ import { ToastrService } from 'ngx-toastr';
 import { faRoad, faRoute } from '@fortawesome/free-solid-svg-icons';
 import { HomeView } from '../../models/home-view';
 import { NewProjModalComponent } from './new-proj-modal/new-proj-modal.component';
+import { NewTemplModalComponent } from './new-templ-modal/new-templ-modal.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [SharedModule, NewProjModalComponent],
+  imports: [SharedModule, NewProjModalComponent, NewTemplModalComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss'
 })
@@ -17,7 +18,7 @@ export class HomeComponent {
   faTempl = faRoute;
 
 
-  curr_view: HomeView = HomeView.NewProj;  // home, new (proj/temp) views.
+  curr_view: HomeView = HomeView.Home;  // home, new (proj/temp) views.
   curr_filter: string = 'proj';
   constructor(private toastr: ToastrService) {}
 
@@ -45,13 +46,17 @@ export class HomeComponent {
 
   // ================================================================
   // View
-  cancel() {
-    // Cancellation modal. 
-    // Changing from project to template is considered as cancel. 
-    this.curr_view = HomeView.Home;
-  }
 
   tab_active(id: number) {
     return this.curr_view == id ? 'nav-tab-active' : '';
+  }
+
+  projCallback(event: any) {
+    // console.log(event);
+    this.curr_view = HomeView.Home;
+  }
+
+  templCallback(event: any) {
+    this.curr_view = HomeView.Home;
   }
 }

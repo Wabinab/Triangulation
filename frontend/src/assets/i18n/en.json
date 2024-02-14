@@ -21,6 +21,14 @@
     "template": "Template",
     "letsGo": "Let's Go!"
   },
+  "newTempl": {
+    "title": "Create a New Template",
+    "name": "Template Name",
+    "description": "Description",
+    "letsGo": "Let's Go!",
+    "charRemain": "characters remaining",
+    "charOver": "characters over the limit"
+  },
   "err": {
     "required": "Required.",
     "min": "Min value: {{ value }}",

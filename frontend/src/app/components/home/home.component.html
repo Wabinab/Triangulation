@@ -46,11 +46,11 @@
 
 <!-- New project -->
 <ng-container *ngIf="curr_view == 1">
-	<app-new-proj-modal></app-new-proj-modal>
+	<app-new-proj-modal (emitCallback)="projCallback($event)"></app-new-proj-modal>
 </ng-container>
 
 
 <!-- New Template -->
 <ng-container *ngIf="curr_view == 2">
-
+	<app-new-templ-modal (emitCallback)="templCallback($event)"></app-new-templ-modal>
 </ng-container>

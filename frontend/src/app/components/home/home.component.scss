@@ -12,6 +12,10 @@
 .nav-filter-active {
     background-color: rgba($color: rgb(138, 43, 226), $alpha: 0.75);
     color: whitesmoke;
+
+    &:hover {
+        color: aqua;
+    }
 }
 
 // [data-bs-theme="light"] {

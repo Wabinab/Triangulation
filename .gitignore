@@ -1,0 +1,6 @@
+# Because gitpod cannot npm i -g, so we install ng cli here. 
+# But not upload them. Remove package.json and package-lock.json if 
+# applicable. 
+package-lock.json
+package.json
+node_modules/

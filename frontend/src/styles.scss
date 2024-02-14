@@ -485,10 +485,11 @@ a:not([class*="btn"]):hover {
 // =======================================================
 [data-bs-theme="light"] {
   .nav-tab-active {
-      background-color: blueviolet;
+      background-color: rgba(137, 43, 226, 0.7);
 
       a {
-        color: #eee;
+        color: #eeebeb;
+        &:hover { color: rgb(179, 232, 253); }
       }
   }
 }
