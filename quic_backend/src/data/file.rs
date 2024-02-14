@@ -25,7 +25,9 @@ pub(crate) fn read_file(root: &Path, path: String) -> Vec<u8> {
   match fs::read(&real_path) {
     Ok(data) =>  data,
     Err(err) => {
-      error!("read_file: Cannot read file");
+      error!("Cannot read file.");
+      // error!();
+      error!("{:?}", real_path);
       return "Cannot find file".to_owned().into_bytes();
     }
   }
