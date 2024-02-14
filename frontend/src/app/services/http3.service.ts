@@ -7,10 +7,11 @@ import { Injectable } from '@angular/core';
 export class Http3Service {
 
   url_host = "https://localhost:4443";
+  // url_host = "https://4443-wabinab-triangulation-d6l0sn9rmfn.ws-us108.gitpod.io";
   fingerprint: any;
 
   constructor(private http: HttpClient) {
-    this.http.get(`${this.url_host}`, {responseType: 'text'}).subscribe(fHex => {
+    this.http.get(`https://4443-wabinab-triangulation-d6l0sn9rmfn.ws-us108.gitpod.io`, {responseType: 'text'}).subscribe(fHex => {
       this.fingerprint = [];
       for (let c = 0; c < fHex.length - 1; c += 2) {
         this.fingerprint.push(parseInt(fHex.substring(c, c + 2), 16));
@@ -26,12 +27,14 @@ export class Http3Service {
   /// `path` must start with `/`. It cannot be empty.
   async send(path: string, body: string | null, datagram: boolean = false) {
     // No need serverCertificateHashes if you have PKI on server cert. 
+    console.log(this.fingerprint);
     const transport = new WebTransport(`${this.url_host}${path}`, {
       serverCertificateHashes: [{
         "algorithm": "sha-256",
         "value": new Uint8Array(this.fingerprint)
       }]
     });
+    // console.log(transport);
     await transport.ready;
 
     let writer;
@@ -50,7 +53,7 @@ export class Http3Service {
 
     let data = await this.read(reader);
     transport.close();
-    return data;
+    return await data;
   }
 
   // =====================================================================

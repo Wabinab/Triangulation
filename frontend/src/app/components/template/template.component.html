@@ -1,0 +1,36 @@
+<div class="pt-6"></div>
+
+<div class="border border-2 border-primary">
+  <nav class="navbar navbar-expand-sm">
+    <div class="container-fluid">
+
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link" role="button" (click)="save()">
+          <fa-icon [icon]="faSave" size="xl"></fa-icon>
+        </a></li>
+        <div class="vl"></div>
+        
+      </ul>
+    </div>
+  </nav>
+</div>
+
+<div class="container row">
+  <div class="col-md-4 col-xl-3 col-xxl-2 pt-3">
+    <h5>{{ 'templ.Stages' | translate }}</h5>
+    <ul class="navbar-nav">
+      <!-- Ideally, s is a json, so we'll change this later on. Maybe s.name??? or s.id??? -->
+      <li class="nav-item nav-sidebar" [ngClass]="is_active(s)" *ngFor="let s of stages">
+        <a class="nav-link" role="button" (click)="sel_stage(s)">
+          {{ s | translate}}
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="col-md-8 col-xl-9 col-xxl-10 pt-3">
+
+  </div>
+</div>
+
+<button (click)="get_fivestep()">Get Fivestep</button>

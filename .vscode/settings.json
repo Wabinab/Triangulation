@@ -1,5 +1,7 @@
 {
     "rust-analyzer.linkedProjects": [
+        "./quic_backend/Cargo.toml",
         "./quic_backend/Cargo.toml"
-    ]
+    ],
+    "editor.tabSize": 2
 }

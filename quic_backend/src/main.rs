@@ -1,7 +1,7 @@
 use std::{
     fs::{self, File},
     io::{self, prelude::*},
-    path::{self},
+    path::{self, Path, PathBuf},
 };
 use serde_json::Value;
 
@@ -168,10 +168,10 @@ async fn run_session(session: Session, path: String) -> anyhow::Result<()> {
         tokio::select! {
             res = session.accept_bi() => {
                 let (mut send, mut recv) = res?;
+                let args = Args::parse();
 
                 let msg = recv.read_to_end(8192).await?;
-                // handle_bi(send, recv, path.clone()).await;
-                match routes_handler(msg.try_into().unwrap(), path.clone()) {
+                match routes_handler(msg.try_into().unwrap(), path.clone(), args.data_path) {
                     Ok(Some(value)) => send.write_all(value.as_bytes()).await?,
                     Err(err) => send.write_all(err.as_bytes()).await?,
                     _ => {}  // all none no need send anything back. 
@@ -179,9 +179,10 @@ async fn run_session(session: Session, path: String) -> anyhow::Result<()> {
             },
             res = session.read_datagram() => {
                 let msg = res?;
+                let args = Args::parse();
 
                 // handle_datagram(session.clone(), msg, path.clone()).await;
-                match routes_handler(msg, path.clone()) {
+                match routes_handler(msg, path.clone(), args.data_path) {
                     Ok(Some(value)) => session.send_datagram(value.try_into().unwrap()).await?,
                     Err(err) => session.send_datagram(err.try_into().unwrap()).await?,
                     _ => {}
