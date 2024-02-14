@@ -20,9 +20,9 @@
     <h5>{{ 'templ.Stages' | translate }}</h5>
     <ul class="navbar-nav">
       <!-- Ideally, s is a json, so we'll change this later on. Maybe s.name??? or s.id??? -->
-      <li class="nav-item nav-sidebar" [ngClass]="is_active(s)" *ngFor="let s of stages">
-        <a class="nav-link" role="button" (click)="sel_stage(s)">
-          {{ s | translate}}
+      <li class="nav-item nav-sidebar" [ngClass]="is_active(s.step)" *ngFor="let s of stages">
+        <a class="nav-link" role="button" (click)="sel_stage(s.step)">
+          {{ s.name | translate }}
         </a>
       </li>
     </ul>
