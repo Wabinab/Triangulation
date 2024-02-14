@@ -1,4 +1,3 @@
 tasks:
-  - name: Install
-    init: gp sync-await bundle
+  - init: npm install -g @angular/cli --save
     command: npm install -g @angular/cli --save
