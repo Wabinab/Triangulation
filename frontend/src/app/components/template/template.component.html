@@ -10,6 +10,8 @@
         </a></li>
         <div class="vl"></div>
         
+        <!-- Different types -->
+        <!-- Reminder (a header, and a single question of 'how') -->
       </ul>
     </div>
   </nav>
@@ -22,15 +24,32 @@
       <!-- Ideally, s is a json, so we'll change this later on. Maybe s.name??? or s.id??? -->
       <li class="nav-item nav-sidebar" [ngClass]="is_active(s.step)" *ngFor="let s of stages">
         <a class="nav-link" role="button" (click)="sel_stage(s.step)">
-          {{ s.name | translate }}
+          {{ get_translate(s.name) }}
         </a>
       </li>
     </ul>
   </div>
 
   <div class="col-md-8 col-xl-9 col-xxl-10 pt-3">
-
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 row-cols-xxl-4 g-3" *ngFor="let p of pipeline">
+      <ng-template [ngTemplateOutlet]="reminderTempl" [ngTemplateOutletContext]="{ $implicit: p }"></ng-template>
+    </div>
   </div>
 </div>
 
-<button (click)="get_fivestep()">Get Fivestep</button>
+<!-- <button (click)="get_fivestep()">Get Fivestep</button> -->
+
+<ng-template #reminderTempl let-p>
+  <div class="col">
+    <div class="card" (click)="openReminders(p.id)">
+      <h5 class="card-header">
+        {{ get_translate(p.title) }}
+      </h5>
+      <div class="card-body">
+        <p class="card-text">{{ get_translate(p.questions[0].q) }}</p>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+{{ pipeline | json }}

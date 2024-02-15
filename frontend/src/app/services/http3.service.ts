@@ -8,7 +8,7 @@ export class Http3Service {
 
   url_host = "https://localhost:4443";
   // url_host = "https://4443-wabinab-triangulation-d6l0sn9rmfn.ws-us108.gitpod.io";
-  cert_host = "https://4444-wabinab-triangulation-d6l0sn9rmfn.ws-us108.gitpod.io";
+  cert_host = "https://4443-wabinab-triangulation-d6l0sn9rmfn.ws-us108.gitpod.io";
   fingerprint: any;
 
   constructor(private http: HttpClient) {
