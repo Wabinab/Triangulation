@@ -31,6 +31,9 @@
     "charRemain": "caractères restants",
     "charOver": "characters dépassant la limite"
   },
+  "templ": {
+    "Stages": "Étapes"
+  },
   "err": {
     "required": "Requis.",
     "min": "Valeur minimum: {{ value }}",

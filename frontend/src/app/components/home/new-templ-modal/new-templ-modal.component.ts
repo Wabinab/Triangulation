@@ -40,6 +40,7 @@ export class NewTemplModalComponent {
       name: this.myForm.get('name')!.value,
       description: this.myForm.get('description')!.value,
     };
+    
   }
 
   modalCancel: any;

@@ -29,6 +29,9 @@
     "charRemain": "characters remaining",
     "charOver": "characters over the limit"
   },
+  "templ": {
+    "Stages": "Stages"
+  },
   "err": {
     "required": "Required.",
     "min": "Min value: {{ value }}",

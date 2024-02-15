@@ -20,7 +20,7 @@ export class TemplateComponent {
   template: any = {};
 
   constructor(private http3: Http3Service, public translate: TranslateService) {
-    this.get_fivestep();
+    // this.get_fivestep();
   }
 
   save() {
@@ -42,13 +42,13 @@ export class TemplateComponent {
 
   // =============================================
   // Debug sample five step ray dalio
-  async get_fivestep() {
-    let value: any = await this.http3.send("/sample_template", "/sample_templ/five_step_ray_dalio.json");
-    // let value = await this.http3.send("/", "this confirm will work");
-    this.template = JSON.parse(value);
-    this.stages = this.template?.stages;
-    this.stages.sort(this.compareSteps);
-  }
+  // async get_fivestep() {
+  //   let value: any = await this.http3.send("/sample_template", "/sample_templ/five_step_ray_dalio.json");
+  //   // let value = await this.http3.send("/", "this confirm will work");
+  //   this.template = JSON.parse(value);
+  //   this.stages = this.template?.stages;
+  //   this.stages.sort(this.compareSteps);
+  // }
 
   private compareSteps(a: any, b: any) {
     return a.step - b.step;
