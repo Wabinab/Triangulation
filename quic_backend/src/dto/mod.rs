@@ -3,6 +3,7 @@
 
 pub(crate) mod obj_dto;
 pub(crate) mod reminders_dto;
+pub(crate) mod template_dto;
 
 
 // ================================================================

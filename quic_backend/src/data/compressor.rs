@@ -8,21 +8,21 @@
 
 use jsonm::{packer::{PackOptions, Packer}, unpacker::Unpacker};
 use flate2::{Compression, write::ZlibEncoder, read::ZlibDecoder};
-use uuid::Uuid;
+// use uuid::Uuid;
 
 use crate::*;
 
 /// data: the data in json format. 
 /// filepath: the path to save this (e.g. ./data/template) in PathBuf. 
-/// filename: the filename WITHOUT UUID AND WITHOUT .json.zl.
+/// filename: the filename WITH UUID AND .json.zl already. 
 pub(crate) fn compress_and_save(data: String, filepath: PathBuf, filename: String) {
     let input = data.as_str();
     let path = filepath.as_path();
 
-    let mut filename = filename;
-    let uuid = Uuid::now_v7().to_string();
-    filename.push_str(uuid.as_str());
-    filename.push_str(".json.zl");
+    // let mut filename = filename;
+    // let uuid = Uuid::now_v7().to_string();
+    // filename.push_str(uuid.as_str());
+    // filename.push_str(".json.zl");
 
     let mut packer = Packer::new();
     let options = PackOptions::new();
