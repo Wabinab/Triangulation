@@ -2,6 +2,7 @@
 /// Basically, converts a json string (data)  to an object (struct). 
 
 pub(crate) mod obj_dto;
+pub(crate) mod reminders_dto;
 
 
 // ================================================================
