@@ -15,7 +15,7 @@ use crate::*;
 /// data: the data in json format. 
 /// filepath: the path to save this (e.g. ./data/template) in PathBuf. 
 /// filename: the filename WITH UUID AND .json.zl already. 
-pub(crate) fn compress_and_save(data: String, filepath: PathBuf, filename: String) {
+pub(crate) fn compress_and_save(data: String, filepath: PathBuf, filename: String) -> Result<String, String> {
     let input = data.as_str();
     let path = filepath.as_path();
 
@@ -36,6 +36,8 @@ pub(crate) fn compress_and_save(data: String, filepath: PathBuf, filename: Strin
     let mut output = File::create(path.join(filename))
         .expect("compress_and_save create file failed.");
     output.write_all(&compressed_bytes).expect("compress_and_save write file failed.");
+
+    Ok("Successful".to_owned())
 }
 
 
