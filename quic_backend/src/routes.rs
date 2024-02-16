@@ -8,6 +8,7 @@ pub(crate) fn routes_handler(input: Bytes, path: String, data_path: PathBuf) -> 
         "/pipeline" => home_controller::get_pipeline(data_path, input),
 
         "/template/new" => template_controller::new_template(data_path, input),
+        "/template" => template_controller::get_template(data_path, input),
         _ => Ok(None)
     };
 }

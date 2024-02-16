@@ -38,6 +38,11 @@ impl SubmitTemplateTrait for SubmitNewTemplate {
   }
 }
 
+// =======================
+#[derive(Serialize, Deserialize, Debug)]
+pub(crate) struct SubmitGetTemplate {
+  pub(crate) filename: String
+}
 
 // ===========================================================
 // Using JSON
