@@ -8,15 +8,30 @@ export class Http3Service {
 
   url_host = "https://localhost:4443";
   // url_host = "https://4443-wabinab-triangulation-d6l0sn9rmfn.ws-us108.gitpod.io";
-  cert_host = "https://4443-wabinab-triangulation-d6l0sn9rmfn.ws-us108.gitpod.io";
+  cert_host = "https://4443-wabinab-triangulation-d6l0sn9rmfn.ws-us108.gitpod.io/";
+  // cert_host = "https://localhost:4443";
   fingerprint: any;
 
   constructor(private http: HttpClient) {
+    this.fetch_fingerprint();
+  }
+
+  fetch_fingerprint() {
+    // We'll fix cors later. 
     this.http.get(`${this.cert_host}`, {responseType: 'text'}).subscribe(fHex => {
       this.fingerprint = [];
       for (let c = 0; c < fHex.length - 1; c += 2) {
         this.fingerprint.push(parseInt(fHex.substring(c, c + 2), 16));
       }
+      console.log(this.fingerprint);
+    }, err => {
+      let fHex = "7ac49231c05972d3e1f18e9605c1a6a5b289a74c7ae9180af20bea1570dbf076";
+      this.fingerprint = [];
+      for (let c = 0; c < fHex.length - 1; c += 2) {
+        this.fingerprint.push(parseInt(fHex.substring(c, c + 2), 16));
+      }
+      console.warn(err);
+      // console.log(this.fingerprint);
     });
   }
 
@@ -28,7 +43,6 @@ export class Http3Service {
   /// `path` must start with `/`. It cannot be empty.
   async send(path: string, body: string | null, datagram: boolean = false) {
     // No need serverCertificateHashes if you have PKI on server cert. 
-    // console.log(this.fingerprint);
     const transport = new WebTransport(`${this.url_host}${path}`, {
       serverCertificateHashes: [{
         "algorithm": "sha-256",

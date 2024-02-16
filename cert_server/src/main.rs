@@ -25,7 +25,7 @@ use log::{info, error};
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-    #[arg(short, long, default_value = "[::]:4443")]
+    #[arg(short, long, default_value = "[::]:4200")]
     addr: std::net::SocketAddr,
 
     #[arg(long, default_value = "../cert")]

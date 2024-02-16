@@ -6,7 +6,7 @@
 
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item"><a class="nav-link" role="button" (click)="save()">
-          <fa-icon [icon]="faSave" size="xl"></fa-icon>
+          <fa-icon [icon]="faSave" size="xl"></fa-icon>Save
         </a></li>
         <div class="vl"></div>
         
@@ -21,10 +21,20 @@
   <div class="col-md-4 col-xl-3 col-xxl-2 pt-3">
     <h5>{{ 'templ.Stages' | translate }}</h5>
     <ul class="navbar-nav">
-      <!-- Ideally, s is a json, so we'll change this later on. Maybe s.name??? or s.id??? -->
-      <li class="nav-item nav-sidebar" [ngClass]="is_active(s.step)" *ngFor="let s of stages">
-        <a class="nav-link" role="button" (click)="sel_stage(s.step)">
-          {{ get_translate(s.name) }}
+      <li class="nav-item nav-sidebar" [ngClass]="is_active_stage(s.step)" *ngFor="let s of stages">
+        <a class="nav-link" role="button" (click)="sel_stage(s.step)" (click.double)="edit_stage(s.step)">
+          <ng-container *ngIf="!is_edit_stage(s.step)">{{ get_translate(s.name) }}</ng-container>
+          <ng-container *ngIf="is_edit_stage(s.step)">
+            <input type="text" class="form-control" [(ngModel)]="stage_name" #editStage (keydown.enter)="finish_edit_stage()" />
+          </ng-container>
+        </a>
+      </li>
+
+      <!-- Add new stage -->
+      <li class="nav-item nav-sidebar">
+        <a class="nav-link" role="button" (click)="add_stage()">
+          <fa-icon [icon]="faAddStage"></fa-icon>
+          Add Stage
         </a>
       </li>
     </ul>
@@ -53,3 +63,6 @@
 </ng-template>
 
 <!-- {{ pipeline | json }} -->
+{{ template | json }}
+<!-- <button (click)="load()">Manual Load</button> -->
+<!-- <button (click)="test_focus()">Test Focus</button> -->

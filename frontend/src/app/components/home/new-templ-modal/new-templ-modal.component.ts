@@ -6,6 +6,8 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CancellationComponent } from '../../cancellation/cancellation.component';
 import { ToastrService } from 'ngx-toastr';
 import { TranslateService } from '@ngx-translate/core';
+import { Http3Service } from '../../../services/http3.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-new-templ-modal',
@@ -23,7 +25,9 @@ export class NewTemplModalComponent {
   @Output() emitCallback = new EventEmitter<any>();
   private modalSvc = inject(NgbModal);
 
-  constructor(private fb: FormBuilder, private translate: TranslateService) {
+  constructor(private fb: FormBuilder, private translate: TranslateService, 
+    private http3: Http3Service, private router: Router
+  ) {
     this.myForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(50)]],
       description: ['', [Validators.maxLength(this.desc_limit)]],
@@ -33,13 +37,23 @@ export class NewTemplModalComponent {
     // this.myForm.markAsTouched();
   }
 
-  onSubmit() {
+  async onSubmit() {
     if (!this.myForm.valid || this.loading || this.submitting) return;
     this.submitting = true; 
     const row = {
       name: this.myForm.get('name')!.value,
       description: this.myForm.get('description')!.value,
+      locale: this.translate.getBrowserLang() ?? 'en'
     };
+    this.http3.send("/template/new", JSON.stringify(row)).then((filename) => {
+      this.submitting = false;
+      this.router.navigate(["/template"], {queryParams: {
+        filename: filename
+      }});
+      // console.log(filename);
+    }).catch((err) => {
+      this.doErr(err);
+    });
     
   }
 
