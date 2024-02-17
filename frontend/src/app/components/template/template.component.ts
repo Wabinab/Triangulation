@@ -9,11 +9,12 @@ import { RemindersComponent } from '../cards/reminders/reminders.component';
 import { ActivatedRoute } from '@angular/router';
 import { DoubleClickDirective } from '../../directives/double-click.directive';
 import { FormBuilder } from '@angular/forms';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-template',
   standalone: true,
-  imports: [SharedModule, SharedFormsModule, DoubleClickDirective],
+  imports: [SharedModule, SharedFormsModule, DoubleClickDirective, MatProgressSpinnerModule],
   templateUrl: './template.component.html',
   styleUrl: './template.component.scss'
 })
@@ -23,6 +24,7 @@ export class TemplateComponent implements AfterViewChecked {
   stages: any[] = [];
   template: any = {};
   loading: boolean = true;
+  saving: boolean = false;
 
   @ViewChild('editStage') editStage: ElementRef;
 
@@ -54,7 +56,7 @@ export class TemplateComponent implements AfterViewChecked {
   }
 
   save() {
-
+    this.saving = true;
   }
 
   // ===========================================
@@ -72,10 +74,9 @@ export class TemplateComponent implements AfterViewChecked {
   initial_add_stage = false;
   add_stage() {
     const lang = this.translate.getBrowserLang() ?? 'en';
-    let item: any = { step: this.stages.length + 1, name: {} };
+    let item: any = { step: this.stages.length + 1, name: {}, pipeline: [] };
     // let name: any = {};
-    // name[lang] = "Test New";
-    item["name"][lang] = "Test New";
+    item["name"][lang] = "";
     this.stages.push(item);
     
     this.curr_stage = this.stages.length;
@@ -92,7 +93,8 @@ export class TemplateComponent implements AfterViewChecked {
 
   finish_edit_stage() {
     const lang = this.get_language(this.stages.find(c => c.step == this.curr_edit_stage)['name']);
-    this.stages.find(c => c.step == this.curr_edit_stage)['name'][lang] = this.stage_name;
+    this.stages.find(c => c.step == this.curr_edit_stage)['name'][lang] = this.stage_name == '' 
+      ? this.curr_edit_stage?.toString() : this.stage_name;
     this.curr_edit_stage = null;
     // Sent to backend to save. TBD. 
   }

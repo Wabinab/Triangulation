@@ -6,7 +6,9 @@
 
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item"><a class="nav-link" role="button" (click)="save()">
-          <fa-icon [icon]="faSave" size="xl"></fa-icon>Save
+          <fa-icon [icon]="faSave" size="xl"></fa-icon>
+          <!-- Required for the icon to load. Otherwise, won't load. -->
+          <span class="caption"></span>
         </a></li>
         <div class="vl"></div>
         
@@ -15,6 +17,14 @@
       </ul>
     </div>
   </nav>
+</div>
+
+<!-- Saving bar -->
+<div class="" *ngIf="saving">
+  <div class="d-flex float-end">
+    <mat-spinner diameter="25" color="green"></mat-spinner>&nbsp;
+    Saving
+  </div>
 </div>
 
 <div class="container row">

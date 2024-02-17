@@ -7,6 +7,7 @@ import { HttpClient, provideHttpClient, withFetch } from '@angular/common/http';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { ToastNoAnimationModule, provideToastr } from 'ngx-toastr';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 export function HttpLoaderFactory(httpClient: HttpClient) {
   return new TranslateHttpLoader(httpClient);
@@ -22,6 +23,6 @@ export const appConfig: ApplicationConfig = {
       },
     })), 
     provideToastr(),
-    importProvidersFrom(ToastNoAnimationModule.forRoot()), 
+    importProvidersFrom(ToastNoAnimationModule.forRoot()), provideAnimationsAsync(), 
   ]
 };
