@@ -1,8 +1,7 @@
 use std::{
-    fs::{self, File},
-    io::{self, prelude::*},
-    path::{self, Path, PathBuf},
+    collections::HashMap, fs::{self, File}, io::{self, prelude::*}, path::{self, Path, PathBuf}, thread, time::Duration
 };
+use quinn::{ServerConfig, VarInt};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
@@ -11,6 +10,8 @@ use log::{info, error};
 
 use bytes::Bytes;
 use clap::Parser;
+use time::OffsetDateTime;
+use ring::digest::{digest, SHA256};
 
 // use rustls::pki_types::PrivateKeyDer;
 use rustls::{Certificate, PrivateKey};
@@ -39,6 +40,9 @@ mod json;
 struct Args {
     #[arg(short, long, default_value = "[::]:4443")]
     addr: std::net::SocketAddr,
+
+    #[arg(long, default_value = "../cert")]
+    pub cert_path: PathBuf,
 
     /// Use the certificates at this path, encoded as PEM.
     #[arg(long, default_value = "../cert/localhost.crt")]
@@ -72,7 +76,46 @@ async fn main() -> anyhow::Result<()>  {
         let _ = fs::create_dir_all(root2.join("sample_templ"));
     }
 
-    // Think of how to re-read cert after renew without restarting server later. 
+    // let mut g = true;
+    // while g {
+    start_server(Args::parse()).await?;
+    //   info!("is_renew = {}", g);
+    //   thread::sleep(std::time::Duration::from_secs(3));
+    //   info!("Finish sleeping.");
+    // }
+
+    Ok(())
+}
+
+async fn start_server(args: Args) -> anyhow::Result<()> {
+    
+    let init_config = gen_config(Args::parse())?;
+    info!("listening on {}", args.addr);
+
+    let server = quinn::Endpoint::server(init_config, args.addr)?;
+
+    // Accept new connections.
+    while let Some(conn) = server.accept().await {
+        if check_and_renew(args.cert_path.as_path()) { 
+          let config = gen_config(Args::parse())?;
+          server.set_server_config(Some(config));
+          info!("Set new server config");
+          // break; 
+        }
+        tokio::spawn(async move {    
+            let err = run_conn(conn).await;
+            if let Err(err) = err {
+                error!("connection failed: {}", err)
+            }
+        });
+    }
+
+    // server.close(VarInt::from_u32(900), "Renewing Server Certificate".to_string().as_bytes());
+    Ok(())
+}
+
+fn gen_config(args: Args) -> anyhow::Result<ServerConfig> {
+  // Think of how to re-read cert after renew without restarting server later. 
     // Read the PEM certificate chain
     let chain = fs::File::open(args.tls_cert.clone()).context("failed to open cert file")?;
     let mut chain = io::BufReader::new(chain);
@@ -132,26 +175,14 @@ async fn main() -> anyhow::Result<()>  {
     tls_config.alpn_protocols = vec![webtransport_quinn::ALPN.to_vec()]; // this one is important
     
     let config = quinn::ServerConfig::with_crypto(std::sync::Arc::new(tls_config));
-
-    info!("listening on {}", args.addr);
-
-    let server = quinn::Endpoint::server(config, args.addr)?;
-
-    // Accept new connections.
-    while let Some(conn) = server.accept().await {
-        tokio::spawn(async move {
-            let err = run_conn(conn).await;
-            if let Err(err) = err {
-                error!("connection failed: {}", err)
-            }
-        });
-    }
-
-    Ok(())
+    return Ok(config);
 }
+
 
 async fn run_conn(conn: quinn::Connecting) ->  anyhow::Result<()> {
     // Waiting for QUIC handshake.
+    // info!("{:#?}", conn.conn);
+
     let conn = conn.await.context("Failed to accept QUIC connection.")?;
     // Perform WebTransport Handshake.
     let request = webtransport_quinn::accept(conn.clone()).await?;
@@ -199,3 +230,73 @@ async fn run_session(session: Session, path: String) -> anyhow::Result<()> {
 }
 
 
+// ==================================================
+// TBD: Replace all unwrap with proper error handling. 
+
+/// Check for certificate expiry. If expired, call `renew_cert`. 
+/// If can't find cert_param.json, also call `renew_cert.`
+/// return "true" if renewed.
+fn check_and_renew(root: &Path) -> bool {
+  let path = root.join("cert_param.json");
+  let read_data_opt = fs::read(path);
+  if read_data_opt.is_err() {
+      return renew_cert(root);
+  }
+  let read_data = read_data_opt.unwrap();
+  let data = String::from_utf8_lossy(&read_data).into_owned();
+  let serded = serde_json::from_str::<HashMap<String, i64>>(&data).unwrap();
+
+  let difference = OffsetDateTime::now_utc().unix_timestamp()
+    .checked_sub(serded.get("not_after").unwrap().to_owned()).unwrap();
+  if difference >= -1 * 60 * 60 * 24 { return renew_cert(root); }  // one day before expiry. 
+  // return false;
+  return false;  // for debug purposes. 
+}
+
+/// renew certificate.
+/// Always return true at end. 
+fn renew_cert(root: &Path) -> bool {
+  info!("Certificate expiring. Renewing!");
+  let mut cert_params =
+      rcgen::CertificateParams::new(vec!["localhost".to_string(), "127.0.0.1".to_string()]);
+
+  let now = OffsetDateTime::now_utc();
+  cert_params.not_before = now;
+  cert_params.not_after = now + Duration::from_secs(60 * 60 * 24 * 14); // 10 days
+
+  cert_params.alg = &rcgen::PKCS_ECDSA_P256_SHA256;
+
+  // Save cert params to file
+  let mut file = File::create(root.join("cert_param.json")).unwrap();
+  let data = HashMap::from([
+    ("not_before", cert_params.not_before.unix_timestamp()),
+    ("not_after", cert_params.not_after.unix_timestamp())
+  ]);
+  let json = serde_json::to_string(&data).unwrap();
+  file.write_all(json.as_bytes()).unwrap();
+
+  let cert = rcgen::Certificate::from_params(cert_params).unwrap();
+
+  let cert_pem = cert.serialize_pem().unwrap();
+  println!("{}", cert_pem);
+  let mut file = File::create(root.join("localhost.crt")).unwrap();
+  file.write_all(cert_pem.as_bytes()).unwrap();
+
+  let priv_pem = cert.serialize_private_key_pem();
+  println!("{}", priv_pem);
+  let mut file = File::create(root.join("localhost.key")).unwrap();
+  file.write_all(priv_pem.as_bytes()).unwrap();
+
+  let mut cert_reader = std::io::BufReader::new(cert_pem.as_bytes());
+  let certs = rustls_pemfile::certs(&mut cert_reader).unwrap();
+  let cert_der = certs.first().expect("No certificate found");
+  let fingerprint = digest(&SHA256, cert_der.as_ref());
+  let fingerprint_hex = hex::encode(fingerprint.as_ref());
+
+  println!("Fingerprint {}", fingerprint_hex);
+  let mut file = File::create(root.join("localhost.hex")).unwrap();
+  file.write_all(fingerprint_hex.as_bytes()).unwrap();
+
+  // Call function to restart
+  return true;
+}
