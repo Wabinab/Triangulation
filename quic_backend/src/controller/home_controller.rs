@@ -32,17 +32,11 @@ pub(crate) fn get_pipeline(
   let data = read_file(root.as_path(), filename);
 
   let sdata: Value = serde_json::from_slice(&data).unwrap();
-  // let stages: Stage  = val_to_stage(sdata["stages"].clone(), p.locale);
-  // let stage = sdata["stages"].as_array().unwrap()
-  //   .into_iter().find(|d| d["step"] == p.stage_step);
   let stage = find_by_id(sdata["stages"].clone(), "step", p.stage_step);
   if stage.is_none() { return Err("Cannot find stages for this 'step'.".to_string()); }
   let b_stage = stage.unwrap();
   let pipeline = find_by_id(b_stage["pipeline"].clone(), "id", p.pipeline_id);
-  // let pipeline = stage.unwrap()["pipeline"].as_array().unwrap()
-    // .into_iter().find(|d| d["id"] == p.pipeline_id);
   if pipeline.is_none() { return Err("Cannot find pipeline for this 'id'.".to_string()); }
-  // let retval = pipeline.unwrap().to_string();
 
   Ok(Some(pipeline.unwrap().to_string()))
 }

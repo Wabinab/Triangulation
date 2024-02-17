@@ -26,6 +26,7 @@ export class Http3Service {
       console.log(this.fingerprint);
     }, err => {
       let fHex = "7ac49231c05972d3e1f18e9605c1a6a5b289a74c7ae9180af20bea1570dbf076";
+      // let fHex = "8ac49231c05972d3e1f18e9605c1a6a5b289a74c7ae9180af20bea1570dbf076"
       this.fingerprint = [];
       for (let c = 0; c < fHex.length - 1; c += 2) {
         this.fingerprint.push(parseInt(fHex.substring(c, c + 2), 16));
