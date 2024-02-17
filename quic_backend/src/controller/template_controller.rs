@@ -2,7 +2,11 @@ use uuid::Uuid;
 
 use crate::*;
 
-use self::{compressor::{compress_and_save, retrieve_decompress}, file::{create_file, gen_filename}, template_dto::{SubmitGetTemplate, SubmitNewTemplate, SubmitTemplateTrait}};
+use self::{compressor::{compress_and_save, retrieve_decompress}, 
+  file::{create_file, gen_filename}, 
+  stage_dto::{SubmitEditStage, SubmitStageTemplate, SubmitStageTrait}, 
+  template_dto::{SubmitGetTemplate, SubmitNewTemplate, SubmitTemplateTrait}
+};
 
 pub(crate) fn new_template(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
   let submit: SubmitNewTemplate = serde_json::from_slice(&msg).unwrap();
@@ -41,3 +45,21 @@ pub(crate) fn get_template(data_path: PathBuf, msg: Bytes) -> Result<Option<Stri
 
   Ok(Some(data.unwrap().to_string()))
 }
+
+pub(crate) fn edit_stages(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
+  let submit: SubmitEditStage = serde_json::from_slice(&msg).unwrap();
+
+  let mut data_path = data_path;
+  data_path.push("template");
+  let old_serde = retrieve_decompress(data_path.clone(), submit.filename.clone());
+  if old_serde.is_err() { return Err(old_serde.unwrap_err()); }
+  let old_serde = data.unwrap();
+
+  let new_serde = submit.to_serde(old_serde);
+  let ret = compress_and_save(new_serde.to_string(), data_path.clone(), submit.filename.clone());
+  if ret.is_err() { return Err(ret.unwrap_err()); }
+
+  Ok(Some("Successfully edit stages.".to_owned()))
+}
+
+

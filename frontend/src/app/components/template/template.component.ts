@@ -55,8 +55,20 @@ export class TemplateComponent implements AfterViewChecked {
     this.loading = false;
   }
 
-  save() {
+  async save() {
     this.saving = true;
+    let filename = this.route.snapshot.queryParamMap.get('filename');
+    const row = {
+      filename: filename,
+      stages: this.stages
+    };
+    this.http3.send("/template/stages/edit", JSON.stringify(row)).then((value: any) => {
+      console.log(value);
+      this.saving = false;
+    }, (err: any) => {
+      console.error(err);
+      this.saving = false;
+    });
   }
 
   // ===========================================
