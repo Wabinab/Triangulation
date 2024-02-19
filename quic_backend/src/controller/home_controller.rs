@@ -2,7 +2,7 @@ use crate::*;
 
 use self::file::read_file;
 use self::json::helper::find_by_id;
-use self::reminders_dto::{val_to_stage, DemandPipeline, Stage};
+use self::reminders_dto::SubmitPipeline;
 
 pub(crate) fn echo(msg: Bytes) -> Result<Option<String>, String> {
     Ok(Some(String::from_utf8_lossy(&msg).to_string()))
@@ -26,7 +26,7 @@ pub(crate) fn get_sample_template(
 pub(crate) fn get_pipeline(
   root: PathBuf, msg: Bytes
 ) -> Result<Option<String>, String> {
-  let p: DemandPipeline = serde_json::from_slice(&msg).unwrap();
+  let p: SubmitPipeline = serde_json::from_slice(&msg).unwrap();  // will fail since no locale.
   let filename = p.filename;
   let data = read_file(root.as_path(), filename);
 

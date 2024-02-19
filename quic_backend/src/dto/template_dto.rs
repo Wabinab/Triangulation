@@ -8,7 +8,7 @@ pub(crate) struct SubmitEditTemplate {
   pub(crate) name: String,
   pub(crate) description: String,
   pub(crate) locale: String,
-  pub(crate) filename: String,  // for edit only. 
+  pub(crate) filename: Option<String>,  // for edit only. 
 }
 
 pub(crate) trait SubmitTemplateTrait {
