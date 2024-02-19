@@ -1,5 +1,23 @@
-<div class="pt-6"></div>
+<div class="pt-5p5"></div>
+<h2 *ngIf="!is_edit_title()">
+  {{ get_translate(template.name ?? '') ?? '' }}
+  <fa-icon [icon]="faEdit" (click)="edit_title()"></fa-icon>
+</h2>
+<div class="input-group mb-3" *ngIf="is_edit_title()">
+  <input type="text" class="form-control" [(ngModel)]="title_name" minlength="1" maxlength="50" (keydown.enter)="finish_edit_title()" />
+  <button class="btn btn-primary" (click)="finish_edit_title()"><fa-icon [icon]="faSave"></fa-icon></button>
+</div>
+<span *ngIf="!is_edit_desc()">
+  {{ get_description() }}
+  <fa-icon [icon]="faEdit" (click)="edit_desc()"></fa-icon>
+</span>
+<div class="input-group mb-3" *ngIf="is_edit_desc()">
+  <!-- No use textarea here deliberately. -->
+  <input type="text" class="form-control" [(ngModel)]="desc_name" maxlength="255" (keydown.enter)="finish_edit_desc()" />
+  <button class="btn btn-primary" (click)="finish_edit_desc()"><fa-icon [icon]="faSave"></fa-icon></button>
+</div>
 
+<div class="pt-2"></div>
 <div class="border border-2 border-primary">
   <nav class="navbar navbar-expand-sm">
     <div class="container-fluid">
@@ -10,10 +28,17 @@
           <!-- Required for the icon to load. Otherwise, won't load. -->
           <span class="caption"></span>
         </a></li>
+        <!-- Have to remove if smaller than SM, otherwise very ugly.  -->
+        <!-- And make longer with sm/md, as it's too short. -->
         <div class="vl"></div>
+        
         
         <!-- Different types -->
         <!-- Reminder (a header, and a single question of 'how') -->
+        <li class="nav-item"><a class="nav-link" role="button" (click)="new_reminder()">
+          <fa-icon [icon]="faReminder" size="xl"></fa-icon>
+          <span class="caption"></span>
+        </a></li>
       </ul>
     </div>
   </nav>
@@ -72,7 +97,12 @@
   </div>
 </ng-template>
 
-<!-- {{ pipeline | json }} -->
-{{ template | json }}
+{{ pipeline | json }}
+<br>
+<!-- <button (click)="delete_all_stages()">Delete all stages</button> -->
+<pre>
+  {{ template | json }}
+</pre>
+
 <!-- <button (click)="load()">Manual Load</button> -->
-<!-- <button (click)="test_focus()">Test Focus</button> -->
+<button (click)="test_get()">Test Get</button>

@@ -1,5 +1,5 @@
 import { AfterViewChecked, Component, ElementRef, HostListener, ViewChild, inject } from '@angular/core';
-import { faPlus, faSave } from '@fortawesome/free-solid-svg-icons';
+import { faBell, faPencil, faPlus, faSave } from '@fortawesome/free-solid-svg-icons';
 import { SharedModule } from '../../shared/shared.module';
 import { SharedFormsModule } from '../../shared/shared-forms.module';
 import { Http3Service } from '../../services/http3.service';
@@ -10,6 +10,8 @@ import { ActivatedRoute } from '@angular/router';
 import { DoubleClickDirective } from '../../directives/double-click.directive';
 import { FormBuilder } from '@angular/forms';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import { CancellationComponent } from '../cancellation/cancellation.component';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-template',
@@ -21,6 +23,9 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 export class TemplateComponent implements AfterViewChecked {
   faSave = faSave;
   faAddStage = faPlus;
+  faReminder = faBell;
+  faEdit = faPencil;
+
   stages: any[] = [];
   template: any = {};
   loading: boolean = true;
@@ -29,7 +34,7 @@ export class TemplateComponent implements AfterViewChecked {
   @ViewChild('editStage') editStage: ElementRef;
 
   constructor(private http3: Http3Service, public translate: TranslateService,
-    private route: ActivatedRoute, private fb: FormBuilder
+    private route: ActivatedRoute, private fb: FormBuilder, private toastr: ToastrService
   ) {
     // this.get_fivestep();
     this.loading = true;
@@ -58,6 +63,16 @@ export class TemplateComponent implements AfterViewChecked {
   async save() {
     this.saving = true;
     let filename = this.route.snapshot.queryParamMap.get('filename');
+
+    // Save title and description. 
+    // const locale = this.get_language({});
+    const row1 = {
+      filename: filename,
+      name: this.template.name,
+      description: this.template.description,
+    };
+
+    // Save stages.
     const row = {
       filename: filename,
       stages: this.stages
@@ -111,6 +126,10 @@ export class TemplateComponent implements AfterViewChecked {
     // Sent to backend to save. TBD. 
   }
 
+  delete_all_stages() {
+    this.stages = [];
+  }
+
   focusing = false;
   ngAfterViewChecked(): void {
     if (this.editStage !== undefined && !this.focusing) {
@@ -137,6 +156,56 @@ export class TemplateComponent implements AfterViewChecked {
     return this.curr_edit_stage == step;
   }
 
+  private compareSteps(a: any, b: any) {
+    return a.step - b.step;
+  }
+
+  // =============================================
+  // Edit title and description. 
+  title_name = '';
+  curr_edit_title = false;
+  edit_title() {
+    this.title_name = this.get_translate(this.template.name) ?? '';
+    this.curr_edit_title = true;
+  }
+
+  finish_edit_title() {
+    const lang = this.get_language(this.template['name']);
+    if (this.title_name.length < 1 || this.title_name.length > 50) { 
+      if (this.title_name.length < 1) this.toastr.error('At least 1 character.', "Title too short");
+      if (this.title_name.length > 50) this.toastr.error('At most 50 characters.', 'Title too long');
+      return; 
+    }
+    this.template['name'][lang] = this.title_name;
+    this.curr_edit_title = false;
+  }
+
+  is_edit_title() {
+    return this.curr_edit_title;
+  }
+
+  desc_name = '';
+  curr_edit_desc = false;
+  edit_desc() {
+    this.desc_name = this.get_translate(this.template.description) ?? '';
+    this.curr_edit_desc = true;
+  }
+
+  finish_edit_desc() {
+    const lang = this.get_language(this.template['description']);
+    if (this.desc_name.length > 255) {
+      this.toastr.error('At most 255 characters.', 'Description too long.');
+      return;
+    }
+    this.template['description'][lang] = this.desc_name;
+    // this.desc_name = '';
+    this.curr_edit_desc = false;
+  }
+
+  is_edit_desc() {
+    return this.curr_edit_desc;
+  }
+
   // =============================================
   // Debug sample five step ray dalio
   // async get_fivestep() {
@@ -147,9 +216,7 @@ export class TemplateComponent implements AfterViewChecked {
   //   this.stages.sort(this.compareSteps);
   // }
 
-  private compareSteps(a: any, b: any) {
-    return a.step - b.step;
-  }
+  
 
   // ================================================
   // Modals
@@ -157,13 +224,48 @@ export class TemplateComponent implements AfterViewChecked {
 
   modalReminder: any;
   openReminders(id: number) {
-    this.modalReminder = this.modalSvc.open(RemindersComponent);
+    this.modalReminder = this.modalSvc.open(RemindersComponent, {
+      backdrop: 'static',
+      centered: true,
+      fullscreen: 'sm',
+    });
     // this.modalReminder.componentInstance = {id: 0};  // this doesn't work. 
     this.modalReminder.componentInstance.id = id;  // because slist won't return all items later on. 
     this.modalReminder.componentInstance.curr_stage = this.curr_stage;
-    this.modalReminder.componentInstance.filename = "/sample_templ/five_step_ray_dalio.json";
-    this.modalReminder.closed.subscribe((res: any) => {});
-    this.modalReminder.dismissed.subscribe((res: any) => {});
+    this.modalReminder.componentInstance.filename = this.route.snapshot.queryParamMap.get('filename')
+    // this.modalReminder.componentInstance.filename = "/sample_templ/five_step_ray_dalio.json";
+    this.modalReminder.closed.subscribe((res: any) => {
+      console.log("closed");
+    });
+    this.modalReminder.dismissed.subscribe((res: any) => {
+      console.log("dismissed");
+    });
+  }
+
+  new_reminder() {
+    const no_of_pipeline = this.pipeline.length;
+    this.openReminders(no_of_pipeline + 1);
+  }
+
+
+  modalCancel: any;
+  cancel(): boolean {
+    // if (this.loading || this.submitting) return;
+    // if (this.is_dirty()) {
+      this.modalCancel = this.modalSvc.open(CancellationComponent);
+      this.modalCancel.componentInstance.back_path = "hide modal";
+      const value = this.modalCancel.closed.subscribe((res: any) => {
+        res["isClosed"] = true;
+        console.log("cancellation closed");
+        return true;
+        // this.emitCallback.emit(res);
+      });
+      this.modalCancel.dismissed.subscribe((res: any) => {
+        res["isClosed"] = false;
+        console.log("cancellation dismissed");
+        return false;
+      });
+      return value;
   }
 
 
@@ -174,6 +276,8 @@ export class TemplateComponent implements AfterViewChecked {
   /// are "en" and "fr", which are translation-readable. 
   get_translate(obj: any) {
     const keys = Object.keys(obj);
+    const currentLang = this.translate.currentLang;
+    if (keys.includes(currentLang)) return obj[currentLang];
     const browserLang = this.translate.getBrowserLang() ?? 'en';
     if (keys.includes(browserLang)) return obj[browserLang];
     const defaultLang = this.translate.getDefaultLang();
@@ -183,11 +287,27 @@ export class TemplateComponent implements AfterViewChecked {
   }
 
   get_language(obj: any) {
+    const currentLang = this.translate.currentLang;
+    if (currentLang) return currentLang;
     const browserLang = this.translate.getBrowserLang();
     if (browserLang) return browserLang;
     const defaultLang = this.translate.getDefaultLang();
     if (defaultLang) return defaultLang;
     const keys = Object.keys(obj);
     return keys[0];
+  }
+
+  get_description() {
+    const trans_val = this.get_translate(this.template?.description ?? {});
+    return trans_val != '' ? trans_val : "Click pencil to edit description."
+  }
+
+  test_get() {
+    const row1 = {
+      // filename: filename,
+      name: this.template.name,
+      description: this.template.description,
+    };
+    console.log(row1);
   }
 }

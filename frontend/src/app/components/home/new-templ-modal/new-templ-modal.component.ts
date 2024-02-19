@@ -29,7 +29,7 @@ export class NewTemplModalComponent {
     private http3: Http3Service, private router: Router
   ) {
     this.myForm = this.fb.group({
-      name: ['', [Validators.required, Validators.maxLength(50)]],
+      name: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
       description: ['', [Validators.maxLength(this.desc_limit)]],
       // No edit yet, so no need uuid. Unless we refactor later. 
       // Think first: whether to re-use component or make another. 
