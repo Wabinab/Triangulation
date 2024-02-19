@@ -9,7 +9,7 @@ pub(crate) fn routes_handler(msg: Bytes, path: String, data_path: PathBuf) -> Re
 
         "/template/new" => template_controller::new_template(data_path, msg),
         "/template" => template_controller::get_template(data_path, msg),
-        "/template/stages/edit" => template_controller::edit_stages(data_path, msg),
+        "/template/edit" => template_controller::edit_template_stagelevel(data_path, msg),
         _ => Ok(None)
     };
 }

@@ -25,14 +25,15 @@ impl SubmitStageTrait for SubmitEditStage {
 
     for item in arr_stages {
       let mut item = item.clone();
-      item["pipeline"] = match find_by_id(old_serde["stages"], "step", item["step"]) {
-        Some(val) => val,
-        None => json!(Vec::new())
+      item["pipeline"] = match find_by_id(old_serde["stages"].clone(), "step", item["step"].as_u64().unwrap()) {
+        Some(val) => val["pipeline"].clone(),
+        None => json!([])
       };
       new_stages.push(item);
     }
 
     new_serde["stages"] = json!(new_stages);
+    return new_serde;
   }
 }
 

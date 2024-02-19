@@ -4,19 +4,21 @@ use self::json::helper::get_by_locale;
 
 // Submission templates
 #[derive(Serialize, Deserialize, Debug)]
-pub(crate) struct SubmitNewTemplate {
+pub(crate) struct SubmitEditTemplate {
   pub(crate) name: String,
   pub(crate) description: String,
-  pub(crate) locale: String
+  pub(crate) locale: String,
+  pub(crate) filename: String,  // for edit only. 
 }
 
 pub(crate) trait SubmitTemplateTrait {
-  fn to_template(&self, uuid: String, stages: Value) -> Template;
-  fn to_serde_new(&self, uuid: String, stages: Value) -> Value;
+  fn to_new_template(&self, uuid: String, stages: Value) -> Template;
+  fn to_new_serde(&self, uuid: String, stages: Value) -> Value;
+  fn to_serde(&self, old_serde: Value) -> Value;
 }
 
-impl SubmitTemplateTrait for SubmitNewTemplate {
-  fn to_template(&self, uuid: String, stages: Value) -> Template {
+impl SubmitTemplateTrait for SubmitEditTemplate {
+  fn to_new_template(&self, uuid: String, stages: Value) -> Template {
     Template {
       name: self.name.clone(),
       uuid: uuid,
@@ -25,8 +27,7 @@ impl SubmitTemplateTrait for SubmitNewTemplate {
     }
   }
 
-  // Will convert to Template. 
-  fn to_serde_new(&self, uuid: String, stages: Value) -> Value {
+  fn to_new_serde(&self, uuid: String, stages: Value) -> Value {
       let data = json!({
         "name": { self.locale.clone(): self.name.clone() },
         "uuid": uuid,
@@ -35,6 +36,15 @@ impl SubmitTemplateTrait for SubmitNewTemplate {
       });
 
       data
+  }
+
+  fn to_serde(&self, old_serde: Value) -> Value {
+    let mut new_serde = old_serde.clone();
+    new_serde["name"][self.locale.clone()] = json!(self.name.clone());
+      // uuid never change since created new.
+    new_serde["description"][self.locale.clone()] = json!(self.description.clone());
+    // Stages shouldn't change, so pass it on. 
+    return new_serde;
   }
 }
 

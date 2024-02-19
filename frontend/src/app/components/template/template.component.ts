@@ -64,20 +64,26 @@ export class TemplateComponent implements AfterViewChecked {
     this.saving = true;
     let filename = this.route.snapshot.queryParamMap.get('filename');
 
-    // Save title and description. 
-    // const locale = this.get_language({});
+    
+    const locale = this.get_locale({});
     const row1 = {
       filename: filename,
       name: this.template.name,
       description: this.template.description,
     };
 
-    // Save stages.
+    
     const row = {
+      // Save stages.
       filename: filename,
-      stages: this.stages
+      stages: this.stages,
+
+      // Save title and description. 
+      name: this.get_translate(this.template.name),
+      description: this.get_translate(this.template.description),
+      locale: this.get_locale({}),
     };
-    this.http3.send("/template/stages/edit", JSON.stringify(row)).then((value: any) => {
+    this.http3.send("/template/edit", JSON.stringify(row)).then((value: any) => {
       console.log(value);
       this.saving = false;
     }, (err: any) => {
@@ -119,7 +125,7 @@ export class TemplateComponent implements AfterViewChecked {
   }
 
   finish_edit_stage() {
-    const lang = this.get_language(this.stages.find(c => c.step == this.curr_edit_stage)['name']);
+    const lang = this.get_locale(this.stages.find(c => c.step == this.curr_edit_stage)['name']);
     this.stages.find(c => c.step == this.curr_edit_stage)['name'][lang] = this.stage_name == '' 
       ? this.curr_edit_stage?.toString() : this.stage_name;
     this.curr_edit_stage = null;
@@ -170,7 +176,7 @@ export class TemplateComponent implements AfterViewChecked {
   }
 
   finish_edit_title() {
-    const lang = this.get_language(this.template['name']);
+    const lang = this.get_locale(this.template['name']);
     if (this.title_name.length < 1 || this.title_name.length > 50) { 
       if (this.title_name.length < 1) this.toastr.error('At least 1 character.', "Title too short");
       if (this.title_name.length > 50) this.toastr.error('At most 50 characters.', 'Title too long');
@@ -192,7 +198,7 @@ export class TemplateComponent implements AfterViewChecked {
   }
 
   finish_edit_desc() {
-    const lang = this.get_language(this.template['description']);
+    const lang = this.get_locale(this.template['description']);
     if (this.desc_name.length > 255) {
       this.toastr.error('At most 255 characters.', 'Description too long.');
       return;
@@ -286,7 +292,7 @@ export class TemplateComponent implements AfterViewChecked {
     return obj[keys[0]];
   }
 
-  get_language(obj: any) {
+  get_locale(obj: any) {
     const currentLang = this.translate.currentLang;
     if (currentLang) return currentLang;
     const browserLang = this.translate.getBrowserLang();
