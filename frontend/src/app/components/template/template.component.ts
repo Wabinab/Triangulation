@@ -64,15 +64,6 @@ export class TemplateComponent implements AfterViewChecked {
     this.saving = true;
     let filename = this.route.snapshot.queryParamMap.get('filename');
 
-    
-    const locale = this.get_locale({});
-    const row1 = {
-      filename: filename,
-      name: this.template.name,
-      description: this.template.description,
-    };
-
-    
     const row = {
       // Save stages.
       filename: filename,
@@ -85,6 +76,7 @@ export class TemplateComponent implements AfterViewChecked {
     };
     this.http3.send("/template/edit", JSON.stringify(row)).then((value: any) => {
       console.log(value);
+      this.template = JSON.parse(value);
       this.saving = false;
     }, (err: any) => {
       console.error(err);
@@ -96,7 +88,7 @@ export class TemplateComponent implements AfterViewChecked {
   // Sidebar
   curr_stage: number = 0;
   curr_edit_stage: number | null = null;
-  pipeline: any = {};
+  pipeline: any = [];
   sel_stage(value: number) {
     this.curr_stage = value;
     // this.curr_edit_stage = null;
@@ -232,8 +224,9 @@ export class TemplateComponent implements AfterViewChecked {
   openReminders(id: number) {
     this.modalReminder = this.modalSvc.open(RemindersComponent, {
       backdrop: 'static',
-      centered: true,
+      // centered: true,
       fullscreen: 'sm',
+      size: 'xl'
     });
     // this.modalReminder.componentInstance = {id: 0};  // this doesn't work. 
     this.modalReminder.componentInstance.id = id;  // because slist won't return all items later on. 
@@ -249,6 +242,7 @@ export class TemplateComponent implements AfterViewChecked {
   }
 
   new_reminder() {
+    console.log(this.pipeline);
     const no_of_pipeline = this.pipeline.length;
     this.openReminders(no_of_pipeline + 1);
   }

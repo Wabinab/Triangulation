@@ -1,5 +1,77 @@
-<p>reminders works! {{ id }}</p>
-<pre>
-  {{ items | json }}
-</pre>
-{{ loading }}
+<div class="modal-header">
+  <h3>Reminder (Item {{ id }})</h3>
+</div>
+
+<div class="modal-body">
+  <form [formGroup]="myForm" (ngSubmit)="onSubmit()">
+    <div class="form-floating">
+      <input type="text" class="form-control" formControlName="title" id="title" 
+      placeholder="{{ 'reminder.title' | translate }}" />
+      <label for="name">{{ 'reminder.title' | translate}}</label>
+    </div>
+    <app-error [form]="myForm" control="title"></app-error>
+    <hr>
+
+    <!-- List of questions here -->
+    <ng-container formArrayName="questions">
+      <ng-container *ngFor="let q of questions; let i=index;" [formGroupName]="i">
+        <div class="card">
+          <div class="card-body row">
+            <div class="col-1 col-lg-1">
+              <span class="text-center">{{ i + 1 }}</span>
+            </div>
+            <div class="col-11 col-lg-8">
+              <input type="text" class="form-control" formControlName="question"
+              placeholder="Question">
+              <app-error [form]="q" control="question"></app-error>
+            </div>
+            <div class="col-lg-3">
+              <select name="q_type" id="q_type" class="form-select" formControlName="q_type"
+              (change)="on_qtype_change(i)">
+                <option *ngFor="let t of AnswerTypes | keyvalue: originalOrder" 
+                [value]="t.value">{{ t.key | human }}</option>
+              </select>
+            </div>
+
+            <div class="col-lg-12">
+              <ng-container *ngIf="is_qtype(q, ['2', '3'])" formArrayName="rows">
+                <div class="row pt-2" *ngFor="let op of mcqs(i); let j=index;" [formGroupName]="j">
+                  <div class="col-1"><fa-icon [icon]="is_qtype(q, '2') ? faCircle : faSquare"></fa-icon></div>
+                  <div class="col-10">
+                    <input type="text" class="form-control" formControlName="option" placeholder="Option">
+                  </div>
+                  <button class="col-1" (click)="remove_row(i, j)" *ngIf="mcqs(i).length > 1"><fa-icon [icon]="faCross"></fa-icon></button>
+                </div>
+                <!-- Add another row -->
+                <div class="row pt-2">
+                  <div class="col-1"><fa-icon [icon]="is_qtype(q, '2') ? faCircle : faSquare"></fa-icon></div>
+                  <div class="col-11">
+                    <button type="button" class="btn btn-primary" (click)="add_row(i, mcqs(i).length)"
+                    [disabled]="mcqs(i).length >= 20">
+                      {{ 'QuestionChoice.addNewMcq' | translate }}
+                    </button>
+                    <!-- Add Others not supported. -->
+                  </div>
+                </div>
+              </ng-container>
+
+              
+            </div>
+          </div>
+        </div>
+        <div class="pb-2"></div>
+      </ng-container>
+    </ng-container>
+
+    <!-- Add another question -->
+    <div class="pt-2">
+      <button type="button" class="btn btn-secondary btn-lg" (click)="new_question()">
+        <fa-icon [icon]="faAdd"></fa-icon>
+      </button>
+    </div>
+  </form>
+</div>
+
+{{ myForm.value | json }}
+<!-- {{ questions | json}} -->
+<!-- {{ AnswerTypes | keyvalue | json }} -->

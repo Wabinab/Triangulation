@@ -4,6 +4,7 @@
 package-lock.json
 package.json
 node_modules/
+gitpod_serve.sh
 
 *.sqlite
 data/template/

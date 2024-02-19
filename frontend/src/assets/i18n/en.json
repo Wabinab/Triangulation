@@ -32,6 +32,21 @@
   "templ": {
     "Stages": "Stages"
   },
+  "reminder": {
+    "title": "Title"
+  },
+  "QuestionChoice": {
+    "short": "Short Answer",
+    "long": "Paragraph",
+    "radio": "Multiple choice",
+    "checkbox": "Checkboxes",
+    "rateScale": "Linear scale",
+    "gridRadio": "Multiple choice grid",
+    "gridCheckbox": "Checkbox grid",
+    "datetime": "Date and Time",
+    
+    "addNewMcq": "Add Another Option"
+  },
   "err": {
     "required": "Required.",
     "min": "Min value: {{ value }}",

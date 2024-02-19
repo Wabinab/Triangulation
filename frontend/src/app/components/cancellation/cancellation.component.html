@@ -1,19 +1,19 @@
 <div class="modal-header">
-    <h4>Save Changes?</h4>
-    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="close_modal()"></button>
+  <h4>Save Changes?</h4>
+  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="close_modal()"></button>
+</div>
+
+
+<!-- 
+<div class="modal-body">
+  <p><strong>Ignore unsaved changes and return?</strong></p>
+</div> -->
+
+
+<div class="modal-footer">
+  <div class="d-flex gap-2">
+    <button class="btn btn-secondary" (click)="done()">No</button>
+    <button class="btn btn-primary" (click)="save_and_return()">Yes</button>
+    <!-- <button class="btn btn-danger" (click)="done()">Yes</button> -->
   </div>
-  
-  
-  <!-- 
-  <div class="modal-body">
-    <p><strong>Ignore unsaved changes and return?</strong></p>
-  </div> -->
-  
-  
-  <div class="modal-footer">
-    <div class="d-flex gap-2">
-      <button class="btn btn-secondary" (click)="done()">No</button>
-      <button class="btn btn-primary" (click)="save_and_return()">Yes</button>
-      <!-- <button class="btn btn-danger" (click)="done()">Yes</button> -->
-    </div>
-  </div>
+</div>

@@ -34,6 +34,21 @@
   "templ": {
     "Stages": "Étapes"
   },
+  "reminder": {
+    "title": "Titre"
+  },
+  "QuestionChoice": {
+    "short": "Réponse courte",
+    "long": "Paragraphe",
+    "radio": "Choix multiples",
+    "checkbox": "Cases à cocher",
+    "rateScale": "Échelle linéaire",
+    "gridRadio": "Grille à choix multiples",
+    "gridCheckbox": "Grille de cases à cocher",
+    "datetime": "Date et Heure",
+
+    "addNewMcq": "Ajouter une option"
+  },
   "err": {
     "required": "Requis.",
     "min": "Valeur minimum: {{ value }}",
