@@ -106,13 +106,15 @@ export class RemindersComponent {
     const q = this.get_q('questions', i);
 
     // If MCQ or Checkbox
+    // These are stupid, and it causes the program to be very stuck. 
     // if (['2', '3', '5', '6'].includes(q.get('q_type')!.value)) {
     //   if (q.get('rows')!.value.length == 0) this.add_rowcol(i, 0);
     // } else { this.clear_rowcol(i); }
-
     // if (['5', '6'].includes(q.get('q_type')!.value)) {
     //   if (q.get('cols')!.value.length == 0) this.add_rowcol(i, 0, 'cols');
     // } else { this.clear_rowcol(i, 'cols'); }
+
+    
   }
 
   // ===============================

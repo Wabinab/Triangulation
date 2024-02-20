@@ -45,9 +45,13 @@
             
                 <!-- Add another row -->
                 <ng-template [ngTemplateOutlet]="AnotherRow" [ngTemplateOutletContext]="{
-                  icon: is_qtype(i, '2') ? faCircle : faSquare, i: i, btn_name: 'QuestionChoice.addNewMcq',
-                  rowcol: 'rows'
+                  icon: is_qtype(i, '2') ? faCircle : faSquare, i: i, btn_name: 'QuestionChoice.Option',
+                  rowcol: 'rows', usenum: false, j: 0
                 }"></ng-template>
+              </ng-container>
+
+              <ng-container >
+
               </ng-container>
 
               <ng-container *ngIf="is_qtype(i, ['5', '6'])">
@@ -68,7 +72,7 @@
                     <!-- Add another row -->
                     <ng-template [ngTemplateOutlet]="AnotherRow" [ngTemplateOutletContext]="{
                       icon: is_qtype(i, '5') ? faCircle: faSquare, i: i, btn_name: 'QuestionChoice.Rows',
-                      rowcol: 'rows'
+                      rowcol: 'rows', usenum: true, j: rowcols(i, 'cols').length
                     }"></ng-template>
                   </div>
                   
@@ -88,7 +92,7 @@
                     <!-- Add another column -->
                     <ng-template [ngTemplateOutlet]="AnotherRow" [ngTemplateOutletContext]="{
                       icon: is_qtype(i, '5') ? faCircle: faSquare, i: i, btn_name: 'QuestionChoice.Columns',
-                      rowcol: 'cols'
+                      rowcol: 'cols', usenum: false, j: 0
                     }"></ng-template>
                   </div>
                 </div>
@@ -112,13 +116,17 @@
 
 
 <!-- Add another row or column-->
-<ng-template #AnotherRow let-icon="icon" let-i="i" let-name="btn_name" let-rowcol="rowcol" Template>
+<ng-template #AnotherRow let-icon="icon" let-i="i" let-name="btn_name" let-rowcol="rowcol" 
+let-usenum="usenum" let-j="j" Template>
   <div class="row pt-2">
-    <div class="col-1"><fa-icon [icon]="icon"></fa-icon></div>
+    <div class="col-1">
+      <fa-icon [icon]="icon" *ngIf="!usenum"></fa-icon>
+      <span class="col-1" *ngIf="usenum">{{ j + 1 }}</span>
+    </div>
     <div class="col-11">
       <button type="button" class="btn btn-primary" (click)="add_rowcol(i, rowcols(i).length, rowcol)" 
       [disabled]="rowcols(i).length >= maxrowcol">
-        {{ name | translate }}
+        <fa-icon [icon]="faAdd"></fa-icon> {{ name | translate }}
       </button>
       <!-- Add Others not supported to reduce complexity. -->
     </div>

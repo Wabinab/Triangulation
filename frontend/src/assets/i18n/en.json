@@ -45,7 +45,6 @@
     "GridCheckbox": "Checkbox grid",
     "Datetime": "Date and Time",
     
-    "addNewMcq": "Add Another Option",
     "Question": "Question",
     "Option": "Option",
     "Rows": "Rows",
@@ -63,7 +62,8 @@
   "cancel": "Cancel",
   "moveto": {
     "title": "Move To", 
-    "originally": "Currently Occupied By"
+    "originally": "Currently Occupied By",
+    "empty": "Empty"
   }
 }
   

@@ -3,6 +3,7 @@ import { SharedModule } from '../../shared/shared.module';
 import { SharedFormsModule } from '../../shared/shared-forms.module';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { faArrowRight, faCheck } from '@fortawesome/free-solid-svg-icons';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-moveto',
@@ -21,7 +22,12 @@ export class MovetoComponent {
   @Input() from: number;
   public to: number;
 
-  constructor() {
+  constructor(private translate: TranslateService) {
+    setTimeout(() => {
+      this.translate.get('moveto.empty', {}).subscribe((res: string) => {
+        this.list_names = Array.from(this.list_names, item => item || `(${res})`);
+      });
+    }, 250);
   }
 
   get_name(index: number) {
@@ -31,6 +37,7 @@ export class MovetoComponent {
   }
 
   okay() {
+    if (this.to == undefined) { this.bsModalRef.dismiss(); return; }
     if (this.to < 1) this.to = 1;
     else if (this.to >= this.list_names.length) this.to = this.list_names.length;
     this.bsModalRef.close({ ty: this.to - 1 });  // from 1-based to 0-based. 

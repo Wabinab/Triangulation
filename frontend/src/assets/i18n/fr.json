@@ -47,7 +47,6 @@
     "GridCheckbox": "Grille de cases à cocher",
     "Datetime": "Date et Heure",
 
-    "addNewMcq": "Ajouter une option",
     "Question": "Question",
     "Option": "Option",
     "Rows": "Lignes",
@@ -65,7 +64,8 @@
   "cancel": "Annuler",
   "moveto": {
     "title": "Déménager À",
-    "originally": "Maintenant occupé par"
+    "originally": "Maintenant occupé par",
+    "empty": "Vide"
   }
 }
   
