@@ -17,45 +17,83 @@
       <ng-container *ngFor="let q of questions; let i=index;" [formGroupName]="i">
         <div class="card">
           <div class="card-body row">
-            <div class="col-1 col-lg-1">
-              <span class="text-center">{{ i + 1 }}</span>
-            </div>
+            <div class="col-1 col-lg-1"><span class="text-center">{{ i + 1 }}</span></div>
             <div class="col-11 col-lg-8">
-              <input type="text" class="form-control" formControlName="question"
-              placeholder="Question">
+              <input type="text" class="form-control" formControlName="question" placeholder="{{ 'QuestionChoice.Question' | translate }}">
               <app-error [form]="q" control="question"></app-error>
             </div>
             <div class="col-lg-3">
-              <select name="q_type" id="q_type" class="form-select" formControlName="q_type"
-              (change)="on_qtype_change(i)">
-                <option *ngFor="let t of AnswerTypes | keyvalue: originalOrder" 
-                [value]="t.value">{{ t.key | human }}</option>
+              <select name="q_type" id="q_type" class="form-select" formControlName="q_type" (change)="on_qtype_change(i)">
+                <option *ngFor="let t of AnswerTypes | keyvalue: originalOrder" [value]="t.value">{{ 'QuestionChoice.' + t.key | translate }}</option>
               </select>
             </div>
 
             <div class="col-lg-12">
-              <ng-container *ngIf="is_qtype(q, ['2', '3'])" formArrayName="rows">
-                <div class="row pt-2" *ngFor="let op of mcqs(i); let j=index;" [formGroupName]="j">
-                  <div class="col-1"><fa-icon [icon]="is_qtype(q, '2') ? faCircle : faSquare"></fa-icon></div>
-                  <div class="col-10">
-                    <input type="text" class="form-control" formControlName="option" placeholder="Option">
+              <!-- Template doesn't work, because it doesn't update after but concurrently, which the former is what we want. -->
+              <!-- You'll get 'cannot find control with path' error if update concurrently. -->
+              <ng-container *ngIf="is_qtype(i, ['2', '3'])" formArrayName="rows">
+                <div class="row pt-2" *ngFor="let op of rowcols(i); let j=index;" [formGroupName]="j">
+                  <div class="col-1"><fa-icon [icon]="is_qtype(i, '2') ? faCircle : faSquare"></fa-icon></div>
+                  <button type="button" class="col-1 btn btn-outline-primary" (click)="openModalUpDown(i, j)">
+                    <fa-icon [icon]="faUpDown"></fa-icon></button>
+                  <div class="col-9">
+                    <input type="text" class="form-control" formControlName="option" placeholder="{{ 'QuestionChoice.Option' | translate }} {{ j + 1 }}" />
                   </div>
-                  <button class="col-1" (click)="remove_row(i, j)" *ngIf="mcqs(i).length > 1"><fa-icon [icon]="faCross"></fa-icon></button>
+                  <button class="col-1 btn btn-outline-danger" (click)="remove_rowcol(i, j)" 
+                  *ngIf="rowcols(i).length > 1"><fa-icon [icon]="faCross"></fa-icon></button>
                 </div>
+            
                 <!-- Add another row -->
+                <ng-template [ngTemplateOutlet]="AnotherRow" [ngTemplateOutletContext]="{
+                  icon: is_qtype(i, '2') ? faCircle : faSquare, i: i, btn_name: 'QuestionChoice.addNewMcq',
+                  rowcol: 'rows'
+                }"></ng-template>
+              </ng-container>
+
+              <ng-container *ngIf="is_qtype(i, ['5', '6'])">
                 <div class="row pt-2">
-                  <div class="col-1"><fa-icon [icon]="is_qtype(q, '2') ? faCircle : faSquare"></fa-icon></div>
-                  <div class="col-11">
-                    <button type="button" class="btn btn-primary" (click)="add_row(i, mcqs(i).length)"
-                    [disabled]="mcqs(i).length >= 20">
-                      {{ 'QuestionChoice.addNewMcq' | translate }}
-                    </button>
-                    <!-- Add Others not supported. -->
+                  <!-- For Rows -->
+                  <div class="col-12 col-lg-6" formArrayName="rows">
+                    <div *ngFor="let op of rowcols(i); let j=index;" [formGroupName]="j" class="row">
+                      <span class="col-1">{{ j + 1 }}</span>
+                      <button type="button" class="col-1 btn btn-outline-primary" (click)="openModalUpDown(i, j)">
+                        <fa-icon [icon]="faUpDown"></fa-icon></button>
+                      <div class="col-9">
+                        <input type="text" class="form-control" formControlName="option" placeholder="{{ 'QuestionChoice.Row' | translate }} {{ j + 1 }}" />
+                      </div>
+                      <button class="col-1 btn btn-outline-danger" (click)="remove_rowcol(i, j)"
+                      *ngIf="rowcols(i).length > 1"><fa-icon [icon]="faCross"></fa-icon></button>
+                    </div>
+
+                    <!-- Add another row -->
+                    <ng-template [ngTemplateOutlet]="AnotherRow" [ngTemplateOutletContext]="{
+                      icon: is_qtype(i, '5') ? faCircle: faSquare, i: i, btn_name: 'QuestionChoice.Rows',
+                      rowcol: 'rows'
+                    }"></ng-template>
+                  </div>
+                  
+                  <!-- For columns -->
+                  <div class="col-12 col-lg-6" formArrayName="cols">
+                    <div *ngFor="let op of rowcols(i, 'cols'); let k=index;" [formGroupName]="k" class="row">
+                      <div class="col-1"><fa-icon [icon]="is_qtype(i, '5') ? faCircle : faSquare"></fa-icon></div>
+                      <button type="button" class="col-1 btn btn-outline-primary" (click)="openModalUpDown(i, k, 'cols')">
+                        <fa-icon [icon]="faUpDown"></fa-icon></button>
+                      <div class="col-9">
+                        <input type="text" class="form-control" formControlName="option" placeholder="{{ 'QuestionChoice.Column' | translate }} {{ k + 1 }}" />
+                      </div>
+                      <button class="col-1 btn btn-outline-danger" (click)="remove_rowcol(i, k, 'cols')"
+                      *ngIf="rowcols(i, 'cols').length > 1"><fa-icon [icon]="faCross"></fa-icon></button>
+                    </div>
+
+                    <!-- Add another column -->
+                    <ng-template [ngTemplateOutlet]="AnotherRow" [ngTemplateOutletContext]="{
+                      icon: is_qtype(i, '5') ? faCircle: faSquare, i: i, btn_name: 'QuestionChoice.Columns',
+                      rowcol: 'cols'
+                    }"></ng-template>
                   </div>
                 </div>
               </ng-container>
 
-              
             </div>
           </div>
         </div>
@@ -65,12 +103,29 @@
 
     <!-- Add another question -->
     <div class="pt-2">
-      <button type="button" class="btn btn-secondary btn-lg" (click)="new_question()">
+      <button type="button" class="btn btn-secondary btn-lg" (click)="add_new_question()">
         <fa-icon [icon]="faAdd"></fa-icon>
       </button>
     </div>
   </form>
 </div>
+
+
+<!-- Add another row or column-->
+<ng-template #AnotherRow let-icon="icon" let-i="i" let-name="btn_name" let-rowcol="rowcol" Template>
+  <div class="row pt-2">
+    <div class="col-1"><fa-icon [icon]="icon"></fa-icon></div>
+    <div class="col-11">
+      <button type="button" class="btn btn-primary" (click)="add_rowcol(i, rowcols(i).length, rowcol)" 
+      [disabled]="rowcols(i).length >= maxrowcol">
+        {{ name | translate }}
+      </button>
+      <!-- Add Others not supported to reduce complexity. -->
+    </div>
+  </div>
+</ng-template>
+
+
 
 {{ myForm.value | json }}
 <!-- {{ questions | json}} -->

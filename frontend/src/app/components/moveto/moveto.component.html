@@ -1,0 +1,25 @@
+<div class="modal-header">
+  <h4>{{ 'moveto.title' | translate }}</h4>
+</div>
+
+<div class="modal-body">
+
+  <div class="row">
+    <div class="col-5">
+      <input type="number" step="1" min="1" [(ngModel)]="from" class="form-control" />
+    </div>
+    <fa-icon [icon]="faArrowRight" class="col-2 text-center pt-1"></fa-icon>
+    <div class="col-5">
+      <input type="number" step="1" min="1" [(ngModel)]="to" class="form-control" />
+    </div>
+  </div>
+
+  <h5 class="pt-2">{{ 'moveto.originally' | translate }}: {{ get_name(to) }}</h5>
+</div>
+
+<div class="modal-footer">
+  <button type="button" class="btn btn-primary" (click)="okay()">
+    <fa-icon [icon]="faTick"></fa-icon>
+    <span class="caption"></span>
+  </button>
+</div>

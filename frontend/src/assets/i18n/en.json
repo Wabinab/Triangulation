@@ -36,16 +36,22 @@
     "title": "Title"
   },
   "QuestionChoice": {
-    "short": "Short Answer",
-    "long": "Paragraph",
-    "radio": "Multiple choice",
-    "checkbox": "Checkboxes",
-    "rateScale": "Linear scale",
-    "gridRadio": "Multiple choice grid",
-    "gridCheckbox": "Checkbox grid",
-    "datetime": "Date and Time",
+    "Short": "Short Answer",
+    "Long": "Paragraph",
+    "MultipleChoice": "Multiple choice",
+    "Checkbox": "Checkboxes",
+    "RateScale": "Linear scale",
+    "GridMultipleChoice": "Multiple choice grid",
+    "GridCheckbox": "Checkbox grid",
+    "Datetime": "Date and Time",
     
-    "addNewMcq": "Add Another Option"
+    "addNewMcq": "Add Another Option",
+    "Question": "Question",
+    "Option": "Option",
+    "Rows": "Rows",
+    "Row": "Row",
+    "Columns": "Columns",
+    "Column": "Column"
   },
   "err": {
     "required": "Required.",
@@ -54,6 +60,10 @@
     "minLength": "Min {{ value }} char.",
     "maxLength": "Max {{ value }} char."
   },
-  "cancel": "Cancel"
+  "cancel": "Cancel",
+  "moveto": {
+    "title": "Move To", 
+    "originally": "Currently Occupied By"
+  }
 }
   

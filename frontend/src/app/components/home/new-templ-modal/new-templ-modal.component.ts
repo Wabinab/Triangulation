@@ -43,7 +43,7 @@ export class NewTemplModalComponent {
     const row = {
       name: this.myForm.get('name')!.value,
       description: this.myForm.get('description')!.value,
-      locale: this.translate.getBrowserLang() ?? 'en'
+      locale: this.translate.currentLang ?? 'en'
     };
     this.http3.send("/template/new", JSON.stringify(row)).then((filename) => {
       this.submitting = false;

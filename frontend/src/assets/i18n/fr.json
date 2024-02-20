@@ -38,16 +38,22 @@
     "title": "Titre"
   },
   "QuestionChoice": {
-    "short": "Réponse courte",
-    "long": "Paragraphe",
-    "radio": "Choix multiples",
-    "checkbox": "Cases à cocher",
-    "rateScale": "Échelle linéaire",
-    "gridRadio": "Grille à choix multiples",
-    "gridCheckbox": "Grille de cases à cocher",
-    "datetime": "Date et Heure",
+    "Short": "Réponse courte",
+    "Long": "Paragraphe",
+    "MultipleChoice": "Choix multiples",
+    "Checkbox": "Cases à cocher",
+    "RateScale": "Échelle linéaire",
+    "GridMultipleChoice": "Grille à choix multiples",
+    "GridCheckbox": "Grille de cases à cocher",
+    "Datetime": "Date et Heure",
 
-    "addNewMcq": "Ajouter une option"
+    "addNewMcq": "Ajouter une option",
+    "Question": "Question",
+    "Option": "Option",
+    "Rows": "Lignes",
+    "Row": "Ligne",
+    "Columns": "Colonnes",
+    "Column": "Colonne"
   },
   "err": {
     "required": "Requis.",
@@ -56,6 +62,10 @@
     "minLength": "Au moins {{ value }} caractère",
     "maxLength": "{{ value }} caractère au plus"
   },
-  "cancel": "Annuler"
+  "cancel": "Annuler",
+  "moveto": {
+    "title": "Déménager À",
+    "originally": "Maintenant occupé par"
+  }
 }
   

@@ -1,7 +1,7 @@
 // We can take inspiration from Google Forms. 
 export enum AnswerTypes {
-  ShortAnswer = "0",
-  LongAnswer = "1",  // a.k.a. paragraph
+  Short = "0",
+  Long = "1",  // a.k.a. paragraph
   MultipleChoice = "2",
   Checkbox = "3",
   RateScale = "4",

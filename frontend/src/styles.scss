@@ -54,7 +54,7 @@ textarea.form-control.left-status,
   border-left: 5px solid $form-feedback-valid-color;
 }
 
-.ng-invalid:not(form) {
+.ng-invalid:not(form):not(div) {
   border-left: 5px solid $form-feedback-invalid-color;
 }
 
