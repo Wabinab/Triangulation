@@ -60,7 +60,7 @@ pub(crate) fn edit_template_stagelevel(data_path: PathBuf, msg: Bytes) -> Result
   // Edit Template (Name and Description)
   let submit: SubmitEditTemplate = serde_json::from_slice(&msg).unwrap();
 
-  let old_serde = retrieve_decompress(data_path.clone(), submit.filename.clone());
+  let old_serde = retrieve_decompress(data_path.clone(), submit.filename.clone().unwrap());
   if old_serde.is_err() { return Err(old_serde.unwrap_err()); }
   let old_serde = old_serde.unwrap();
 
@@ -74,6 +74,7 @@ pub(crate) fn edit_template_stagelevel(data_path: PathBuf, msg: Bytes) -> Result
   let ret = compress_and_save(new_serde.to_string(), data_path.clone(), submit.filename.clone());
   if ret.is_err() { return Err(ret.unwrap_err()); }
 
+  // We'll update to change filename too in the future. That isn't too important for now. 
   Ok(Some(new_serde.to_string()))
 }
 
