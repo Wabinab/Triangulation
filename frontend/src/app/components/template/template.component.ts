@@ -12,11 +12,12 @@ import { FormBuilder } from '@angular/forms';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { CancellationComponent } from '../cancellation/cancellation.component';
 import { ToastrService } from 'ngx-toastr';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @Component({
   selector: 'app-template',
   standalone: true,
-  imports: [SharedModule, SharedFormsModule, DoubleClickDirective, MatProgressSpinnerModule],
+  imports: [SharedModule, FontAwesomeModule, SharedFormsModule, DoubleClickDirective, MatProgressSpinnerModule],
   templateUrl: './template.component.html',
   styleUrl: './template.component.scss'
 })

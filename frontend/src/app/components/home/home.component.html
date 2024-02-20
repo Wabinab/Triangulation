@@ -11,12 +11,12 @@
 					<ul class="navbar-nav me-auto mb-2 mb-lg-0">
 						<li class="nav-item" [ngClass]="tab_active(1)"><a class="nav-link nav-tab-link-mod" 
 						role="button" (click)="new_proj()">
-							<fa-icon [icon]="faProj"></fa-icon>
+              <fa-icon [icon]="faProj"></fa-icon>
 							<span class="caption">{{ 'home.newProject' | translate }}</span>
 						</a></li>
 						<li class="nav-item" [ngClass]="tab_active(2)"><a class="nav-link nav-tab-link-mod" 
 						role="button" (click)="new_templ()">
-							<fa-icon [icon]="faTempl"></fa-icon>
+              <fa-icon [icon]="faTempl"></fa-icon>
 							<span class="caption">{{ 'home.newTemplate' | translate }}</span>
 						</a></li>
 					</ul>
@@ -46,11 +46,15 @@
 
 <!-- New project -->
 <ng-container *ngIf="curr_view == 1">
-	<app-new-proj-modal (emitCallback)="projCallback($event)"></app-new-proj-modal>
+  @defer (when deferProjClicked()) {
+    <app-new-proj-modal (emitCallback)="projCallback($event)"></app-new-proj-modal>
+  }
 </ng-container>
 
 
 <!-- New Template -->
 <ng-container *ngIf="curr_view == 2">
-	<app-new-templ-modal (emitCallback)="templCallback($event)"></app-new-templ-modal>
+  @defer (when deferTemplClicked()) {
+    <app-new-templ-modal (emitCallback)="templCallback($event)"></app-new-templ-modal>
+  }
 </ng-container>

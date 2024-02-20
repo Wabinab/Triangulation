@@ -4,7 +4,8 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { TranslateModule } from '@ngx-translate/core';
 import { RouterModule } from '@angular/router';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+// import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+
 
 
 @NgModule({
@@ -12,12 +13,13 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
   imports: [CommonModule, RouterModule],
   exports: [
     CommonModule, 
-    // FormsModule,
-    // ReactiveFormsModule,
     HttpClientModule,
     TranslateModule,
-    RouterModule,
-    FontAwesomeModule
+    RouterModule
   ]
 })
-export class SharedModule { }
+export class SharedModule { 
+  constructor() {
+    // library.add(faCoffee);
+  }
+}

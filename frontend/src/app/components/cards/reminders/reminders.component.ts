@@ -11,11 +11,12 @@ import { KeyValue } from '@angular/common';
 import { faCircle, faSquare } from '@fortawesome/free-regular-svg-icons';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { MovetoComponent } from '../../moveto/moveto.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @Component({
   selector: 'app-reminders',
   standalone: true,
-  imports: [SharedModule, SharedFormsModule, HumanPipe],
+  imports: [SharedModule, SharedFormsModule, FontAwesomeModule, HumanPipe],
   templateUrl: './reminders.component.html',
   styleUrl: './reminders.component.scss'
 })

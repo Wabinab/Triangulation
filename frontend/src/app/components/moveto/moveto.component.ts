@@ -4,11 +4,12 @@ import { SharedFormsModule } from '../../shared/shared-forms.module';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { faArrowRight, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { TranslateService } from '@ngx-translate/core';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @Component({
   selector: 'app-moveto',
   standalone: true,
-  imports: [SharedModule, SharedFormsModule],
+  imports: [SharedModule, FontAwesomeModule, SharedFormsModule],
   templateUrl: './moveto.component.html',
   styleUrl: './moveto.component.scss'
 })
