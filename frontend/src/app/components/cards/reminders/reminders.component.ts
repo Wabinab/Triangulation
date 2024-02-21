@@ -54,6 +54,7 @@ export class RemindersComponent {
       title: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
       questions: this.fb.array([])
     });
+    this.add_new_question();
 
     setTimeout(() => { 
       this.get_pipeline_item_by_id();

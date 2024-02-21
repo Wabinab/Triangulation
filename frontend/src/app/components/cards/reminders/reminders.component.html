@@ -29,12 +29,15 @@
             </div>
 
 
-            <div class="col-1">
-              <button type="button" class="btn btn-outline-secondary btn-lg" (click)="openModalUpDownQLevel(i)">
+            <div class="col-sm-1">
+              <button type="button" class="btn btn-outline-secondary" (click)="openModalUpDownQLevel(i)">
                 <fa-icon [icon]="faUpDown"></fa-icon>
               </button>
+              <button type="button" class="btn btn-outline-danger" (click)="remove_question(i)" *ngIf="questions.length > 1">
+                <fa-icon [icon]="faCross"></fa-icon>
+              </button>
             </div>
-            <div class="col-11">
+            <div class="col-sm-11">
               <!-- Template doesn't work, because it doesn't update after but concurrently, which the former is what we want. -->
               <!-- You'll get 'cannot find control with path' error if update concurrently. -->
               <ng-container *ngIf="is_qtype(i, ['2', '3'])" formArrayName="rows">
