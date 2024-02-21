@@ -12,6 +12,7 @@ import { faCircle, faSave, faSquare } from '@fortawesome/free-regular-svg-icons'
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { MovetoComponent } from '../../moveto/moveto.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-reminders',
@@ -47,7 +48,7 @@ export class RemindersComponent {
   submitting: boolean = false;
   public myForm: FormGroup;
 
-  constructor(private http3: Http3Service, private fb: FormBuilder) {
+  constructor(private http3: Http3Service, private fb: FormBuilder, private translate: TranslateService) {
     this.myForm = this.fb.group({
       id: [this.id, [Validators.required, Validators.min(1)]],  // ensure form invalid while loading.
       t: [CardTypes.Reminders, [Validators.required]],
@@ -81,8 +82,13 @@ export class RemindersComponent {
 
   onSubmit() {
     this.submitting = true;
-    const row = {};
-    console.log(this.filter_row());
+    const row = {
+      id: this.myForm.get('id')?.value,
+      t: this.myForm.get('t')?.value,
+      title: this.myForm.get('title')?.value,
+      locale: this.translate.currentLang ?? 'en',
+      questions: this.filter_row()
+    };
 
     // this.http3.send("/template/pipeline/save", JSON.stringify(row)).then((res: any) => {
     //   this.submitting = false;
@@ -103,13 +109,13 @@ export class RemindersComponent {
     qs.value.forEach((q: any) => {
       if (['2', '3'].includes(q.q_type)) {
         retval.push({
-          question: q.question,
+          q: q.question,
           t: q.q_type,
-          rows: q.rows
+          r: q.rows
         });
       } else if (q.q_type == "4") {
         retval.push({
-          question: q.question,
+          q: q.question,
           t: q.q_type,
           min: q.min,
           max: q.max,
@@ -118,14 +124,14 @@ export class RemindersComponent {
         })
       } else if (['5', '6'].includes(q.q_type)) {
         retval.push({
-          question: q.question,
+          q: q.question,
           t: q.q_type,
-          rows: q.rows,
-          cols: q.cols
+          r: q.rows,
+          c: q.cols
         })
       } else {
         retval.push({
-          question: q.question,
+          q: q.question,
           t: q.q_type
         })
       }
