@@ -8,8 +8,8 @@ import { faAdd, faArrowsUpDown, faXmark } from '@fortawesome/free-solid-svg-icon
 import { AnswerTypes } from '../../../models/answer-types';
 import { HumanPipe } from '../../../directives/human.pipe';
 import { KeyValue } from '@angular/common';
-import { faCircle, faSquare } from '@fortawesome/free-regular-svg-icons';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { faCircle, faSave, faSquare } from '@fortawesome/free-regular-svg-icons';
+import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { MovetoComponent } from '../../moveto/moveto.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
@@ -21,11 +21,14 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
   styleUrl: './reminders.component.scss'
 })
 export class RemindersComponent {
+  bsModalRef = inject(NgbActiveModal);
+
   faAdd = faAdd;
   faCircle = faCircle;
   faSquare = faSquare;
   faCross = faXmark;
   faUpDown = faArrowsUpDown;
+  faSave = faSave;
 
   originalOrder = (a: KeyValue<string,AnswerTypes>, b: KeyValue<string,AnswerTypes>): number => {
     return 0;
@@ -41,6 +44,7 @@ export class RemindersComponent {
 
   items: any;
   loading: boolean = true;
+  submitting: boolean = false;
   public myForm: FormGroup;
 
   constructor(private http3: Http3Service, private fb: FormBuilder) {
@@ -75,21 +79,46 @@ export class RemindersComponent {
   }
 
   onSubmit() {
+    this.submitting = true;
+    const row = {};
 
+    this.http3.send("/template/pipeline/save", JSON.stringify(row)).then((res: any) => {
+      this.submitting = false;
+      this.bsModalRef.close({ ty: res });
+    }, (error: any) => {
+      console.error(error);
+      this.submitting = false;
+    });
+  }
+
+  cancel() {
+    this.bsModalRef.dismiss();
   }
 
   // ===========================================
   add_new_question() {
     let qs = this.myForm.get('questions') as FormArray;
     qs.push(this.fb.group({
-      question: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(255)]],
+      question: ['', [Validators.required, Validators.minLength(7), Validators.maxLength(255)]],
       q_type: [AnswerTypes.MultipleChoice, [Validators.required]],
       rows: this.fb.array([]),
-      cols: this.fb.array([])
+      cols: this.fb.array([]),
+      
+      // For rating only (q_type = 4)
+      min: [1, [Validators.required, Validators.min(0), Validators.max(1)]],
+      max: [5, [Validators.required, Validators.min(2), Validators.max(10)]],
+      min_name: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
+      max_name: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(50)]]
     }));
     this.on_qtype_change(qs.length - 1);
     this.add_rowcol(qs.length - 1, 0, 'rows');
     this.add_rowcol(qs.length - 1, 0, 'cols');
+  }
+
+  remove_question(i: number) {
+    let qs = this.myForm.get('questions') as FormArray;
+    if (qs.length == 1) return;
+    qs.removeAt(i);
   }
 
   get questions() {
@@ -148,6 +177,7 @@ export class RemindersComponent {
   private modalSvc = inject(NgbModal);
 
   modalMoveTo: any;
+  // FormArray Level
   openModalUpDown(i: number, j: number, rowcol = 'rows') {
     const form_array = this.get_formarray('questions', i, rowcol);
     this.modalMoveTo = this.modalSvc.open(MovetoComponent);
@@ -155,6 +185,19 @@ export class RemindersComponent {
     this.modalMoveTo.componentInstance.list_names = form_array.value.map((c: any) => c.option);
     this.modalMoveTo.closed.subscribe((res: any) => {
       this.array_move(form_array, j, res.ty);
+    })
+  }
+
+  // Question Level
+  openModalUpDownQLevel(i: number) {
+    console.log(i);
+    const form_array = this.myForm.get('questions') as FormArray;
+    console.warn(form_array.value.map((c: any) => c.question));
+    this.modalMoveTo = this.modalSvc.open(MovetoComponent);
+    this.modalMoveTo.componentInstance.from = i + 1;  // i is zero-based.
+    this.modalMoveTo.componentInstance.list_names = form_array.value.map((c: any) => c.question);
+    this.modalMoveTo.closed.subscribe((res: any) => {
+      this.array_move(form_array, i, res.ty);
     })
   }
 
@@ -176,7 +219,11 @@ export class RemindersComponent {
   // };
 
   // =============================================
-  // Private functions
+  // Private functions and helps
+  range(size:number, startAt:number = 0) : ReadonlyArray<number> {
+      return [...Array(size).keys()].map(i => i + startAt);
+  }
+
   private get_formarray(first: string, i: number, second: string ): FormArray {
     let q = this.get_q(first, i);
     return q.get(second) as FormArray;

@@ -50,7 +50,8 @@
     "Rows": "Rows",
     "Row": "Row",
     "Columns": "Columns",
-    "Column": "Column"
+    "Column": "Column",
+    "to": "To"
   },
   "err": {
     "required": "Required.",

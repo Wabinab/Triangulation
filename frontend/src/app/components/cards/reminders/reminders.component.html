@@ -28,7 +28,13 @@
               </select>
             </div>
 
-            <div class="col-lg-12">
+
+            <div class="col-1">
+              <button type="button" class="btn btn-outline-secondary btn-lg" (click)="openModalUpDownQLevel(i)">
+                <fa-icon [icon]="faUpDown"></fa-icon>
+              </button>
+            </div>
+            <div class="col-11">
               <!-- Template doesn't work, because it doesn't update after but concurrently, which the former is what we want. -->
               <!-- You'll get 'cannot find control with path' error if update concurrently. -->
               <ng-container *ngIf="is_qtype(i, ['2', '3'])" formArrayName="rows">
@@ -50,8 +56,34 @@
                 }"></ng-template>
               </ng-container>
 
-              <ng-container >
-
+              <ng-container *ngIf="is_qtype(i, '4')">
+                <div class="row pt-2">
+                  <div class="col-lg-6">
+                    <div class="input-group mb-3">
+                      <select name="min" class="form-select" formControlName="min">
+                        <option *ngFor="let v of range(2)" [value]="v">{{ v }}</option>
+                      </select>
+                      <span class="input-group-text">{{ 'QuestionChoice.to' | translate }}</span>
+                      <select name="max" class="form-select" formControlName="max">
+                        <option *ngFor="let v of range(9, 2)" [value]="v">{{ v }}</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="row pb-2">
+                  <div class="col-lg-6 row">
+                    <span class="col-1 pt-2">{{ q.get('min')?.value }}</span>
+                    <div class="col-11"><input class="form-control" type="text" formControlName="min_name" /></div>
+                    <app-error [form]="q" control="min_name"></app-error>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-lg-6 row">
+                    <span class="col-1 pt-2">{{ q.get('max')?.value }}</span>
+                    <div class="col-11"><input class="form-control" type="text" formControlName="max_name" /></div>
+                    <app-error [form]="q" control="max_name"></app-error>
+                  </div>
+                </div>
               </ng-container>
 
               <ng-container *ngIf="is_qtype(i, ['5', '6'])">
@@ -114,6 +146,19 @@
   </form>
 </div>
 
+<div class="modal-footer">
+  <div class="d-flex gap-2">
+    <button class="btn btn-secondary" (click)="cancel()">
+      <fa-icon [icon]="faCross"></fa-icon>
+      <span class="caption"></span>
+    </button>
+    <button class="btn btn-primary" (click)="onSubmit()">
+      <fa-icon [icon]="faSave"></fa-icon>
+      <span class="caption"></span>
+    </button>
+  </div>
+</div>
+
 
 <!-- Add another row or column-->
 <ng-template #AnotherRow let-icon="icon" let-i="i" let-name="btn_name" let-rowcol="rowcol" 
@@ -123,18 +168,18 @@ let-usenum="usenum" let-j="j" Template>
       <fa-icon [icon]="icon" *ngIf="!usenum"></fa-icon>
       <span class="col-1" *ngIf="usenum">{{ j + 1 }}</span>
     </div>
-    <div class="col-11">
-      <button type="button" class="btn btn-primary" (click)="add_rowcol(i, rowcols(i).length, rowcol)" 
+    <!-- <div class="col-11"> -->
+      <button type="button" class="btn btn-primary col-3" (click)="add_rowcol(i, rowcols(i).length, rowcol)" 
       [disabled]="rowcols(i).length >= maxrowcol">
         <fa-icon [icon]="faAdd"></fa-icon> {{ name | translate }}
       </button>
       <!-- Add Others not supported to reduce complexity. -->
-    </div>
+    <!-- </div> -->
   </div>
 </ng-template>
 
 
 
-{{ myForm.value | json }}
+<!-- {{ myForm.value | json }} -->
 <!-- {{ questions | json}} -->
 <!-- {{ AnswerTypes | keyvalue | json }} -->
