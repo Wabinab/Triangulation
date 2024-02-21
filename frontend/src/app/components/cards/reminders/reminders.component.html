@@ -47,6 +47,7 @@
                     <fa-icon [icon]="faUpDown"></fa-icon></button>
                   <div class="col-9">
                     <input type="text" class="form-control" formControlName="option" placeholder="{{ 'QuestionChoice.Option' | translate }} {{ j + 1 }}" />
+                    <app-error [form]="op" control="option"></app-error>
                   </div>
                   <button class="col-1 btn btn-outline-danger" (click)="remove_rowcol(i, j)" 
                   *ngIf="rowcols(i).length > 1"><fa-icon [icon]="faCross"></fa-icon></button>
@@ -99,6 +100,7 @@
                         <fa-icon [icon]="faUpDown"></fa-icon></button>
                       <div class="col-9">
                         <input type="text" class="form-control" formControlName="option" placeholder="{{ 'QuestionChoice.Row' | translate }} {{ j + 1 }}" />
+                        <app-error [form]="op" control="option"></app-error>
                       </div>
                       <button class="col-1 btn btn-outline-danger" (click)="remove_rowcol(i, j)"
                       *ngIf="rowcols(i).length > 1"><fa-icon [icon]="faCross"></fa-icon></button>
@@ -119,6 +121,7 @@
                         <fa-icon [icon]="faUpDown"></fa-icon></button>
                       <div class="col-9">
                         <input type="text" class="form-control" formControlName="option" placeholder="{{ 'QuestionChoice.Column' | translate }} {{ k + 1 }}" />
+                        <app-error [form]="op" control="option"></app-error>
                       </div>
                       <button class="col-1 btn btn-outline-danger" (click)="remove_rowcol(i, k, 'cols')"
                       *ngIf="rowcols(i, 'cols').length > 1"><fa-icon [icon]="faCross"></fa-icon></button>

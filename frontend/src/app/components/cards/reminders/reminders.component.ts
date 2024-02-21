@@ -82,18 +82,55 @@ export class RemindersComponent {
   onSubmit() {
     this.submitting = true;
     const row = {};
+    console.log(this.filter_row());
 
-    this.http3.send("/template/pipeline/save", JSON.stringify(row)).then((res: any) => {
-      this.submitting = false;
-      this.bsModalRef.close({ ty: res });
-    }, (error: any) => {
-      console.error(error);
-      this.submitting = false;
-    });
+    // this.http3.send("/template/pipeline/save", JSON.stringify(row)).then((res: any) => {
+    //   this.submitting = false;
+    //   this.bsModalRef.close({ ty: res });
+    // }, (error: any) => {
+    //   console.error(error);
+    //   this.submitting = false;
+    // });
   }
 
   cancel() {
     this.bsModalRef.dismiss();
+  }
+
+  filter_row() {
+    let qs = this.myForm.get('questions') as FormArray;
+    let retval: any[] = [];
+    qs.value.forEach((q: any) => {
+      if (['2', '3'].includes(q.q_type)) {
+        retval.push({
+          question: q.question,
+          t: q.q_type,
+          rows: q.rows
+        });
+      } else if (q.q_type == "4") {
+        retval.push({
+          question: q.question,
+          t: q.q_type,
+          min: q.min,
+          max: q.max,
+          min_name: q.min_name,
+          max_name: q.max_name
+        })
+      } else if (['5', '6'].includes(q.q_type)) {
+        retval.push({
+          question: q.question,
+          t: q.q_type,
+          rows: q.rows,
+          cols: q.cols
+        })
+      } else {
+        retval.push({
+          question: q.question,
+          t: q.q_type
+        })
+      }
+    });
+    return retval;
   }
 
   // ===========================================
@@ -134,19 +171,10 @@ export class RemindersComponent {
   }
 
   on_qtype_change(i: number) {
-    const q = this.get_q('questions', i);
-
-    // If MCQ or Checkbox
-    // These are stupid, and it causes the program to be very stuck. 
-    // if (['2', '3', '5', '6'].includes(q.get('q_type')!.value)) {
-    //   if (q.get('rows')!.value.length == 0) this.add_rowcol(i, 0);
-    // } else { this.clear_rowcol(i); }
-    // if (['5', '6'].includes(q.get('q_type')!.value)) {
-    //   if (q.get('cols')!.value.length == 0) this.add_rowcol(i, 0, 'cols');
-    // } else { this.clear_rowcol(i, 'cols'); }
-
-    
+    // const q = this.get_q('questions', i);
   }
+
+
 
   // ===============================
   add_rowcol(i: number, j: number, rowcol = 'rows') {
