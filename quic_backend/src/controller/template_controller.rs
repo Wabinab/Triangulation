@@ -2,10 +2,7 @@ use uuid::Uuid;
 
 use crate::*;
 
-use self::{compressor::{compress_and_save, retrieve_decompress}, 
-  file::{create_file, gen_filename}, 
-  stage_dto::{SubmitEditStage, SubmitStageTrait}, 
-  template_dto::{SubmitGetTemplate, SubmitEditTemplate, SubmitTemplateTrait}
+use self::{compressor::{compress_and_save, retrieve_decompress}, file::{create_file, gen_filename}, reminders_dto::{SubmitPipeline, SubmitReminder, SubmitReminderTrait}, stage_dto::{SubmitEditStage, SubmitStageTrait}, template_dto::{SubmitEditTemplate, SubmitGetTemplate, SubmitTemplateTrait}
 };
 
 // =================================================
@@ -79,3 +76,20 @@ pub(crate) fn edit_template_stagelevel(data_path: PathBuf, msg: Bytes) -> Result
 }
 
 
+pub(crate) fn save_reminder(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
+  let mut data_path = data_path;
+  data_path.push("template");
+
+  let submit: SubmitReminder = serde_json::from_slice(&msg).unwrap();
+
+  let old_serde = retrieve_decompress(data_path.clone(), submit.filename.clone().unwrap());
+  if old_serde.is_err() { return Err(old_serde.unwrap_err()); }
+  let old_serde = old_serde.unwrap();
+
+  let edited_serde = submit.to_serde(old_serde);
+  if edited_serde.is_none() { return Err("There's an error with to_serde reminder_dto.".to_owned()); }
+  let ret = compress_and_save(edited_serde.unwrap().to_string(), data_path.clone(), submit.filename.clone());
+  if ret.is_err() { return Err(ret.unwrap_err()); }
+
+  Ok(Some(edited_serde.unwrap().to_string()))
+}

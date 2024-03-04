@@ -243,8 +243,9 @@ export class TemplateComponent implements AfterViewChecked {
   }
 
   new_reminder() {
-    console.log(this.pipeline);
+    // console.log(this.pipeline);
     const no_of_pipeline = this.pipeline.length;
+    console.warn(no_of_pipeline);
     this.openReminders(no_of_pipeline + 1);
   }
 

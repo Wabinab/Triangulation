@@ -50,7 +50,7 @@ export class RemindersComponent {
 
   constructor(private http3: Http3Service, private fb: FormBuilder, private translate: TranslateService) {
     this.myForm = this.fb.group({
-      id: [this.id, [Validators.required, Validators.min(1)]],  // ensure form invalid while loading.
+      // id: [0, [Validators.required, Validators.min(1)]],  // ensure form invalid while loading.
       t: [CardTypes.Reminders, [Validators.required]],
       title: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
       questions: this.fb.array([])
@@ -83,14 +83,19 @@ export class RemindersComponent {
   onSubmit() {
     this.submitting = true;
     const row = {
-      id: this.myForm.get('id')?.value,
+      // id: this.myForm.get('id')?.value,
+      id: this.id,
+      stage_step: this.curr_stage,
+      filename: this.filename,
+      locale: this.translate.currentLang ?? 'en',
       t: this.myForm.get('t')?.value,
       title: this.myForm.get('title')?.value,
-      locale: this.translate.currentLang ?? 'en',
       questions: this.filter_row()
     };
 
-    // this.http3.send("/template/pipeline/save", JSON.stringify(row)).then((res: any) => {
+    console.log(row);
+
+    // this.http3.send("/template/pipeline/reminder/save", JSON.stringify(row)).then((res: any) => {
     //   this.submitting = false;
     //   this.bsModalRef.close({ ty: res });
     // }, (error: any) => {
@@ -103,6 +108,7 @@ export class RemindersComponent {
     this.bsModalRef.dismiss();
   }
 
+  // Requires set locale here beforehand. 
   filter_row() {
     let qs = this.myForm.get('questions') as FormArray;
     let retval: any[] = [];
@@ -111,7 +117,7 @@ export class RemindersComponent {
         retval.push({
           q: q.question,
           t: q.q_type,
-          r: q.rows
+          r: q.rows.map((c: any) => c.option)
         });
       } else if (q.q_type == "4") {
         retval.push({
@@ -126,8 +132,8 @@ export class RemindersComponent {
         retval.push({
           q: q.question,
           t: q.q_type,
-          r: q.rows,
-          c: q.cols
+          r: q.rows.map((c: any) => c.option),
+          c: q.cols.map((c: any) => c.option)
         })
       } else {
         retval.push({
