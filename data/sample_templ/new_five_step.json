@@ -1,0 +1,15 @@
+{
+  "name": "...",
+  "uuid": "...",
+  "description": "...",
+  // version is in another library. 
+  "stages": [
+    {"name": "Stage 1", "pipeline": [
+      {"ty": 0, "title": "...", "others": "array/whatever as it is"},
+      {"ty": 0, "title": "...", "others": "array/whatever as it is"}
+    ]},
+    {"name": "Stage 2", "pipeline": [
+
+    ]}
+  ]
+}

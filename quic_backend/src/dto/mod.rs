@@ -1,9 +1,9 @@
 /// DTO refers to Data Object, or Data To Object, whatever you call it. 
 /// Basically, converts a json string (data)  to an object (struct). 
 
-pub(crate) mod reminders_dto;
 pub(crate) mod template_dto;
 pub(crate) mod stage_dto;
+pub(crate) mod reminder_dto;
 
 
 // ================================================================

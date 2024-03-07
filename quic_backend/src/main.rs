@@ -26,6 +26,7 @@ use routes::*;
 use controller::*;
 use dto::*;
 use data::*;
+use types::*;
 // use json::*;
 
 // mod server_config;
@@ -34,6 +35,7 @@ mod controller;
 mod dto;
 mod data;
 mod json;
+mod types;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -300,3 +302,7 @@ fn renew_cert(root: &Path) -> bool {
   // Call function to restart
   return true;
 }
+
+
+#[cfg(test)]
+mod test;

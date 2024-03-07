@@ -2,16 +2,17 @@ use crate::*;
 
 pub(crate) fn routes_handler(msg: Bytes, path: String, data_path: PathBuf) -> Result<Option<String>, String> {
     return match path.as_str() {
-        "/" => home_controller::echo(msg),
-        "/sample_template" => home_controller::get_sample_template(data_path, msg),
-        // Actually, it's an item in a pipeline, not the pipeline itself. We'll rename later. 
-        "/pipeline" => home_controller::get_pipeline(data_path, msg),
+        // "/" => home_controller::echo(msg),
 
-        "/template/new" => template_controller::new_template(data_path, msg),
         "/template" => template_controller::get_template(data_path, msg),
-        "/template/edit" => template_controller::edit_template_stagelevel(data_path, msg),
-        // "/template/pipeline" =>
-        "/template/pipeline/reminder/save" => template_controller::save_reminder(data_path, msg),
+        "/template/nlist" => template_controller::get_template_nlist(data_path, msg),
+        "/template/new" => template_controller::new_template(data_path, msg),
+        "/template/edit" => template_controller::edit_template(data_path, msg),
+
+        // "/template/pipeline/reminder/save" => template_controller::save_reminder(data_path, msg),
+        "/pipeline/0/new" => pipeline_controller::new_pipeline(data_path, msg, 0),
+        "/pipeline/0/edit" => pipeline_controller::edit_pipeline(data_path, msg, 0),
+        "/pipeline/0/delete" => pipeline_controller::delete_pipeline(data_path, msg, 0),
         _ => Ok(None)
     };
 }
