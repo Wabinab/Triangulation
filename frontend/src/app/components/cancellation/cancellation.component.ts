@@ -1,11 +1,12 @@
 import { Component, inject, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-cancellation',
   standalone: true,
-  imports: [],
+  imports: [TranslateModule],
   templateUrl: './cancellation.component.html',
   styleUrl: './cancellation.component.scss'
 })
@@ -13,6 +14,7 @@ export class CancellationComponent {
   bsModalRef = inject(NgbActiveModal);
   // @Output() emitCallback = new EventEmitter<any>();
 
+  @Input() title: string = 'cancellation.Save';
   @Input() back_path: any;
 
   constructor(private router: Router) {}

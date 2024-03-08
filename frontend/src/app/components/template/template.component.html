@@ -28,6 +28,9 @@
           <!-- Required for the icon to load. Otherwise, won't load. -->
           <span class="caption"></span>
         </a></li>
+        <li class="nav-item"><a class="nav-link" role="button" (click)="remove_stage()">
+          <fa-icon [icon]="faRemove" size="xl"></fa-icon>
+        </a></li>
         <div class="vl"></div>
         
         <!-- Different types -->
@@ -83,14 +86,14 @@
 
 <ng-template #reminderTempl let-p let-i="i">
   <div class="col">
-    <div class="card card-hover text-bg-primary" (click)="openReminders(i)" 
-    hover-class="text-bg-info | text-bg-primary">
-      <h5 class="card-header">
+    <div class="card card-hover border-primary" >
+      <h5 class="card-header" hover-class="text-bg-primary | null" (click)="openReminders(i)">
         {{ p.title }}
       </h5>
       <!-- <div class="card-body">
         <p class="card-text">{{ p.questions[0].q }}</p>
       </div> -->
+      <div class="card-footer" hover-class="text-bg-danger | null" (click)="remove_question(i)">Delete</div>
     </div>
   </div>
 </ng-template>
@@ -99,8 +102,8 @@
 <br>
 <!-- <button (click)="delete_all_stages()">Delete all stages</button> -->
 <pre>
-  <!-- {{ template | json }} -->
-  {{ pipeline | json }}
+  {{ template | json }}
+  <!-- {{ pipeline | json }} -->
 </pre>
 
 <!-- <button (click)="load()">Manual Load</button> -->

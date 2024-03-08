@@ -67,6 +67,10 @@
     "maxLength": "Max {{ value }} char."
   },
   "cancel": "Cancel",
+  "cancellation": {
+    "Save": "Save Changes?",
+    "Sure": "Are You Sure?"
+  },
   "moveto": {
     "title": "Move To", 
     "originally": "Currently Occupied By",

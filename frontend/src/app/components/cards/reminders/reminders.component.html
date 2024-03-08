@@ -24,7 +24,7 @@
               <app-error [form]="q" control="question"></app-error>
             </div>
             <div class="col-lg-3">
-              <select name="q_type" id="q_type" class="form-select" formControlName="q_type" (change)="on_qtype_change(i)">
+              <select name="q_type" id="q_type" class="form-select" formControlName="q_type">
                 <option *ngFor="let t of AnswerTypes | keyvalue: originalOrder" [value]="t.value">{{ 'QuestionChoice.' + t.key | translate }}</option>
               </select>
             </div>

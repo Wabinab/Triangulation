@@ -1,5 +1,5 @@
 import { AfterViewChecked, Component, ElementRef, HostListener, ViewChild, inject } from '@angular/core';
-import { faBell, faPencil, faPlus, faSave } from '@fortawesome/free-solid-svg-icons';
+import { faBell, faPencil, faPlus, faSave, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { SharedModule } from '../../shared/shared.module';
 import { SharedFormsModule } from '../../shared/shared-forms.module';
 import { Http3Service } from '../../services/http3.service';
@@ -28,6 +28,7 @@ export class TemplateComponent {
   faAddStage = faPlus;
   faReminder = faBell;
   faEdit = faPencil;
+  faRemove = faTrashAlt;
 
   stages: any[] = [];
   filename = this.route.snapshot.queryParamMap.get('filename');
@@ -90,6 +91,7 @@ export class TemplateComponent {
 
   _internal_sel_stage(value: number) {
     this.curr_stage = value;
+    if (!this.stages[value]) { this.pipeline = []; return; }
     this.pipeline = this.stages[value]['pipeline'] ?? [];
   }
 
@@ -113,6 +115,20 @@ export class TemplateComponent {
     this.curr_edit_stage = null;
   }
 
+  modalCancel: any;
+  remove_stage() {
+    // Need confirmation. 
+    this.modalCancel = this.modalSvc.open(CancellationComponent);
+    this.modalCancel.componentInstance.back_path = "hide modal";
+    this.modalCancel.componentInstance.title = 'cancellation.Sure';
+    const value = this.modalCancel.closed.subscribe((res: any) => {
+      const i = this.curr_stage;
+      if (i > -1) this.stages.splice(i, 1);
+      this._internal_sel_stage(i - 1);
+      this.toastr.success(`Removed Stage ${i + 1}`);
+    });
+  }
+
   delete_all_stages() {
     this.stages = [];
   }
@@ -120,6 +136,11 @@ export class TemplateComponent {
   @HostListener('document:keydown.f2', ['$event'])
   keyboard_events(event: KeyboardEvent) {
     this.edit_stage(this.curr_stage);
+  }
+
+  @HostListener('document:keydown.esc', ['$event'])
+  esc_events(event: KeyboardEvent) {
+    if (this.curr_edit_stage) this.finish_edit_stage();
   }
 
   // focusing = false;
@@ -202,6 +223,17 @@ export class TemplateComponent {
 
   new_reminder() {
     this.openReminders(this.pipeline.length);
+  }
+
+  remove_question(i: number) {
+    this.modalCancel = this.modalSvc.open(CancellationComponent);
+    this.modalCancel.componentInstance.back_path = "hide modal";
+    this.modalCancel.componentInstance.title = 'cancellation.Sure';
+    const value = this.modalCancel.closed.subscribe((res: any) => {
+      // Will call http3 later. 
+      this.pipeline.splice(i, 1);
+      this.toastr.success(`Removed Question ${i+1}`);
+    });
   }
 
   // modalCancel: any;

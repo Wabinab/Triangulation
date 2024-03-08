@@ -69,6 +69,10 @@
     "maxLength": "{{ value }} caractère au plus"
   },
   "cancel": "Annuler",
+  "cancellation": {
+    "Save": "Sauvegarder les modifications?",
+    "Sure": "Es-tu sûr?"
+  },
   "moveto": {
     "title": "Déménager À",
     "originally": "Maintenant occupé par",

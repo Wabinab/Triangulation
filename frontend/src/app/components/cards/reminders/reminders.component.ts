@@ -186,7 +186,6 @@ export class RemindersComponent {
       min_name: [data.min_name ?? '', [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
       max_name: [data.max_name ?? '', [Validators.required, Validators.minLength(1), Validators.maxLength(50)]]
     }));
-    this.on_qtype_change(qs.length - 1);
     if (!data.r) { this.add_rowcol(qs.length - 1, 0, 'rows'); }
     if (!data.c) this.add_rowcol(qs.length - 1, 0, 'cols');
 
@@ -209,10 +208,6 @@ export class RemindersComponent {
     const q = this.get_q('questions', i);
     if (typeof value == 'object') return value.includes(q.get('q_type')!.value);
     return q.get('q_type')!.value == value;
-  }
-
-  on_qtype_change(i: number) {
-    // const q = this.get_q('questions', i);
   }
 
   // ===============================
