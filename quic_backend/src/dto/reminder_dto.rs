@@ -29,7 +29,7 @@ impl ReminderTrait for SubmitReminder {
 
     let mut pipelines = stages["pipeline"].as_array().unwrap().clone();
     let data = json!({
-      "type": REMINDER_TYPE,
+      "ty": REMINDER_TYPE,
       "title": self.title.clone().unwrap(),
       "others": self.question.clone().unwrap()
     });
@@ -49,7 +49,7 @@ impl ReminderTrait for SubmitReminder {
     if pipeline.is_null() { return Err("Out of Bound reminder index.".to_owned()); }
 
     let data = json!({
-      "type": REMINDER_TYPE,
+      "ty": REMINDER_TYPE,
       "title": self.title.clone().unwrap(),
       "others": self.question.clone().unwrap()
     });

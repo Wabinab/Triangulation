@@ -13,11 +13,13 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { CancellationComponent } from '../cancellation/cancellation.component';
 import { ToastrService } from 'ngx-toastr';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { HoverClassDirective } from '../../directives/hover-class.directive';
 
 @Component({
   selector: 'app-template',
   standalone: true,
-  imports: [SharedModule, FontAwesomeModule, SharedFormsModule, DoubleClickDirective, MatProgressSpinnerModule],
+  imports: [SharedModule, FontAwesomeModule, SharedFormsModule, DoubleClickDirective, 
+    MatProgressSpinnerModule, HoverClassDirective],
   templateUrl: './template.component.html',
   styleUrl: './template.component.scss'
 })
@@ -51,6 +53,7 @@ export class TemplateComponent {
     this.template = JSON.parse(value);
     this.stages = this.template?.stages;
     this.stages.sort(this.compareSteps);
+    this.pipeline = this.stages[0]['pipeline'] ?? [];
     this.loading = false;
   }
 
@@ -81,8 +84,12 @@ export class TemplateComponent {
   stage_name = '';  // ngModel field. 
 
   sel_stage(value: number) {
-    this.curr_stage = value;
     if (this.curr_edit_stage != null && this.curr_edit_stage != value) this.finish_edit_stage();
+    this._internal_sel_stage(value);
+  }
+
+  _internal_sel_stage(value: number) {
+    this.curr_stage = value;
     this.pipeline = this.stages[value]['pipeline'] ?? [];
   }
 
@@ -102,6 +109,7 @@ export class TemplateComponent {
     if (this.curr_edit_stage == null) return;
     this.stages[this.curr_edit_stage]['name'] = this.stage_name == '' 
       ? this.curr_edit_stage?.toString() : this.stage_name;
+    this._internal_sel_stage(this.curr_edit_stage);
     this.curr_edit_stage = null;
   }
 
@@ -184,8 +192,8 @@ export class TemplateComponent {
     this.modalReminder.componentInstance.id = id;  // because slist won't return all items later on. 
     this.modalReminder.componentInstance.curr_stage = this.curr_stage;
     this.modalReminder.componentInstance.filename = this.filename;
-    this.modalReminder.closed.subscribe((res: any) => {
-      console.log("closed");
+    this.modalReminder.closed.subscribe(async (res: any) => {
+      await this.load();
     });
     // this.modalReminder.dismissed.subscribe((res: any) => {
     //   console.log("dismissed");
@@ -193,8 +201,7 @@ export class TemplateComponent {
   }
 
   new_reminder() {
-    const no_of_pipeline = this.pipeline.length;
-    this.openReminders(no_of_pipeline + 1);
+    this.openReminders(this.pipeline.length);
   }
 
   // modalCancel: any;

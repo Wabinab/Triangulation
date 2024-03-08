@@ -2,7 +2,7 @@ use serde_json::Value;
 
 use crate::reminder_dto::{ReminderTrait, SubmitReminder};
 
-use super::*;
+// use super::*;
 
 fn get_old_serde() -> Value {
   let c = r#"{
@@ -70,10 +70,10 @@ fn test_edit_reminder_valid() {
 
   let edited_serde = submit.edit_reminder(old_serde.clone()).unwrap();
   let ooi = edited_serde["stages"][0]["pipeline"][1].clone();
-  assert_eq!(ooi["title"].as_str().unwrap(), "New Title");
+  assert_eq!(ooi["title"], "New Title");
   assert!(ooi["others"].is_array());
   let ooi2 = edited_serde["stages"][0]["pipeline"][0].clone();
-  assert_eq!(ooi2["title"].as_str().unwrap(), "Title 1");
+  assert_eq!(ooi2["title"], "Title 1");
   assert!(ooi2["others"].is_string());
 }
 
@@ -139,7 +139,7 @@ fn test_delete_reminder() {
   let ooi = edited_serde["stages"][0]["pipeline"].clone();
   let old_ooi = old_serde["stages"][0]["pipeline"].clone();
   assert_eq!(ooi.as_array().unwrap().len(), old_ooi.as_array().unwrap().len() - 1);
-  assert_eq!(ooi[0]["title"].as_str().unwrap(), "Title 2");
+  assert_eq!(ooi[0]["title"], "Title 2");
 }
 
 #[test]

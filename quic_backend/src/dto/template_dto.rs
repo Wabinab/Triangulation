@@ -45,6 +45,7 @@ pub(crate) struct SubmitGetTemplate {
 
 // ========================================
 pub(crate) fn to_nlist(old_serde: Value) -> TemplateNList {
+  // info!("{:#?}", old_serde);
   serde_json::from_value(old_serde).unwrap()
 }
 

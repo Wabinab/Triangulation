@@ -1,5 +1,6 @@
 <div class="modal-header">
-  <h3>Reminder (Item {{ id }})</h3>
+  <h3>{{ (is_new ? "reminder.isNew" : "reminder.isEdit") | translate}} 
+    {{ 'reminder.Name' | translate }} ({{ 'reminder.Item' | translate }} {{ id + 1 }})</h3>
 </div>
 
 <div class="modal-body">
@@ -174,13 +175,11 @@ let-usenum="usenum" let-j="j" Template>
       <fa-icon [icon]="icon" *ngIf="!usenum"></fa-icon>
       <span class="col-1" *ngIf="usenum">{{ j + 1 }}</span>
     </div>
-    <!-- <div class="col-11"> -->
-      <button type="button" class="btn btn-primary col-3" (click)="add_rowcol(i, rowcols(i).length, rowcol)" 
-      [disabled]="rowcols(i).length >= maxrowcol">
-        <fa-icon [icon]="faAdd"></fa-icon> {{ name | translate }}
-      </button>
-      <!-- Add Others not supported to reduce complexity. -->
-    <!-- </div> -->
+    <button type="button" class="btn btn-primary col-3" (click)="add_rowcol(i, rowcols(i).length, rowcol)" 
+    [disabled]="rowcols(i).length >= maxrowcol">
+      <fa-icon [icon]="faAdd"></fa-icon> {{ name | translate }}
+    </button>
+    <!-- Add Others not supported to reduce complexity. -->
   </div>
 </ng-template>
 
@@ -189,3 +188,8 @@ let-usenum="usenum" let-j="j" Template>
 <!-- {{ myForm.value | json }} -->
 <!-- {{ questions | json}} -->
 <!-- {{ AnswerTypes | keyvalue | json }} -->
+
+<!-- <button type="button" (click)="delete()">DELETE</button> -->
+<pre>
+  {{ items | json }}
+</pre>

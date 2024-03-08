@@ -13,6 +13,7 @@ import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { MovetoComponent } from '../../moveto/moveto.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateService } from '@ngx-translate/core';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-reminders',
@@ -43,72 +44,97 @@ export class RemindersComponent {
 
   AnswerTypes = AnswerTypes;
 
+  is_new: boolean = true;
   items: any;
   loading: boolean = true;
   submitting: boolean = false;
   public myForm: FormGroup;
 
-  constructor(private http3: Http3Service, private fb: FormBuilder, private translate: TranslateService) {
+  constructor(private http3: Http3Service, private fb: FormBuilder, 
+    private translate: TranslateService, private toastr: ToastrService) {
     this.myForm = this.fb.group({
-      // id: [0, [Validators.required, Validators.min(1)]],  // ensure form invalid while loading.
       t: [CardTypes.Reminders, [Validators.required]],
       title: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
       questions: this.fb.array([])
     });
-    this.add_new_question();
+    // this.add_new_question();
 
     setTimeout(() => { 
       this.get_pipeline_item_by_id();
-      this.loading = false;
-    }, 500);
+    }, 100);
   }
 
   // Remember to save clicking backdrop. 
   // Save is the default? User can choose in settings to turn this off. On is default. 
   async get_pipeline_item_by_id() {
     let data = {
-      stage_step: this.curr_stage,
-      pipeline_id: this.id,
-      filename: this.filename
+      filename: this.filename,
+      stage_index: this.curr_stage,
+      pipeline_index: this.id,
     }
-    let value: any = await this.http3.send("/template/pipeline", JSON.stringify(data));
-    // this.items = JSON.parse(value);
-    await this.loadData(JSON.parse(value ?? '{}'));
+    // console.log(data);
+    let value: any = await this.http3.send("/pipeline", JSON.stringify(data));
+    this.items = JSON.parse(value ?? '{}');
+    if (this.items.err && this.items.err == "Out of Bound pipeline index.") {
+      this.is_new = true;
+      this.add_new_question();
+      this.loading = false;
+      return;
+    }
+    await this.loadData();
   }
 
-  async loadData(value: any) {
-    console.log(value);
+  async loadData() {
+    this.is_new = false;
+    if (this.myForm.get('t')!.value != this.items.ty) { 
+      this.doErr("There's a mismatch between card types. Please report bug.");
+      return;
+    }
+
+    this.myForm.get('title')?.setValue(this.items.title);
+    this.set_row();
+    this.loading = false;
   }
 
   onSubmit() {
     this.submitting = true;
     const row = {
-      // id: this.myForm.get('id')?.value,
-      id: this.id,
-      stage_step: this.curr_stage,
       filename: this.filename,
-      locale: this.translate.currentLang ?? 'en',
-      t: this.myForm.get('t')?.value,
+      stage_index: this.curr_stage,
+      reminder_index: this.id,
       title: this.myForm.get('title')?.value,
-      questions: this.filter_row()
-    };
+      question: this.filter_row()
+    }
 
-    console.log(row);
-
-    // this.http3.send("/template/pipeline/reminder/save", JSON.stringify(row)).then((res: any) => {
-    //   this.submitting = false;
-    //   this.bsModalRef.close({ ty: res });
-    // }, (error: any) => {
-    //   console.error(error);
-    //   this.submitting = false;
-    // });
+    this.http3.send(this.is_new ? "/pipeline/0/new" : "/pipeline/0/edit", JSON.stringify(row))
+    .then((res: any) => {
+      this.submitting = false;
+      this.bsModalRef.close({ ty: res });
+    }, (err: any) => this.doErr(err, this.submitting));
   }
+
+  // delete() {
+  //   const row = {
+  //     filename: this.filename,
+  //     stage_index: this.curr_stage,
+  //     reminder_index: this.id
+  //   }
+  //   this.http3.send("/pipeline/0/delete", JSON.stringify(row)).then((res: any) => {
+  //     console.log(res);
+  //   });
+  // }
 
   cancel() {
     this.bsModalRef.dismiss();
   }
 
-  // Requires set locale here beforehand. 
+  set_row() {
+    // let qs = this.myForm.get('questions') as FormArray;
+    this.items.others.forEach((q: any) => {
+      this.add_new_question(q);
+    })
+  }
+
   filter_row() {
     let qs = this.myForm.get('questions') as FormArray;
     let retval: any[] = [];
@@ -146,23 +172,26 @@ export class RemindersComponent {
   }
 
   // ===========================================
-  add_new_question() {
+  add_new_question(data: any = {}) {
     let qs = this.myForm.get('questions') as FormArray;
     qs.push(this.fb.group({
-      question: ['', [Validators.required, Validators.minLength(7), Validators.maxLength(255)]],
-      q_type: [AnswerTypes.MultipleChoice, [Validators.required]],
+      question: [data.q ?? '', [Validators.required, Validators.minLength(7), Validators.maxLength(255)]],
+      q_type: [data.t ?? AnswerTypes.Long, [Validators.required]],
       rows: this.fb.array([]),
       cols: this.fb.array([]),
       
       // For rating only (q_type = 4)
-      min: [1, [Validators.required, Validators.min(0), Validators.max(1)]],
-      max: [5, [Validators.required, Validators.min(2), Validators.max(10)]],
-      min_name: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
-      max_name: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(50)]]
+      min: [data.min ?? 1, [Validators.required, Validators.min(0), Validators.max(1)]],
+      max: [data.max ?? 5, [Validators.required, Validators.min(2), Validators.max(10)]],
+      min_name: [data.min_name ?? '', [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
+      max_name: [data.max_name ?? '', [Validators.required, Validators.minLength(1), Validators.maxLength(50)]]
     }));
     this.on_qtype_change(qs.length - 1);
-    this.add_rowcol(qs.length - 1, 0, 'rows');
-    this.add_rowcol(qs.length - 1, 0, 'cols');
+    if (!data.r) { this.add_rowcol(qs.length - 1, 0, 'rows'); }
+    if (!data.c) this.add_rowcol(qs.length - 1, 0, 'cols');
+
+    if (data.r) { data.r.forEach((c: string, i: number) => this.add_rowcol(qs.length - 1, i, 'rows', c)); }
+    if (data.c) { data.c.forEach((c: string, i: number) => this.add_rowcol(qs.length - 1, i, 'cols', c)); }
   }
 
   remove_question(i: number) {
@@ -186,14 +215,12 @@ export class RemindersComponent {
     // const q = this.get_q('questions', i);
   }
 
-
-
   // ===============================
-  add_rowcol(i: number, j: number, rowcol = 'rows') {
+  add_rowcol(i: number, j: number, rowcol = 'rows', data = '') {
     if (j > this.maxrowcol) return;
     let mcqs = this.get_formarray('questions', i, rowcol);
     mcqs.push(this.fb.group({
-      option: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(75)]]
+      option: [data, [Validators.required, Validators.minLength(10), Validators.maxLength(75)]]
     }));
   }
 
@@ -273,5 +300,11 @@ export class RemindersComponent {
   private get_q(first: string, i: number): AbstractControl {
     let qs = this.myForm.get(first) as FormArray;
     return qs.at(i);
+  }
+
+  doErr(err: any, set_false: boolean | null = null) {
+    if (set_false != null) set_false = false;
+    console.error(err);
+    this.toastr.error(err);
   }
 }

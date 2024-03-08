@@ -10,6 +10,7 @@ pub(crate) fn routes_handler(msg: Bytes, path: String, data_path: PathBuf) -> Re
         "/template/edit" => template_controller::edit_template(data_path, msg),
 
         // "/template/pipeline/reminder/save" => template_controller::save_reminder(data_path, msg),
+        "/pipeline" => pipeline_controller::get_pipeline(data_path, msg),
         "/pipeline/0/new" => pipeline_controller::new_pipeline(data_path, msg, 0),
         "/pipeline/0/edit" => pipeline_controller::edit_pipeline(data_path, msg, 0),
         "/pipeline/0/delete" => pipeline_controller::delete_pipeline(data_path, msg, 0),

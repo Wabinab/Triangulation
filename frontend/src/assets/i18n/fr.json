@@ -37,7 +37,11 @@
     "AddStage": "Ajoute autre étape"
   },
   "reminder": {
-    "title": "Titre"
+    "title": "Titre",
+    "isNew": "Nouveau",
+    "isEdit": "Modifier",
+    "Name": "Rappel",
+    "Item": "Item"
   },
   "QuestionChoice": {
     "Short": "Réponse courte",

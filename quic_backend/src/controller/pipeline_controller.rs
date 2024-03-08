@@ -1,5 +1,5 @@
 use crate::*;
-use self::{compressor::{compress_and_save, retrieve_decompress}, reminder_dto::{ReminderTrait, SubmitReminder}};
+use self::{compressor::{compress_and_save, retrieve_decompress}, pipeline_dto::{PipelineTrait, SubmitPipeline}, reminder_dto::{ReminderTrait, SubmitReminder}};
 
 pub(crate) fn new_pipeline(data_path: PathBuf, msg: Bytes, ty: usize) -> Result<Option<String>, String> {
   choose_ty(data_path, msg, ty, CRUD::Create)
@@ -14,7 +14,12 @@ pub(crate) fn delete_pipeline(data_path: PathBuf, msg: Bytes, ty: usize) -> Resu
 }
 
 pub(crate) fn get_pipeline(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
-  
+  let submit: SubmitPipeline = serde_json::from_slice(&msg).unwrap();
+  let old_serde = get_data(data_path.clone(), submit.filename.clone());
+  if old_serde.is_err() { return Err(old_serde.unwrap_err()); }
+  let pipeline = submit.get_pipeline(old_serde.unwrap());
+  if pipeline.is_err() { return Err(pipeline.unwrap_err()); }
+  Ok(Some(pipeline.unwrap().to_string()))
 }
 
 // =====================================================================================

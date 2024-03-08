@@ -73,22 +73,23 @@
   </div>
 
   <div class="col-md-8 col-xl-9 col-xxl-10 pt-3">
-    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 row-cols-xxl-4 g-3" *ngFor="let p of pipeline">
-      <ng-template [ngTemplateOutlet]="reminderTempl" [ngTemplateOutletContext]="{ $implicit: p }"></ng-template>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 row-cols-xxl-4 g-3" *ngFor="let p of pipeline; let i=index">
+      <ng-template [ngTemplateOutlet]="reminderTempl" [ngTemplateOutletContext]="{ $implicit: p, i: i }"></ng-template>
     </div>
   </div>
 </div>
 
 <!-- <button (click)="get_fivestep()">Get Fivestep</button> -->
 
-<ng-template #reminderTempl let-p>
+<ng-template #reminderTempl let-p let-i="i">
   <div class="col">
-    <div class="card" (click)="openReminders(p.id)">
+    <div class="card card-hover text-bg-primary" (click)="openReminders(i)" 
+    hover-class="text-bg-info | text-bg-primary">
       <h5 class="card-header">
         {{ p.title }}
       </h5>
       <!-- <div class="card-body">
-        <p class="card-text">{{ get_translate(p.questions[0].q) }}</p>
+        <p class="card-text">{{ p.questions[0].q }}</p>
       </div> -->
     </div>
   </div>
@@ -98,10 +99,9 @@
 <br>
 <!-- <button (click)="delete_all_stages()">Delete all stages</button> -->
 <pre>
-  {{ template | json }}
+  <!-- {{ template | json }} -->
+  {{ pipeline | json }}
 </pre>
 
 <!-- <button (click)="load()">Manual Load</button> -->
 <!-- <button (click)="test_get()">Test Get</button> -->
-
-{{ curr_edit_stage | json }}

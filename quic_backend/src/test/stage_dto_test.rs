@@ -2,7 +2,7 @@ use serde_json::{json, Value};
 
 use crate::stage_dto::{StageTrait, SubmitStage};
 
-use super::*;
+// use super::*;
 
 #[test]
 fn test_edit_stage() {
@@ -67,8 +67,8 @@ fn test_delete_stage_valid_id() {
 
   let edited_serde = submit.delete_stage(old_serde.clone()).unwrap();
   assert_eq!(edited_serde["stages"].as_array().unwrap().len(), old_serde["stages"].as_array().unwrap().len() - 1);
-  assert_eq!(edited_serde["stages"][0]["name"].as_str().unwrap(), "Stage 1");
-  assert_eq!(edited_serde["stages"][1]["name"].as_str().unwrap(), "Stage 3");
+  assert_eq!(edited_serde["stages"][0]["name"], "Stage 1");
+  assert_eq!(edited_serde["stages"][1]["name"], "Stage 3");
 }
 
 

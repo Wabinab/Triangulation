@@ -35,7 +35,11 @@
     "Add Stage": "Add Another Stage"
   },
   "reminder": {
-    "title": "Title"
+    "title": "Title",
+    "isNew": "New",
+    "isEdit": "Edit",
+    "Name": "Reminder",
+    "Item": "Item"
   },
   "QuestionChoice": {
     "Short": "Short Answer",
