@@ -36,6 +36,12 @@ impl TemplateTrait for SubmitTemplate {
   }
 }
 
+// ========================================
+#[derive(Serialize, Deserialize, Debug)]
+pub(crate) struct SubmitGetTemplate {
+  pub(crate) filename: String
+}
+
 
 // ========================================
 pub(crate) fn to_nlist(old_serde: Value) -> TemplateNList {

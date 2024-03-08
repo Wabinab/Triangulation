@@ -4,25 +4,25 @@ use crate::*;
 
 use self::{compressor::{compress_and_save, retrieve_decompress}, 
   file::gen_filename, stage_dto::{StageTrait, SubmitStage}, 
-  template_dto::{to_nlist, SubmitTemplate, TemplateTrait}
+  template_dto::{to_nlist, SubmitGetTemplate, SubmitTemplate, TemplateTrait}
 };
 
 // =================================================
 // GET
 pub(crate) fn get_template(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
-  let submit: SubmitTemplate = serde_json::from_slice(&msg).unwrap();
+  let submit: SubmitGetTemplate = serde_json::from_slice(&msg).unwrap();
 
-  let data = get_data(data_path, submit.filename.clone().unwrap());
+  let data = get_data(data_path, submit.filename.clone());
   if data.is_err() { return Err(data.unwrap_err()); }
 
   Ok(Some(data.unwrap().to_string()))
 }
 
 pub(crate) fn get_template_nlist(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
-  let submit: SubmitTemplate = serde_json::from_slice(&msg).unwrap();
-  if submit.filename.is_none() { return Err("Filename must be defined.".to_owned()); }
+  let submit: SubmitGetTemplate = serde_json::from_slice(&msg).unwrap();
+  // if submit.filename.is_none() { return Err("Filename must be defined.".to_owned()); }
 
-  let data = get_data(data_path, submit.filename.clone().unwrap());
+  let data = get_data(data_path, submit.filename.clone());
   if data.is_err() { return Err(data.unwrap_err()); }
   let retval = serde_json::to_string(&to_nlist(data.unwrap()));
   if retval.is_err() { return Err(retval.unwrap_err().to_string()); }

@@ -1,17 +1,17 @@
-<div class="pt-5p5"></div>
-<h2 *ngIf="!is_edit_title()">
-  {{ get_translate(template.name ?? '') ?? '' }}
+<h2 *ngIf="!is_edit_title">
+  {{ template.name }}
   <fa-icon [icon]="faEdit" (click)="edit_title()"></fa-icon>
 </h2>
-<div class="input-group mb-3" *ngIf="is_edit_title()">
+<div class="input-group mb-3" *ngIf="is_edit_title">
   <input type="text" class="form-control" [(ngModel)]="title_name" minlength="1" maxlength="50" (keydown.enter)="finish_edit_title()" />
   <button class="btn btn-primary" (click)="finish_edit_title()"><fa-icon [icon]="faSave"></fa-icon></button>
 </div>
-<span *ngIf="!is_edit_desc()">
-  {{ get_description() }}
+
+<span *ngIf="!is_edit_desc">
+  {{ template.description }}
   <fa-icon [icon]="faEdit" (click)="edit_desc()"></fa-icon>
 </span>
-<div class="input-group mb-3" *ngIf="is_edit_desc()">
+<div class="input-group mb-3" *ngIf="is_edit_desc">
   <!-- No use textarea here deliberately. -->
   <input type="text" class="form-control" [(ngModel)]="desc_name" maxlength="255" (keydown.enter)="finish_edit_desc()" />
   <button class="btn btn-primary" (click)="finish_edit_desc()"><fa-icon [icon]="faSave"></fa-icon></button>
@@ -28,10 +28,7 @@
           <!-- Required for the icon to load. Otherwise, won't load. -->
           <span class="caption"></span>
         </a></li>
-        <!-- Have to remove if smaller than SM, otherwise very ugly.  -->
-        <!-- And make longer with sm/md, as it's too short. -->
         <div class="vl"></div>
-        
         
         <!-- Different types -->
         <!-- Reminder (a header, and a single question of 'how') -->
@@ -56,11 +53,11 @@
   <div class="col-md-4 col-xl-3 col-xxl-2 pt-3">
     <h5>{{ 'templ.Stages' | translate }}</h5>
     <ul class="navbar-nav">
-      <li class="nav-item nav-sidebar" [ngClass]="is_active_stage(s.step)" *ngFor="let s of stages">
-        <a class="nav-link" role="button" (click)="sel_stage(s.step)" (click.double)="edit_stage(s.step)">
-          <ng-container *ngIf="!is_edit_stage(s.step)">{{ get_translate(s.name) }}</ng-container>
-          <ng-container *ngIf="is_edit_stage(s.step)">
-            <input type="text" class="form-control" [(ngModel)]="stage_name" #editStage (keydown.enter)="finish_edit_stage()" />
+      <li class="nav-item nav-sidebar" [ngClass]="is_active_stage(i)" *ngFor="let s of stages; let i=index">
+        <a class="nav-link" role="button" (click)="sel_stage(i)" (click.double)="edit_stage(i)">
+          <ng-container *ngIf="!is_edit_stage(i)">{{ s.name }}</ng-container>
+          <ng-container *ngIf="is_edit_stage(i)">
+            <input type="text" class="form-control" [(ngModel)]="stage_name" #editStage (keydown.enter)="finish_edit_stage()" autofocus />
           </ng-container>
         </a>
       </li>
@@ -69,7 +66,7 @@
       <li class="nav-item nav-sidebar">
         <a class="nav-link" role="button" (click)="add_stage()">
           <fa-icon [icon]="faAddStage"></fa-icon>
-          Add Stage
+          {{ 'templ.AddStage' | translate }}
         </a>
       </li>
     </ul>
@@ -88,16 +85,16 @@
   <div class="col">
     <div class="card" (click)="openReminders(p.id)">
       <h5 class="card-header">
-        {{ get_translate(p.title) }}
+        {{ p.title }}
       </h5>
-      <div class="card-body">
+      <!-- <div class="card-body">
         <p class="card-text">{{ get_translate(p.questions[0].q) }}</p>
-      </div>
+      </div> -->
     </div>
   </div>
 </ng-template>
 
-{{ pipeline | json }}
+<!-- {{ pipeline | json }} -->
 <br>
 <!-- <button (click)="delete_all_stages()">Delete all stages</button> -->
 <pre>
@@ -105,4 +102,6 @@
 </pre>
 
 <!-- <button (click)="load()">Manual Load</button> -->
-<button (click)="test_get()">Test Get</button>
+<!-- <button (click)="test_get()">Test Get</button> -->
+
+{{ curr_edit_stage | json }}

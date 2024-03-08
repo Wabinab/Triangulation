@@ -12,7 +12,8 @@
     "newProject": "Nouveau Projet",
     "newTemplate": "Nouveau Modèle",
     "allProject": "Tous les Projets",
-    "allTemplate": "Tous les Modèle"
+    "allTemplate": "Tous les Modèle",
+    "Filters": "Filtres"
   },
   "newProj": {
     "title": "Créer une Nouveau Projet",
@@ -32,7 +33,8 @@
     "charOver": "characters dépassant la limite"
   },
   "templ": {
-    "Stages": "Étapes"
+    "Stages": "Étapes",
+    "AddStage": "Ajoute autre étape"
   },
   "reminder": {
     "title": "Titre"

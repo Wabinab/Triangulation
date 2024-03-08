@@ -12,7 +12,8 @@
     "newProject": "New Project",
     "newTemplate": "New Template",
     "allProject": "All Projects",
-    "allTemplate": "All Templates"
+    "allTemplate": "All Templates",
+    "Filters": "Filters"
   },
   "newProj": {
     "title": "Create a New Project",
@@ -30,7 +31,8 @@
     "charOver": "characters over the limit"
   },
   "templ": {
-    "Stages": "Stages"
+    "Stages": "Stages",
+    "Add Stage": "Add Another Stage"
   },
   "reminder": {
     "title": "Title"

@@ -2,26 +2,22 @@ use crate::*;
 use self::{compressor::{compress_and_save, retrieve_decompress}, reminder_dto::{ReminderTrait, SubmitReminder}};
 
 pub(crate) fn new_pipeline(data_path: PathBuf, msg: Bytes, ty: usize) -> Result<Option<String>, String> {
-  match ty {
-    0 => modify_reminder(data_path, msg, CRUD::Create),
-    _ => Err("New Pipeline: None of the ty matches.".to_owned())
-  }
+  choose_ty(data_path, msg, ty, CRUD::Create)
 }
 
 pub(crate) fn edit_pipeline(data_path: PathBuf, msg: Bytes, ty: usize) -> Result<Option<String>, String> {
-  match ty {
-    0 => modify_reminder(data_path, msg, CRUD::Update),
-    _ => Err("Edit Pipeline: None of the ty matches.".to_owned())
-  }
+  choose_ty(data_path, msg, ty, CRUD::Update)
 }
 
 pub(crate) fn delete_pipeline(data_path: PathBuf, msg: Bytes, ty: usize) -> Result<Option<String>, String> {
-  match ty {
-    0 => modify_reminder(data_path, msg, CRUD::Delete),
-    _ => Err("Delete Pipeline: None of the ty matches.".to_owned())
-  }
+  choose_ty(data_path, msg, ty, CRUD::Delete)
 }
 
+pub(crate) fn get_pipeline(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
+  
+}
+
+// =====================================================================================
 /// Either new_reminder or edit_reminder, use this. 
 fn modify_reminder(data_path: PathBuf, msg: Bytes, is_new: CRUD) -> Result<Option<String>, String> {
   let submit: SubmitReminder = serde_json::from_slice(&msg).unwrap();
@@ -43,6 +39,13 @@ fn modify_reminder(data_path: PathBuf, msg: Bytes, is_new: CRUD) -> Result<Optio
 
 
 // ===================================================
+fn choose_ty(data_path: PathBuf, msg: Bytes, ty: usize, is_new: CRUD) -> Result<Option<String>, String> {
+  match ty {
+    0 => modify_reminder(data_path, msg, is_new),
+    _ => Err(format!("{:?} Pipeline: None of the ty matches.", is_new))
+  }
+}
+
 fn modify_datapath(data_path: PathBuf) -> PathBuf {
   let mut data_path = data_path;
   data_path.push("template");
