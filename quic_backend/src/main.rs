@@ -1,7 +1,8 @@
 use std::{
-    collections::HashMap, fs::{self, File}, io::{self, prelude::*}, path::{self, Path, PathBuf}, thread, time::Duration
+    collections::HashMap, fs::{self, File}, io::{self, prelude::*}, 
+    path::{self, Path, PathBuf}, time::Duration
 };
-use quinn::{ServerConfig, VarInt};
+use quinn::ServerConfig;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
@@ -56,6 +57,10 @@ struct Args {
 
     #[arg(long, default_value = "../data")]
     pub data_path: path::PathBuf,
+
+    /// Move localhost.hex to angular path
+    #[arg(long, default_value = "../frontend/src/assets")]
+    pub ng_asset_path: path::PathBuf,
 }
 
 #[tokio::main]
@@ -98,7 +103,7 @@ async fn start_server(args: Args) -> anyhow::Result<()> {
 
     // Accept new connections.
     while let Some(conn) = server.accept().await {
-        if check_and_renew(args.cert_path.as_path()) { 
+        if check_and_renew(args.cert_path.as_path(), args.ng_asset_path.as_path()) { 
           let config = gen_config(Args::parse())?;
           server.set_server_config(Some(config));
           info!("Set new server config");
@@ -233,16 +238,17 @@ async fn run_session(session: Session, path: String) -> anyhow::Result<()> {
 
 
 // ==================================================
-// TBD: Replace all unwrap with proper error handling. 
+// All unwrap() are left as it is; because if it fails, we'll need to debug, so no need
+// alternative error message. 
 
 /// Check for certificate expiry. If expired, call `renew_cert`. 
 /// If can't find cert_param.json, also call `renew_cert.`
 /// return "true" if renewed.
-fn check_and_renew(root: &Path) -> bool {
+fn check_and_renew(root: &Path, ng_path: &Path) -> bool {
   let path = root.join("cert_param.json");
   let read_data_opt = fs::read(path);
   if read_data_opt.is_err() {
-      return renew_cert(root);
+      return renew_cert(root, ng_path);
   }
   let read_data = read_data_opt.unwrap();
   let data = String::from_utf8_lossy(&read_data).into_owned();
@@ -250,14 +256,14 @@ fn check_and_renew(root: &Path) -> bool {
 
   let difference = OffsetDateTime::now_utc().unix_timestamp()
     .checked_sub(serded.get("not_after").unwrap().to_owned()).unwrap();
-  if difference >= -1 * 60 * 60 * 24 { return renew_cert(root); }  // one day before expiry. 
+  if difference >= -1 * 60 * 60 * 24 { return renew_cert(root, ng_path); }  // one day before expiry. 
   // return false;
   return false;  // for debug purposes. 
 }
 
 /// renew certificate.
 /// Always return true at end. 
-fn renew_cert(root: &Path) -> bool {
+fn renew_cert(root: &Path, ng_path: &Path) -> bool {
   info!("Certificate expiring. Renewing!");
   let mut cert_params =
       rcgen::CertificateParams::new(vec!["localhost".to_string(), "127.0.0.1".to_string()]);
@@ -297,6 +303,9 @@ fn renew_cert(root: &Path) -> bool {
 
   println!("Fingerprint {}", fingerprint_hex);
   let mut file = File::create(root.join("localhost.hex")).unwrap();
+  file.write_all(fingerprint_hex.as_bytes()).unwrap();
+  // Make a copy at angular assets folder. 
+  let mut file = File::create(ng_path.join("localhost.hex")).unwrap();
   file.write_all(fingerprint_hex.as_bytes()).unwrap();
 
   // Call function to restart

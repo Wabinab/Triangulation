@@ -45,7 +45,7 @@ export class TemplateComponent {
     setTimeout(() => this.load(), 500);
   }
 
-  async load() {
+  async load(curr_stage: number = 0) {
     if (!this.filename) { this.doErr("Filename not defined.", this.loading); return;}
     const row = {
       filename: this.filename
@@ -54,7 +54,7 @@ export class TemplateComponent {
     this.template = JSON.parse(value);
     this.stages = this.template?.stages;
     this.stages.sort(this.compareSteps);
-    this.pipeline = this.stages[0]['pipeline'] ?? [];
+    this.pipeline = this.stages[curr_stage]['pipeline'] ?? [];
     this.loading = false;
   }
 
@@ -97,14 +97,17 @@ export class TemplateComponent {
 
   add_stage() {
     this.stages.push({ name: "", pipeline: [] });
-    this.curr_stage = this.stages.length;
+    this.curr_stage = this.stages.length - 1;
     this.initial_add_stage = true;
-    this.edit_stage(this.curr_stage - 1);
+    this.edit_stage(this.curr_stage);
   }
 
   edit_stage(stage: number) {
     this.curr_edit_stage = stage;
     this.stage_name = this.stages[stage]["name"];
+    setTimeout((_: any) => {
+      if (this.editStage !== undefined) this.editStage.nativeElement.focus();
+    }, 100);
   }
 
   finish_edit_stage() {
@@ -113,6 +116,7 @@ export class TemplateComponent {
       ? this.curr_edit_stage?.toString() : this.stage_name;
     this._internal_sel_stage(this.curr_edit_stage);
     this.curr_edit_stage = null;
+    this.save();
   }
 
   modalCancel: any;
@@ -121,11 +125,15 @@ export class TemplateComponent {
     this.modalCancel = this.modalSvc.open(CancellationComponent);
     this.modalCancel.componentInstance.back_path = "hide modal";
     this.modalCancel.componentInstance.title = 'cancellation.Sure';
-    const value = this.modalCancel.closed.subscribe((res: any) => {
+    this.modalCancel.componentInstance.back_dismiss = true;
+    const value = this.modalCancel.closed.subscribe(async (res: any) => {
       const i = this.curr_stage;
-      if (i > -1) this.stages.splice(i, 1);
-      this._internal_sel_stage(i - 1);
-      this.toastr.success(`Removed Stage ${i + 1}`);
+      if (i > -1) {
+        var stage = this.stages.splice(i, 1)[0];
+        this._internal_sel_stage(i - 1);
+        this.toastr.success(`Removed ${stage.name}`);
+        await this.save();
+      }
     });
   }
 
@@ -183,6 +191,7 @@ export class TemplateComponent {
     if (this.title_name.length > 50) { this.toastr.error('At most 50 characters.', 'Title too long'); return; }
     this.template['name'] = this.title_name;
     this.is_edit_title = false;
+    this.save();
   }
 
   desc_name = '';
@@ -196,6 +205,7 @@ export class TemplateComponent {
     if (this.desc_name.length > 255) { this.toastr.error('At most 255 characters.', 'Description too long.'); return; }
     this.template['description'] = this.desc_name;
     this.is_edit_desc = false;
+    this.save();
   }
 
   // ================================================
@@ -214,7 +224,8 @@ export class TemplateComponent {
     this.modalReminder.componentInstance.curr_stage = this.curr_stage;
     this.modalReminder.componentInstance.filename = this.filename;
     this.modalReminder.closed.subscribe(async (res: any) => {
-      await this.load();
+      await this.load(this.curr_stage);
+      console.log("Curr Stage: "+this.curr_stage);
     });
     // this.modalReminder.dismissed.subscribe((res: any) => {
     //   console.log("dismissed");
@@ -229,10 +240,21 @@ export class TemplateComponent {
     this.modalCancel = this.modalSvc.open(CancellationComponent);
     this.modalCancel.componentInstance.back_path = "hide modal";
     this.modalCancel.componentInstance.title = 'cancellation.Sure';
-    const value = this.modalCancel.closed.subscribe((res: any) => {
+    this.modalCancel.componentInstance.back_dismiss = true;
+    const value = this.modalCancel.closed.subscribe(async (res: any) => {
       // Will call http3 later. 
-      this.pipeline.splice(i, 1);
-      this.toastr.success(`Removed Question ${i+1}`);
+      if (i > -1) {
+        var question = this.pipeline.splice(i, 1)[0];
+        this.toastr.success(`Removed Question ${i+1}: ${question.title}`);
+  
+        const body = {
+          filename: this.filename,
+          stage_index: this.curr_stage,
+          reminder_index: i
+        };
+        const reply = await this.http3.send('/pipeline/0/delete', JSON.stringify(body));
+        console.log(reply);
+      }
     });
   }
 

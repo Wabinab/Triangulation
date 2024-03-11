@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
   providedIn: 'root'
@@ -7,12 +8,10 @@ import { Injectable } from '@angular/core';
 export class Http3Service {
 
   url_host = "https://localhost:4443";
-  // url_host = "https://4443-wabinab-triangulation-d6l0sn9rmfn.ws-us108.gitpod.io";
-  cert_host = "https://4443-wabinab-triangulation-d6l0sn9rmfn.ws-us108.gitpod.io/";
-  // cert_host = "https://localhost:4443";
+  cert_host = "assets/localhost.hex"
   fingerprint: any;
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private toastr: ToastrService) {
     this.fetch_fingerprint();
   }
 
@@ -23,15 +22,17 @@ export class Http3Service {
       for (let c = 0; c < fHex.length - 1; c += 2) {
         this.fingerprint.push(parseInt(fHex.substring(c, c + 2), 16));
       }
-      console.log(this.fingerprint);
+      // console.log(this.fingerprint);
     }, err => {
-      let fHex = "50b628ebd64ff1f061255c97402e954f9c0afd991ecf31675ca4c926dda9787e";
+      // let fHex = "50b628ebd64ff1f061255c97402e954f9c0afd991ecf31675ca4c926dda9787e";
       // let fHex = "8ac49231c05972d3e1f18e9605c1a6a5b289a74c7ae9180af20bea1570dbf076"
-      this.fingerprint = [];
-      for (let c = 0; c < fHex.length - 1; c += 2) {
-        this.fingerprint.push(parseInt(fHex.substring(c, c + 2), 16));
-      }
-      console.warn(err);
+      // this.fingerprint = [];
+      // for (let c = 0; c < fHex.length - 1; c += 2) {
+      //   this.fingerprint.push(parseInt(fHex.substring(c, c + 2), 16));
+      // }
+      console.error(err);
+      this.toastr.error("Renewing cert. Refreshing in 5 seconds...");
+      setTimeout(() => window.location.reload(), 5000);
       // console.log(this.fingerprint);
     });
   }

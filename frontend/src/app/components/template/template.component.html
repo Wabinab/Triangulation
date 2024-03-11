@@ -76,8 +76,9 @@
   </div>
 
   <div class="col-md-8 col-xl-9 col-xxl-10 pt-3">
-    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 row-cols-xxl-4 g-3" *ngFor="let p of pipeline; let i=index">
-      <ng-template [ngTemplateOutlet]="reminderTempl" [ngTemplateOutletContext]="{ $implicit: p, i: i }"></ng-template>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 row-cols-xxl-4 g-3">
+      <ng-template [ngTemplateOutlet]="reminderTempl" [ngTemplateOutletContext]="{ $implicit: p, i: i }"
+      *ngFor="let p of pipeline; let i=index"></ng-template>
     </div>
   </div>
 </div>
@@ -102,8 +103,9 @@
 <br>
 <!-- <button (click)="delete_all_stages()">Delete all stages</button> -->
 <pre>
-  {{ template | json }}
-  <!-- {{ pipeline | json }} -->
+  <!-- {{ template | json }} -->
+  <!-- {{ curr_edit_stage }} -->
+  {{ pipeline | json }}
 </pre>
 
 <!-- <button (click)="load()">Manual Load</button> -->

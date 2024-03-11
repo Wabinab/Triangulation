@@ -6,7 +6,7 @@
 
 // TBD: All .expect should be replaced with match and error!(...) and stop execution. 
 
-use anyhow::Error;
+// use anyhow::Error;
 use jsonm::{packer::{PackOptions, Packer}, unpacker::{Unpacker, UnpackerError}};
 use flate2::{Compression, write::ZlibEncoder, read::ZlibDecoder};
 // use uuid::Uuid;
@@ -62,7 +62,7 @@ pub(crate) fn retrieve_decompress(filepath: PathBuf, filename: String) -> Result
     let mut packed = String::new();
     let ret = dec.read_to_string(&mut packed);
     if ret.is_err() { return Err("retrieve_decompress: failed to decompress.".to_owned()); }
-    let ret = ret.unwrap();
+    // let ret = ret.unwrap();
     // dec.read_to_string(&mut packed).unwrap();
 
     let mut unpacker = Unpacker::new();

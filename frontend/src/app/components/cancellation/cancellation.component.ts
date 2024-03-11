@@ -15,6 +15,7 @@ export class CancellationComponent {
   // @Output() emitCallback = new EventEmitter<any>();
 
   @Input() title: string = 'cancellation.Save';
+  @Input() back_dismiss: boolean = false;  // dismiss instead of close when calling back(). 
   @Input() back_path: any;
 
   constructor(private router: Router) {}
@@ -26,10 +27,12 @@ export class CancellationComponent {
 
   back() {
     if (this.back_path == "hide modal") {
-      this.bsModalRef.close({ ty: 'hide' });
+      if (!this.back_dismiss) { this.bsModalRef.close({ ty: 'hide' }); return; }
+      this.bsModalRef.dismiss({ ty: 'hide' });
       // this.emitCallback.emit({ ty: 'hide' });
     } else {
-      this.bsModalRef.close({});
+      if (!this.back_dismiss) this.bsModalRef.close({});
+      else this.bsModalRef.dismiss({});
       this.router.navigateByUrl(this.back_path);
     }
   }
