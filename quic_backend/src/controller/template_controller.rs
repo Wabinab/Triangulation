@@ -1,10 +1,11 @@
 use uuid::Uuid;
+use std::fs;
 
 use crate::*;
 
-use self::{compressor::{compress_and_save, retrieve_decompress}, 
+use self::{compressor::{compress_and_save, retrieve_decompress, retrieve_decompress_fullpath}, 
   file::gen_filename, stage_dto::{StageTrait, SubmitStage}, 
-  template_dto::{to_nlist, SubmitGetTemplate, SubmitTemplate, TemplateTrait}
+  template_dto::{to_nameonly, to_nlist, SubmitGetTemplate, SubmitTemplate, TemplateTrait}
 };
 
 // =================================================
@@ -28,6 +29,29 @@ pub(crate) fn get_template_nlist(data_path: PathBuf, msg: Bytes) -> Result<Optio
   if retval.is_err() { return Err(retval.unwrap_err().to_string()); }
 
   Ok(Some(retval.unwrap()))
+}
+
+/// Although called 'nameonly', but actually returns name and uuid. 
+/// This return a list of templates rather than one single template
+pub(crate) fn get_templates_nameonly(data_path: PathBuf) -> Result<Option<String>, String> {
+  let paths = fs::read_dir(modify_datapath(data_path)).unwrap();
+  let mut errors: Vec<String> = vec![]; 
+  let mut retvals: Vec<Value> = vec![];
+  for path in paths {
+    if path.is_err() { errors.push(path.unwrap_err().to_string()); continue; }
+    let data = retrieve_decompress_fullpath(path.unwrap().path());
+    if data.is_err() { errors.push(data.unwrap_err()); continue; }
+    let retval = serde_json::to_value(&to_nameonly(data.unwrap()));
+    if retval.is_err() { errors.push(retval.unwrap_err().to_string()); continue; }
+    retvals.push(retval.unwrap());
+  }
+
+  let retval = json!({
+    "data": retvals,
+    "err": errors
+  }).to_string();
+
+  Ok(Some(retval))
 }
 
 

@@ -1,0 +1,14 @@
+{
+  "name": "...",
+  "uuid": "This is project uuid",
+  "description": "...",
+  "t_uuid": "Template UUID",
+  "t_ver": 0,
+  "pipelines": [
+    [
+      ["answer 1", "answer 2", 3, ["list of answer 4, for grid"]],
+      ["pipeline 2 answers here"]
+    ],
+    ["stages 2 answers here"]
+  ]
+}

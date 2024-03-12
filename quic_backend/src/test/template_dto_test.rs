@@ -1,6 +1,6 @@
 use serde_json::Value;
 
-use crate::template_dto::to_nlist;
+use crate::template_dto::{to_nlist, SubmitTemplate, TemplateTrait};
 
 // use super::*;
 
@@ -25,8 +25,35 @@ fn get_old_serde() -> Value {
 // =====================================================
 
 #[test]
-fn test_edit_template() {
+fn test_new_template() {
+  let d = r#"{
+    "name": "New Template",
+    "description": "New Description",
+    "filename": "..."
+  }"#;
+  let submit: SubmitTemplate = serde_json::from_str(&d).unwrap();
 
+  let uuid = "Test UUID".to_string();
+  let edited_serde = submit.new_template(uuid.clone());
+  assert_eq!(edited_serde["name"], "New Template");
+  assert_eq!(edited_serde["description"], "New Description");
+  assert_eq!(edited_serde["uuid"], uuid.as_str());
+}
+
+#[test]
+fn test_edit_template() {
+  let old_serde = get_old_serde();
+
+  let d = r#"{
+    "name": "New Template",
+    "description": "New Description",
+    "filename": "..."
+  }"#;
+  let submit: SubmitTemplate = serde_json::from_str(&d).unwrap();
+
+  let edited_serde = submit.edit_template(old_serde);
+  assert_eq!(edited_serde["name"], "New Template");
+  assert_eq!(edited_serde["description"], "New Description");
 }
 
 #[test]

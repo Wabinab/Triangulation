@@ -5,6 +5,7 @@ import { SharedFormsModule } from '../../../shared/shared-forms.module';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CancellationComponent } from '../../cancellation/cancellation.component';
 import { TranslateService } from '@ngx-translate/core';
+import { Http3Service } from '../../../services/http3.service';
 
 @Component({
   selector: 'app-new-proj-modal',
@@ -23,12 +24,21 @@ export class NewProjModalComponent {
   @Output() emitCallback = new EventEmitter<any>();
   private modalSvc = inject(NgbModal);
 
-  constructor(private fb: FormBuilder, private translate: TranslateService) {
+  constructor(private fb: FormBuilder, private translate: TranslateService,
+    private http3: Http3Service
+  ) {
     this.myForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(50)]],
       description: ['', [Validators.maxLength(this.desc_limit)]],
       template_uuid: ['', [Validators.required]]  // more validation later. 
     });
+    setTimeout(() => { this.onLoad(); }, 150);  // for webtransport to load. 
+  }
+
+  async onLoad() {
+    let data = await this.http3.send("/templates", JSON.stringify({}));
+    let json_data = JSON.parse(data);
+    this.templates = json_data.data;
   }
 
   

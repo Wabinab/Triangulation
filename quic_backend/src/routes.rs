@@ -6,6 +6,7 @@ pub(crate) fn routes_handler(msg: Bytes, path: String, data_path: PathBuf) -> Re
 
         "/template" => template_controller::get_template(data_path, msg),
         "/template/nlist" => template_controller::get_template_nlist(data_path, msg),
+        "/templates" => template_controller::get_templates_nameonly(data_path),
         "/template/new" => template_controller::new_template(data_path, msg),
         "/template/edit" => template_controller::edit_template(data_path, msg),
 

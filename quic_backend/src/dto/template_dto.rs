@@ -68,3 +68,14 @@ pub(crate) struct PipelineNList {
   pub(crate) ty: u64,
   pub(crate) title: String
 }
+
+// ==============================================
+pub(crate) fn to_nameonly(old_serde: Value) -> TemplateNameonly {
+  serde_json::from_value(old_serde).unwrap()
+}
+
+#[derive(Serialize, Deserialize)]
+pub(crate) struct TemplateNameonly {
+  pub(crate) name: String,
+  pub(crate) uuid: String
+}

@@ -64,3 +64,8 @@ pub(crate) fn gen_filename(name: String) -> String {
     .take(50)
     .collect()
 }
+
+pub(crate) fn strip_ext(filename: String) -> String {
+  let g = filename.split(".").next();
+  g.unwrap().to_string()
+}
