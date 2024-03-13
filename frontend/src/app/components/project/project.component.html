@@ -1,0 +1,78 @@
+<h2 *ngIf="!is_edit_title">
+  {{ project.name }}
+  <fa-icon [icon]="faEdit" (click)="edit_title()"></fa-icon>
+</h2>
+<div class="input-group mb-3" *ngIf="is_edit_title">
+  <input type="text" class="form-control" [(ngModel)]="title_name" minlength="1" maxlength="50" (keydown.enter)="finish_edit_title()" />
+  <button class="btn btn-primary" (click)="finish_edit_title()"><fa-icon [icon]="faSave"></fa-icon></button>
+</div>
+
+<span *ngIf="!is_edit_desc">
+  {{ project.description }}
+  <fa-icon [icon]="faEdit" (click)="edit_desc()"></fa-icon>
+</span>
+<div class="input-group mb-3" *ngIf="is_edit_desc">
+  <!-- No use textarea here deliberately. -->
+  <input type="text" class="form-control" [(ngModel)]="desc_name" maxlength="255" (keydown.enter)="finish_edit_desc()" />
+  <button class="btn btn-primary" (click)="finish_edit_desc()"><fa-icon [icon]="faSave"></fa-icon></button>
+</div>
+<br *ngIf="!is_edit_desc">
+
+<span *ngIf="!is_edit_ver">
+  {{ 'proj.Version' | translate }}: {{ project.version }}
+  <fa-icon [icon]="faEdit" (click)="edit_ver()"></fa-icon>
+</span>
+<div class="input-group mb-3" *ngIf="is_edit_ver">
+  <span class="input-group-text">{{ 'proj.Version' | translate }}:</span>
+  <select class="form-select" [(ngModel)]="curr_ver">
+    @for (v of get_versions(); track v) {
+      <option [value]="v">V{{ v }}</option>
+    }
+  </select>
+  <button class="btn btn-primary" (click)="confirm_version()"><fa-icon [icon]="faSave"></fa-icon></button>
+</div>
+
+<div class="pt-2"></div>
+<div class="container row">
+  <div class="col-md-4 col-xl-3 col-xxl-2 pt-3">
+    <!-- Template name and description here. -->
+    <h5><a data-bs-toggle="collapse" href="#collapseTempInfo" role="button" aria-expanded="false" aria-controls="collapseTempInfo">{{ 'proj.TempInfo' | translate }}</a></h5>
+    <div class="collapse" id="collapseTempInfo">
+      <h6>{{ 'newTempl.name' | translate }}: {{ template.name }}</h6>
+      <p>{{ 'newTempl.description' | translate }}: {{ template.description }}</p>
+    </div>
+
+    <div class="pt-3"></div>
+    <h5>{{ 'templ.Stages' | translate }}</h5>
+    <ul class="navbar-nav">
+      <li class="nav-item nav-sidebar" [ngClass]="is_active_stage(i)" *ngFor="let s of stages; let i=index">
+        <a class="nav-link" role="button" (click)="sel_stage(i)">{{ s.name }}</a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="col-md-8 col-xl-9 col-xxl-10 pt-3">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 row-cols-xxl-4 g-3">
+      <ng-template [ngTemplateOutlet]="reminderTempl" [ngTemplateOutletContext]="{ $implicit: p, i: i }"
+      *ngFor="let p of pipeline; let i=index"></ng-template>
+    </div>
+  </div>
+</div>
+
+<ng-template #reminderTempl let-p let-i="i">
+  <div class="col">
+    <div class="card card-hover border-primary">
+      <h5 class="card-header" hover-class="text-bg-primary | null" (click)="openReminders(i)">
+        {{ p.title }}
+      </h5>
+    </div>
+  </div>
+</ng-template>
+
+
+<!-- DEBUG -->
+<br>
+<!-- {{ is_edit_ver | json }} -->
+<pre>
+  {{ project | json }}
+</pre>

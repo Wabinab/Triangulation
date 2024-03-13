@@ -1,5 +1,5 @@
 use crate::*;
-use self::{compressor::{compress_and_save, retrieve_decompress}, pipeline_dto::{PipelineTrait, SubmitPipeline}, reminder_dto::{ReminderTrait, SubmitReminder}};
+use self::{compressor::{compress_and_save, retrieve_decompress}, pipeline_dto::{PipelineTrait, SubmitPipeline}, reminder_dto::{ReminderTrait, SubmitReminder}, versioning::{get_verpath, upd_ver_temp}};
 
 pub(crate) fn new_pipeline(data_path: PathBuf, msg: Bytes, ty: usize) -> Result<Option<String>, String> {
   choose_ty(data_path, msg, ty, CRUD::Create)
@@ -36,7 +36,11 @@ fn modify_reminder(data_path: PathBuf, msg: Bytes, is_new: CRUD) -> Result<Optio
   };
   if edited_serde.is_err() { return Err(edited_serde.unwrap_err()); }
   let ret = compress_and_save(edited_serde.clone().unwrap().to_string(), 
-    modify_datapath(data_path), submit.filename.clone());
+    modify_datapath(data_path.clone()), submit.filename.clone());
+  if ret.is_err() { return Err(ret.unwrap_err()); }
+
+  // Update versioning if applicable. 
+  let ret = upd_ver_temp(get_verpath(data_path.clone()), submit.filename.clone());
   if ret.is_err() { return Err(ret.unwrap_err()); }
 
   Ok(Some(edited_serde.unwrap().to_string()))

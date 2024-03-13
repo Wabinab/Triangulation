@@ -1,5 +1,7 @@
 use crate::*;
 
+use self::messages::{OOB_REMINDER_IDX, OOB_STAGE_IDX, REMINDER_IDX_CANNOT_NULL};
+
 #[derive(Serialize, Deserialize, Debug)]
 pub(crate) struct SubmitReminder {
   pub(crate) filename: String,
@@ -25,7 +27,7 @@ impl ReminderTrait for SubmitReminder {
     let mut new_serde = old_serde.clone();
 
     let stages = new_serde["stages"][self.stage_index].clone();
-    if stages.is_null() { return Err("Out of Bound stage index.".to_owned()); }
+    if stages.is_null() { return Err(OOB_STAGE_IDX.to_owned()); }
 
     let mut pipelines = stages["pipeline"].as_array().unwrap().clone();
     let data = json!({
@@ -43,10 +45,10 @@ impl ReminderTrait for SubmitReminder {
     let mut new_serde = old_serde.clone();
 
     let stages = new_serde["stages"][self.stage_index].clone();
-    if stages.is_null() { return Err("Out of Bound stage index.".to_owned()); }
-    if self.reminder_index.is_none() { return Err("Reminder Index cannot be null.".to_owned()); }
+    if stages.is_null() { return Err(OOB_STAGE_IDX.to_owned()); }
+    if self.reminder_index.is_none() { return Err(REMINDER_IDX_CANNOT_NULL.to_owned()); }
     let pipeline = stages["pipeline"][self.reminder_index.unwrap()].clone();
-    if pipeline.is_null() { return Err("Out of Bound reminder index.".to_owned()); }
+    if pipeline.is_null() { return Err(OOB_REMINDER_IDX.to_owned()); }
 
     let data = json!({
       "ty": REMINDER_TYPE,
@@ -62,10 +64,10 @@ impl ReminderTrait for SubmitReminder {
     let mut new_serde = old_serde.clone();
 
     let stages = new_serde["stages"][self.stage_index].clone();
-    if stages.is_null() { return Err("Out of Bound stage index.".to_owned()); }
-    if self.reminder_index.is_none() { return Err("Reminder Index cannot be null.".to_owned()); }
+    if stages.is_null() { return Err(OOB_STAGE_IDX.to_owned()); }
+    if self.reminder_index.is_none() { return Err(REMINDER_IDX_CANNOT_NULL.to_owned()); }
     let pipeline = stages["pipeline"][self.reminder_index.unwrap()].clone();
-    if pipeline.is_null() { return Err("Out of Bound reminder index.".to_owned()); }
+    if pipeline.is_null() { return Err(OOB_REMINDER_IDX.to_owned()); }
 
     let bind_pipeline = stages["pipeline"].clone();
     let mut pipelines = bind_pipeline.as_array().unwrap().clone();

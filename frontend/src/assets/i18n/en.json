@@ -34,6 +34,11 @@
     "Stages": "Stages",
     "Add Stage": "Add Another Stage"
   },
+  "proj": {
+    "ConfirmVer": "Project May Break. Are You Sure?",
+    "Version": "Version",
+    "TempInfo": "Template Info"
+  },
   "reminder": {
     "title": "Title",
     "isNew": "New",

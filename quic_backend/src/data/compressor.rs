@@ -13,6 +13,8 @@ use flate2::{Compression, write::ZlibEncoder, read::ZlibDecoder};
 
 use crate::*;
 
+use self::messages::RD_CANNOT_FIND_FILE;
+
 /// data: the data in json format. 
 /// filepath: the path to save this (e.g. ./data/template) in PathBuf. 
 /// filename: the filename WITH UUID AND .json.zl already. 
@@ -60,7 +62,7 @@ pub(crate) fn retrieve_decompress(filepath: PathBuf, filename: String) -> Result
 
 pub(crate) fn retrieve_decompress_fullpath(fullpath: PathBuf) -> Result<Value, String> {
     let contents = fs::read(fullpath);
-    if contents.is_err() { return Err("retrieve_decompress: cannot find file.".to_string()); }
+    if contents.is_err() { return Err(RD_CANNOT_FIND_FILE.to_string()); }
     let contents: &[u8] = &contents.unwrap();
 
     let mut dec = ZlibDecoder::new(contents);

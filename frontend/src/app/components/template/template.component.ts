@@ -42,7 +42,7 @@ export class TemplateComponent {
     private route: ActivatedRoute, private fb: FormBuilder, private toastr: ToastrService
   ) {
     this.loading = true;
-    setTimeout(() => this.load(), 500);
+    setTimeout(() => this.load(), 150);
   }
 
   async load(curr_stage: number = 0) {
@@ -117,24 +117,6 @@ export class TemplateComponent {
     this._internal_sel_stage(this.curr_edit_stage);
     this.curr_edit_stage = null;
     this.save();
-  }
-
-  modalCancel: any;
-  remove_stage() {
-    // Need confirmation. 
-    this.modalCancel = this.modalSvc.open(CancellationComponent);
-    this.modalCancel.componentInstance.back_path = "hide modal";
-    this.modalCancel.componentInstance.title = 'cancellation.Sure';
-    this.modalCancel.componentInstance.back_dismiss = true;
-    const value = this.modalCancel.closed.subscribe(async (res: any) => {
-      const i = this.curr_stage;
-      if (i > -1) {
-        var stage = this.stages.splice(i, 1)[0];
-        this._internal_sel_stage(i - 1);
-        this.toastr.success(`Removed ${stage.name}`);
-        await this.save();
-      }
-    });
   }
 
   delete_all_stages() {
@@ -223,7 +205,7 @@ export class TemplateComponent {
     this.modalReminder.componentInstance.id = id;  // because slist won't return all items later on. 
     this.modalReminder.componentInstance.curr_stage = this.curr_stage;
     this.modalReminder.componentInstance.filename = this.filename;
-    this.modalReminder.closed.subscribe(async (res: any) => {
+    this.modalReminder.closed.subscribe(async (_: any) => {
       await this.load(this.curr_stage);
       console.log("Curr Stage: "+this.curr_stage);
     });
@@ -236,12 +218,30 @@ export class TemplateComponent {
     this.openReminders(this.pipeline.length);
   }
 
+  modalCancel: any;
+  remove_stage() {
+    // Need confirmation. 
+    this.modalCancel = this.modalSvc.open(CancellationComponent);
+    this.modalCancel.componentInstance.back_path = "hide modal";
+    this.modalCancel.componentInstance.title = 'cancellation.Sure';
+    this.modalCancel.componentInstance.back_dismiss = true;
+    this.modalCancel.closed.subscribe(async (_: any) => {
+      const i = this.curr_stage;
+      if (i > -1) {
+        var stage = this.stages.splice(i, 1)[0];
+        this._internal_sel_stage(i - 1);
+        this.toastr.success(`Removed ${stage.name}`);
+        await this.save();
+      }
+    });
+  }
+
   remove_question(i: number) {
     this.modalCancel = this.modalSvc.open(CancellationComponent);
     this.modalCancel.componentInstance.back_path = "hide modal";
     this.modalCancel.componentInstance.title = 'cancellation.Sure';
     this.modalCancel.componentInstance.back_dismiss = true;
-    const value = this.modalCancel.closed.subscribe(async (res: any) => {
+    this.modalCancel.closed.subscribe(async (_: any) => {
       // Will call http3 later. 
       if (i > -1) {
         var question = this.pipeline.splice(i, 1)[0];

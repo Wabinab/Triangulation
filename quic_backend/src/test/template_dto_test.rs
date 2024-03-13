@@ -1,6 +1,6 @@
 use serde_json::Value;
 
-use crate::template_dto::{to_nlist, SubmitTemplate, TemplateTrait};
+use crate::template_dto::{to_nlist_temp, SubmitTemplate, TemplateTrait};
 
 // use super::*;
 
@@ -59,7 +59,7 @@ fn test_edit_template() {
 #[test]
 fn test_deserialize_nlist() {
   let old_serde = get_old_serde();
-  let nlist = to_nlist(old_serde.clone());
+  let nlist = to_nlist_temp(old_serde.clone());
 
   assert_eq!(nlist.name, old_serde["name"]);
   assert_eq!(nlist.uuid, old_serde["uuid"]);

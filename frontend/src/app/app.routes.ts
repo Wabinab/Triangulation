@@ -18,6 +18,9 @@ export const routes: Routes = [
     { path: 'template', loadComponent: () => import(
         "./components/template/template.component"
     ).then((m) => m.TemplateComponent), title: 'Template' },
+    { path: 'project', loadComponent: () => import(
+        "./components/project/project.component"
+    ).then((m) => m.ProjectComponent), title: 'Project'},
 
     { path: '**', component: NotFoundComponent, title: 'Page Not Found' },
 ];

@@ -37,6 +37,7 @@ mod dto;
 mod data;
 mod json;
 mod types;
+mod messages;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]

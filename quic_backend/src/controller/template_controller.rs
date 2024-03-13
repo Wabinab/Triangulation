@@ -5,19 +5,19 @@ use crate::*;
 
 use self::{compressor::{compress_and_save, retrieve_decompress, retrieve_decompress_fullpath}, 
   file::gen_filename, stage_dto::{StageTrait, SubmitStage}, 
-  template_dto::{to_nameonly, to_nlist, SubmitGetTemplate, SubmitTemplate, TemplateTrait}
+  template_dto::{to_nameonly, to_nlist_temp, SubmitGetTemplate, SubmitTemplate, TemplateTrait}, versioning::{get_verpath, upd_ver_temp}
 };
 
 // =================================================
 // GET
-pub(crate) fn get_template(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
-  let submit: SubmitGetTemplate = serde_json::from_slice(&msg).unwrap();
+// pub(crate) fn get_template(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
+//   let submit: SubmitGetTemplate = serde_json::from_slice(&msg).unwrap();
 
-  let data = get_data(data_path, submit.filename.clone());
-  if data.is_err() { return Err(data.unwrap_err()); }
+//   let data = get_data(data_path, submit.filename.clone());
+//   if data.is_err() { return Err(data.unwrap_err()); }
 
-  Ok(Some(data.unwrap().to_string()))
-}
+//   Ok(Some(data.unwrap().to_string()))
+// }
 
 pub(crate) fn get_template_nlist(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
   let submit: SubmitGetTemplate = serde_json::from_slice(&msg).unwrap();
@@ -25,7 +25,8 @@ pub(crate) fn get_template_nlist(data_path: PathBuf, msg: Bytes) -> Result<Optio
 
   let data = get_data(data_path, submit.filename.clone());
   if data.is_err() { return Err(data.unwrap_err()); }
-  let retval = serde_json::to_string(&to_nlist(data.unwrap()));
+  let retval = serde_json::to_string(
+    &to_nlist_temp(data.unwrap()));
   if retval.is_err() { return Err(retval.unwrap_err().to_string()); }
 
   Ok(Some(retval.unwrap()))
@@ -62,19 +63,12 @@ pub(crate) fn new_template(data_path: PathBuf, msg: Bytes) -> Result<Option<Stri
   let submit: SubmitTemplate = serde_json::from_slice(&msg).unwrap();
   
   let uuid = Uuid::now_v7().to_string();
-  let data = submit.new_template(uuid.clone());
+  let filename = gen_filename(TEMPLATE_NAME.to_string(), uuid.clone(), None);
 
-  let mut filename = gen_filename(submit.name.clone());
-  // Move these into gen_filename later. 
-  if filename.len() == 0 { filename = "untitled".to_owned(); }
-  filename.push_str("_");
-  filename.push_str(&uuid);
-  filename.push_str(".json.zl");
-  
-  // Will not create file but use compress_and_save in the future. 
-  let mut data_path = data_path;
-  data_path.push("template");
-  let ret = compress_and_save(data.to_string(), data_path, filename.clone());
+  let data = submit.new_template(uuid.clone());
+  let data_path = modify_datapath(data_path);
+  let ret = compress_and_save(
+    data.to_string(), data_path, filename.clone());
   if ret.is_err() { return Err(ret.unwrap_err()); }
 
   Ok(Some(filename))
@@ -99,6 +93,10 @@ pub(crate) fn edit_template(data_path: PathBuf, msg: Bytes) -> Result<Option<Str
   
   let new_serde = submit.edit_stage(edited_serde);
   let ret = compress_and_save(new_serde.to_string(), data_path.clone(), submit.filename.clone());
+  if ret.is_err() { return Err(ret.unwrap_err()); }
+
+  // Update versioning when update template. 
+  let ret = upd_ver_temp(get_verpath(data_path.clone()), submit.filename.clone());
   if ret.is_err() { return Err(ret.unwrap_err()); }
 
   // We'll update to change filename too in the future. That isn't too important for now. 

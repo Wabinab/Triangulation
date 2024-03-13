@@ -60,7 +60,8 @@
         <a class="nav-link" role="button" (click)="sel_stage(i)" (click.double)="edit_stage(i)">
           <ng-container *ngIf="!is_edit_stage(i)">{{ s.name }}</ng-container>
           <ng-container *ngIf="is_edit_stage(i)">
-            <input type="text" class="form-control" [(ngModel)]="stage_name" #editStage (keydown.enter)="finish_edit_stage()" autofocus />
+            <input type="text" class="form-control" [(ngModel)]="stage_name" #editStage 
+            (keydown.enter)="finish_edit_stage()" autofocus />
           </ng-container>
         </a>
       </li>

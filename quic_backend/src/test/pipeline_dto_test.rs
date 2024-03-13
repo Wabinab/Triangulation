@@ -1,6 +1,6 @@
 use serde_json::Value;
 
-use crate::pipeline_dto::{PipelineTrait, SubmitPipeline};
+use crate::{messages::{OOB_PIPELINE_IDX, OOB_STAGE_IDX}, pipeline_dto::{PipelineTrait, SubmitPipeline}};
 
 fn get_old_serde() -> Value {
   let c = r#"{
@@ -47,7 +47,7 @@ fn test_pipeline_invalid_stage_index() {
   let submit: SubmitPipeline = serde_json::from_str(&d).unwrap();
 
   let edited_serde = submit.get_pipeline(old_serde);
-  assert!(edited_serde.is_err_and(|x| x == "Out of Bound stage index.".to_owned()));
+  assert!(edited_serde.is_err_and(|x| x == OOB_STAGE_IDX.to_owned()));
 }
 
 
@@ -63,5 +63,5 @@ fn test_pipeline_invalid_pipeline_index() {
   let submit: SubmitPipeline = serde_json::from_str(&d).unwrap();
 
   let edited_serde = submit.get_pipeline(old_serde);
-  assert!(edited_serde.is_err_and(|x| x == "Out of Bound pipeline index.".to_owned()));
+  assert!(edited_serde.is_err_and(|x| x == OOB_PIPELINE_IDX.to_owned()));
 }

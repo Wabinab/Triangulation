@@ -36,6 +36,11 @@
     "Stages": "Étapes",
     "AddStage": "Ajoute autre étape"
   },
+  "proj": {
+    "ConfirmVer": "Le Version peut incompatible. Es-tu sûr?",
+    "Version": "Version",
+    "TempInfo": "Informations sur le modèle"
+  },
   "reminder": {
     "title": "Titre",
     "isNew": "Nouveau",

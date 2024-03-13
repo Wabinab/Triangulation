@@ -6,6 +6,8 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CancellationComponent } from '../../cancellation/cancellation.component';
 import { TranslateService } from '@ngx-translate/core';
 import { Http3Service } from '../../../services/http3.service';
+import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-new-proj-modal',
@@ -25,7 +27,7 @@ export class NewProjModalComponent {
   private modalSvc = inject(NgbModal);
 
   constructor(private fb: FormBuilder, private translate: TranslateService,
-    private http3: Http3Service
+    private http3: Http3Service, private router: Router, private toastr: ToastrService
   ) {
     this.myForm = this.fb.group({
       name: ['', [Validators.required, Validators.maxLength(50)]],
@@ -39,10 +41,14 @@ export class NewProjModalComponent {
     let data = await this.http3.send("/templates", JSON.stringify({}));
     let json_data = JSON.parse(data);
     this.templates = json_data.data;
+    if (json_data.err.length > 0) { 
+      console.warn("json_data error starts below:");
+      console.error(json_data.err); 
+      this.toastr.error("Please check F12 log", "There are some errors with json_data");
+    }
   }
-
   
-  onSubmit() {
+  async onSubmit() {
     if (!this.myForm.valid || this.loading || this.submitting) return;
     this.submitting = true;
     const row = {
@@ -50,6 +56,13 @@ export class NewProjModalComponent {
       description: this.myForm.get('description')!.value,
       template_uuid: this.myForm.get('template_uuid')!.value,
     };
+
+    this.http3.send("/project/new", JSON.stringify(row)).then(filename => {
+      this.submitting = false;
+      this.router.navigate(["/project"], {queryParams: {
+        filename: filename
+      }});
+    }).catch(err => this.doErr(err));
   }
 
   modalCancel: any;
@@ -87,6 +100,7 @@ export class NewProjModalComponent {
     this.loading = false;
     this.submitting = false;
     console.error(err);
+    this.toastr.error(err);
     // Waiting for errSvc. 
   }
 

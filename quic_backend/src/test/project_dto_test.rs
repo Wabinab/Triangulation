@@ -1,12 +1,12 @@
-use serde_json::Value;
+use serde_json::{json, Value};
 
-use crate::project_dto::{ProjectTrait, SubmitProject};
+use crate::{messages::TEMPLATE_CANNOT_NULL, project_dto::{to_nlist_proj, ProjectTrait, SubmitProject}};
 
 fn get_old_serde() -> Value {
   let c = r#"{
-    "name": "...",
+    "name": "Some Name",
     "uuid": "This is project uuid",
-    "description": "...",
+    "description": "Some Desc",
     "t_uuid": "Template UUID",
     "t_ver": 0,
     "pipelines": [
@@ -38,6 +38,7 @@ fn test_new_project() {
   assert_eq!(edited_serde["description"], "Project description");
   assert_eq!(edited_serde["t_uuid"], "Some_uuid");
   assert_eq!(edited_serde["t_ver"], 0);
+  assert_eq!(edited_serde["pipelines"], json!([]));
 }
 
 #[test]
@@ -50,7 +51,7 @@ fn test_new_project_uuid_null() {
 
   let uuid = "Test UUID".to_string();
   let edited_serde = submit.new_project(uuid.clone(), 0);
-  assert!(edited_serde.is_err_and(|x| x == "Template must not be null.".to_owned()));
+  assert!(edited_serde.is_err_and(|x| x == TEMPLATE_CANNOT_NULL.to_owned()));
 }
 
 #[test]
@@ -87,4 +88,15 @@ fn test_edit_project_with_ver() {
   assert_eq!(edited_serde["description"], "Project description");
   assert_ne!(edited_serde["t_ver"], old_serde["t_ver"]);
   assert_eq!(edited_serde["t_ver"], 13);
+}
+
+#[test]
+fn test_to_proj_nlist() {
+  let old_serde = get_old_serde();
+  let data = to_nlist_proj(old_serde.clone());
+  assert_eq!(data.name, old_serde["name"]);
+  assert_eq!(data.description, old_serde["description"]);
+  assert_eq!(data.uuid, old_serde["uuid"]);
+  assert_eq!(data.t_uuid, old_serde["t_uuid"]);
+  assert_eq!(data.t_ver, old_serde["t_ver"]);
 }

@@ -1,6 +1,6 @@
 use serde_json::Value;
 
-use crate::reminder_dto::{ReminderTrait, SubmitReminder};
+use crate::{messages::{OOB_REMINDER_IDX, OOB_STAGE_IDX, REMINDER_IDX_CANNOT_NULL}, reminder_dto::{ReminderTrait, SubmitReminder}};
 
 // use super::*;
 
@@ -52,7 +52,7 @@ fn test_new_reminder_stage_index_invalid() {
   let submit: SubmitReminder = serde_json::from_str(&d).unwrap();
 
   let edited_serde = submit.new_reminder(old_serde.clone());
-  assert!(edited_serde.is_err_and(|x| x == "Out of Bound stage index.".to_owned()));
+  assert!(edited_serde.is_err_and(|x| x == OOB_STAGE_IDX.to_owned()));
 }
 
 #[test]
@@ -90,7 +90,7 @@ fn test_edit_reminder_invalid_stage_index() {
   let submit: SubmitReminder = serde_json::from_str(&d).unwrap();
 
   let edited_serde = submit.edit_reminder(old_serde);
-  assert!(edited_serde.is_err_and(|x| x == "Out of Bound stage index.".to_owned()));
+  assert!(edited_serde.is_err_and(|x| x == OOB_STAGE_IDX.to_owned()));
 }
 
 
@@ -106,7 +106,7 @@ fn test_edit_reminder_invalid_reminder_index() {
   let submit: SubmitReminder = serde_json::from_str(&d).unwrap();
 
   let edited_serde = submit.edit_reminder(old_serde);
-  assert!(edited_serde.is_err_and(|x| x == "Out of Bound reminder index.".to_owned()));
+  assert!(edited_serde.is_err_and(|x| x == OOB_REMINDER_IDX.to_owned()));
 }
 
 #[test]
@@ -120,7 +120,7 @@ fn test_edit_reminder_index_null() {
   let submit: SubmitReminder = serde_json::from_str(&d).unwrap();
 
   let edited_serde = submit.edit_reminder(old_serde);
-  assert!(edited_serde.is_err_and(|x| x == "Reminder Index cannot be null.".to_owned()));
+  assert!(edited_serde.is_err_and(|x| x == REMINDER_IDX_CANNOT_NULL.to_owned()));
 }
 
 
@@ -154,7 +154,7 @@ fn test_delete_reminder_invalid_stage_index() {
   let submit: SubmitReminder = serde_json::from_str(&d).unwrap();
 
   let edited_serde = submit.delete_reminder(old_serde);
-  assert!(edited_serde.is_err_and(|x| x == "Out of Bound stage index.".to_owned()));
+  assert!(edited_serde.is_err_and(|x| x == OOB_STAGE_IDX.to_owned()));
 }
 
 #[test]
@@ -169,7 +169,7 @@ fn test_delete_reminder_invalid_reminder_index() {
   let submit: SubmitReminder = serde_json::from_str(&d).unwrap();
 
   let edited_serde = submit.delete_reminder(old_serde);
-  assert!(edited_serde.is_err_and(|x| x == "Out of Bound reminder index.".to_owned()));
+  assert!(edited_serde.is_err_and(|x| x == OOB_REMINDER_IDX.to_owned()));
 }
 
 #[test]
@@ -183,5 +183,5 @@ fn test_delete_reminder_index_null() {
   let submit: SubmitReminder = serde_json::from_str(&d).unwrap();
 
   let edited_serde = submit.delete_reminder(old_serde);
-  assert!(edited_serde.is_err_and(|x| x == "Reminder Index cannot be null.".to_owned()));
+  assert!(edited_serde.is_err_and(|x| x == REMINDER_IDX_CANNOT_NULL.to_owned()));
 }

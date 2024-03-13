@@ -7,6 +7,7 @@ import { CancellationComponent } from '../../cancellation/cancellation.component
 import { TranslateService } from '@ngx-translate/core';
 import { Http3Service } from '../../../services/http3.service';
 import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-new-templ-modal',
@@ -25,7 +26,7 @@ export class NewTemplModalComponent {
   private modalSvc = inject(NgbModal);
 
   constructor(private fb: FormBuilder, private translate: TranslateService, 
-    private http3: Http3Service, private router: Router
+    private http3: Http3Service, private router: Router, private toastr: ToastrService
   ) {
     this.myForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
@@ -88,6 +89,7 @@ export class NewTemplModalComponent {
     this.loading = false;
     this.submitting = false;
     console.error(err);
+    this.toastr.error(err);
     // Waiting for errSvc. 
   }
 
