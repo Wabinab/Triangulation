@@ -137,6 +137,6 @@ fn test_pipeline_invalid_pipeline_index() {
 #[test]
 fn test_gen_empty_pipeline_correct() {
   let old_serde = get_old_serde();
-  let empty_pipeline = gen_empty_pipeline(old_serde.clone()).unwrap();
+  let empty_pipeline = gen_empty_pipeline(old_serde.clone());
   assert_eq!(empty_pipeline, get_specific_pipeline());
 }

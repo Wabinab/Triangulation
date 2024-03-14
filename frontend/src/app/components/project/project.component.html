@@ -19,14 +19,14 @@
 <br *ngIf="!is_edit_desc">
 
 <span *ngIf="!is_edit_ver">
-  {{ 'proj.Version' | translate }}: {{ project.version }}
+  {{ 'proj.Version' | translate }}: {{ project.t_ver + 1 }}
   <fa-icon [icon]="faEdit" (click)="edit_ver()"></fa-icon>
 </span>
 <div class="input-group mb-3" *ngIf="is_edit_ver">
   <span class="input-group-text">{{ 'proj.Version' | translate }}:</span>
   <select class="form-select" [(ngModel)]="curr_ver">
     @for (v of get_versions(); track v) {
-      <option [value]="v">V{{ v }}</option>
+      <option [value]="v">V{{ v + 1 }}</option>
     }
   </select>
   <button class="btn btn-primary" (click)="confirm_version()"><fa-icon [icon]="faSave"></fa-icon></button>
@@ -75,4 +75,5 @@
 <!-- {{ is_edit_ver | json }} -->
 <pre>
   {{ project | json }}
+  <!-- {{ newest_version | json }} -->
 </pre>

@@ -1,5 +1,7 @@
 use crate::*;
 
+use self::{compressor::retrieve_decompress_fullpath, file::{gen_filename, strip_ext}, versioning::{get_savepath, get_ver, get_verpath}};
+
 #[derive(Serialize, Deserialize, Debug)]
 pub(crate) struct SubmitTemplate {
   pub(crate) name: String,
@@ -78,4 +80,23 @@ pub(crate) fn to_nameonly(old_serde: Value) -> TemplateNameonly {
 pub(crate) struct TemplateNameonly {
   pub(crate) name: String,
   pub(crate) uuid: String
+}
+
+// ================================================
+#[derive(Serialize, Deserialize, Debug)]
+pub(crate) struct SubmitTemplateVer {
+  pub(crate) t_uuid: String
+}
+
+pub(crate) trait TemplateVerTrait {
+  fn get_version(&self, data_path: PathBuf) -> Result<Version, String>;
+}
+
+impl TemplateVerTrait for SubmitTemplateVer {
+  fn get_version(&self, data_path: PathBuf) -> Result<Version, String> {
+    let ver_path = get_verpath(data_path);
+    let filename = gen_filename(
+      TEMPLATE_NAME.to_owned(), self.t_uuid.to_owned(), None);
+    get_ver(ver_path, filename)
+  }
 }

@@ -31,7 +31,7 @@ impl ProjectTrait for SubmitProject {
         "description": self.description.clone(),
         "t_uuid": self.template_uuid.clone(),
         "t_ver": version,
-        // "pipelines": gen_empty_pipeline(template_serde)
+        "pipelines": gen_empty_pipeline(template_serde)
         // "pipelines": []
       }))
   }

@@ -5,7 +5,7 @@ use crate::*;
 
 use self::{compressor::{compress_and_save, retrieve_decompress, retrieve_decompress_fullpath}, 
   file::gen_filename, stage_dto::{StageTrait, SubmitStage}, 
-  template_dto::{to_nameonly, to_nlist_temp, SubmitGetTemplate, SubmitTemplate, TemplateTrait}, versioning::{get_verpath, upd_ver_temp}
+  template_dto::{to_nameonly, to_nlist_temp, SubmitGetTemplate, SubmitTemplate, SubmitTemplateVer, TemplateTrait, TemplateVerTrait}, versioning::{get_verpath, upd_ver_temp}
 };
 
 // =================================================
@@ -24,10 +24,10 @@ pub(crate) fn get_template_nlist(data_path: PathBuf, msg: Bytes) -> Result<Optio
   // if submit.filename.is_none() { return Err("Filename must be defined.".to_owned()); }
 
   let data = get_data(data_path, submit.filename.clone());
-  if data.is_err() { return Err(data.unwrap_err()); }
+  if data.is_err() { error!("get_template_nlist data"); return Err(data.unwrap_err()); }
   let retval = serde_json::to_string(
     &to_nlist_temp(data.unwrap()));
-  if retval.is_err() { return Err(retval.unwrap_err().to_string()); }
+  if retval.is_err() { error!("get_template_nlist retval"); return Err(retval.unwrap_err().to_string()); }
 
   Ok(Some(retval.unwrap()))
 }
@@ -55,6 +55,16 @@ pub(crate) fn get_templates_nameonly(data_path: PathBuf) -> Result<Option<String
   Ok(Some(retval))
 }
 
+/// Get the current version for this template
+pub(crate) fn get_template_version(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
+  let submit: SubmitTemplateVer = serde_json::from_slice(&msg).unwrap();
+  let res = submit.get_version(data_path);
+  if res.is_err() { error!("get_template_version res"); return Err(res.unwrap_err()); }
+  Ok(Some(json!({
+    "version": res.unwrap()
+  }).to_string()))
+}
+
 
 // =============================================
 // POST and PUT
@@ -69,7 +79,7 @@ pub(crate) fn new_template(data_path: PathBuf, msg: Bytes) -> Result<Option<Stri
   let data_path = modify_datapath(data_path);
   let ret = compress_and_save(
     data.to_string(), data_path, filename.clone());
-  if ret.is_err() { return Err(ret.unwrap_err()); }
+  if ret.is_err() { error!("new_template ret"); return Err(ret.unwrap_err()); }
 
   Ok(Some(filename))
 }
@@ -82,7 +92,7 @@ pub(crate) fn edit_template(data_path: PathBuf, msg: Bytes) -> Result<Option<Str
 
   let old_serde = retrieve_decompress(
     data_path.clone(), submit.filename.clone().unwrap());
-  if old_serde.is_err() { return Err(old_serde.unwrap_err()); }
+  if old_serde.is_err() { error!("edit_template old_serde"); return Err(old_serde.unwrap_err()); }
   let old_serde = old_serde.unwrap();
 
   let edited_serde = submit.edit_template(old_serde);
@@ -93,11 +103,11 @@ pub(crate) fn edit_template(data_path: PathBuf, msg: Bytes) -> Result<Option<Str
   
   let new_serde = submit.edit_stage(edited_serde);
   let ret = compress_and_save(new_serde.to_string(), data_path.clone(), submit.filename.clone());
-  if ret.is_err() { return Err(ret.unwrap_err()); }
+  if ret.is_err() { error!("edit_template save new serde"); return Err(ret.unwrap_err()); }
 
   // Update versioning when update template. 
   let ret = upd_ver_temp(get_verpath(data_path.clone()), submit.filename.clone());
-  if ret.is_err() { return Err(ret.unwrap_err()); }
+  if ret.is_err() { error!("edit_template update version"); return Err(ret.unwrap_err()); }
 
   // We'll update to change filename too in the future. That isn't too important for now. 
   Ok(Some(new_serde.to_string()))

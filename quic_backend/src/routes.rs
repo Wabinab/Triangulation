@@ -9,6 +9,7 @@ pub(crate) fn routes_handler(msg: Bytes, path: String, data_path: PathBuf) -> Re
         "/templates" => template_controller::get_templates_nameonly(data_path),
         "/template/new" => template_controller::new_template(data_path, msg),
         "/template/edit" => template_controller::edit_template(data_path, msg),
+        "/template/version/newest" => template_controller::get_template_version(data_path, msg),
 
         // "/template/pipeline/reminder/save" => template_controller::save_reminder(data_path, msg),
         "/pipeline" => pipeline_controller::get_pipeline(data_path, msg),

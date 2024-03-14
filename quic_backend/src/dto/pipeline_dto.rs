@@ -27,7 +27,7 @@ impl PipelineTrait for SubmitPipeline {
 // =======================================================
 /// Used to generate empty pipeline, to allow easier "insert" later. 
 /// Actually, "pipeline" refers to "stage" and "pipeline" here. 
-pub(crate) fn gen_empty_pipeline(data: Value) -> Result<Value, String> {
+pub(crate) fn gen_empty_pipeline(data: Value) -> Value {
   // let mut filepath = get_savepath(data_path);
   // filepath.push(gen_filename(TEMPLATE_NAME.to_owned(), t_uuid, Some(t_ver)));
   // let data = retrieve_decompress_fullpath(filepath.clone());
@@ -46,5 +46,5 @@ pub(crate) fn gen_empty_pipeline(data: Value) -> Result<Value, String> {
     script.push(json!(l1_script));
   }
 
-  Ok(json!(script))
+  json!(script)
 }

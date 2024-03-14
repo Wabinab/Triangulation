@@ -1,9 +1,9 @@
 use std::{fs::{self, File}, path::{Path, PathBuf}};
 
-use serde_json::json;
+use serde_json::{json, Value};
 use uuid::Uuid;
 
-use crate::{compressor::{compress_and_save_fullpath, retrieve_decompress_fullpath}, file::{add_ver_json_zl, strip_ext}, messages::CANNOT_FIND_VER, versioning::{get_savepath, get_ver, upd_ver_proj, upd_ver_temp}, UPDATE_VER};
+use crate::{compressor::{compress_and_save, compress_and_save_fullpath, retrieve_decompress, retrieve_decompress_fullpath}, file::{add_ver_json_zl, strip_ext}, messages::CANNOT_FIND_VER, versioning::{get_savepath, get_ver, upd_ver_proj, upd_ver_temp}, UPDATE_VER};
 
 fn cleanup(filepath: PathBuf) {
   fs::remove_file(filepath.as_path()).unwrap();
@@ -41,13 +41,17 @@ fn get_uuid_somename() -> String {
 }
 
 fn create_template_file() -> String {
-  let mut filepath = get_datapath();
   let filename = get_uuid_somename();
-  filepath.push("template");
+  let mut filepath = get_template_path();
   filepath.push(filename.clone());
   File::create(filepath).unwrap();
-
   return filename;
+}
+
+fn get_template_path() -> PathBuf {
+  let mut filepath = get_datapath();
+  filepath.push("template");
+  filepath
 }
 
 // ============================================================
@@ -306,5 +310,83 @@ fn test_temp_is_null_not_raise() {
 
   cleanup(filepath.to_path_buf());
   cleanup(check_file);
+  cleanup(get_tempfile_path(temp_filename));
+}
+
+
+#[test]
+fn test_data_after_change_version_different() {
+  let filename = gen_testver_filename();
+  let filepath = Path::new(&filename);
+  assert!(!filepath.exists());
+
+  let temp_filename = create_template_file();
+
+  let c = r#"{
+    "name": "...",
+    "uuid": "...",
+    "description": "...",
+    "stages": [
+        {"name": "Stage 1", "pipeline": [
+          {"ty": 0, "title": "Title 1", "others": ["array/whatever as it is"]},
+          {"ty": 0, "title": "Title 2", "others": ["array/whatever as it is"]}
+        ]},
+        {"name": "Stage 2", "pipeline": [
+
+        ]}
+    ]
+  }"#;
+  let old_serde: Value = serde_json::from_str(&c).unwrap();
+  let ret = compress_and_save(old_serde.to_string(), 
+    get_template_path(), temp_filename.to_owned());
+  assert!(ret.is_ok());
+
+  let mut check_file = get_savepath(get_datapath());
+  check_file.push(add_ver_json_zl(temp_filename.clone(), 0));
+  assert!(!Path::new(&check_file).exists());
+
+  let ret = upd_ver_proj(
+    filepath.to_path_buf(), temp_filename.clone(), get_datapath());
+  assert!(ret.is_ok());
+
+  let ret = upd_ver_temp(
+    filepath.to_path_buf(), temp_filename.clone());
+  assert!(ret.is_ok());
+  let data = retrieve_decompress_fullpath(filepath.to_path_buf()).unwrap();
+  assert_eq!(data[strip_ext(temp_filename.clone())], json!([0, !UPDATE_VER]));
+
+  let mut new_serde = old_serde.clone();
+  new_serde["stages"][1]["name"] = json!("New Stage 2 Name");
+  let ret = compress_and_save(new_serde.to_string(), 
+  get_template_path(), temp_filename.clone());
+  assert!(ret.is_ok());
+
+  // Check v0 exists, but not v1
+  assert!(Path::new(&check_file).exists());
+  let mut check_file_1 = get_savepath(get_datapath());
+  check_file_1.push(add_ver_json_zl(temp_filename.clone(), 1));
+  assert!(!Path::new(&check_file_1).exists());
+
+  let ret = upd_ver_proj(
+    filepath.to_path_buf(), temp_filename.clone(), get_datapath());
+  assert!(ret.is_ok());
+  assert_eq!(ret.ok(), Some(1));
+  let data = retrieve_decompress_fullpath(filepath.to_path_buf()).unwrap();
+  assert_eq!(data[strip_ext(temp_filename.clone())], json!([1, UPDATE_VER]));
+
+  // Check both v0 and v1 exists. 
+  assert!(Path::new(&check_file).exists());
+  assert!(Path::new(&check_file_1).exists());
+
+  // Then check both file different
+  let v0_serde = retrieve_decompress_fullpath(check_file.clone()).unwrap();
+  let v1_serde = retrieve_decompress_fullpath(check_file_1.clone()).unwrap();
+  assert_eq!(v0_serde, old_serde);
+  assert_eq!(v1_serde, new_serde);
+  assert_ne!(v0_serde, v1_serde);
+
+  cleanup(filepath.to_path_buf());
+  cleanup(check_file);
+  cleanup(check_file_1);
   cleanup(get_tempfile_path(temp_filename));
 }
