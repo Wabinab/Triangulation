@@ -57,7 +57,12 @@ export class NewProjModalComponent {
       template_uuid: this.myForm.get('template_uuid')!.value,
     };
 
-    this.http3.send("/project/new", JSON.stringify(row)).then(filename => {
+    this.http3.send("/project/new", JSON.stringify(row)).then((filename: any) => {
+      // if (JSON.parse(filename).err.length > 0) {
+      //   // console.error(JSON.parse(filename).err)
+      //   console.error(filename)
+      //   return;
+      // }
       this.submitting = false;
       this.router.navigate(["/project"], {queryParams: {
         filename: filename

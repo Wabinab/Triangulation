@@ -30,6 +30,15 @@ pub(crate) fn strip_ext(filename: String) -> String {
   g.unwrap().to_string()
 }
 
+/// Only to be used with .json.zl file. It didn't detect original extension. 
+pub(crate) fn add_ver_json_zl(filename: String, version: usize) -> String {
+  let mut stripped: String = strip_ext(filename);
+  stripped.push_str("_V");
+  stripped.push_str(version.to_string().as_str());
+  stripped.push_str(".json.zl");
+  return stripped;
+}
+
 // pub(crate) fn read_file(root: &Path, path: String) -> Vec<u8> {
 //   let path = Path::new(&path);
 //   let mut real_path = PathBuf::from(root);

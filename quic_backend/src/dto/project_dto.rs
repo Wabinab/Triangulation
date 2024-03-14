@@ -1,4 +1,4 @@
-use crate::*;
+use crate::{pipeline_dto::gen_empty_pipeline, *};
 
 use self::messages::TEMPLATE_CANNOT_NULL;
 
@@ -13,7 +13,7 @@ pub(crate) struct SubmitProject {
 
 pub(crate) trait ProjectTrait {
   /// Use when not yet create file.
-  fn new_project(&self, uuid: String, version: usize) -> Result<Value, String>;
+  fn new_project(&self, uuid: String, version: Version, template_serde: Value) -> Result<Value, String>;
 
   /// Use to edit existing file: name, description, and change template version. 
   /// We don't check upgrade or downgrade; but humans should keep track manually.
@@ -22,7 +22,7 @@ pub(crate) trait ProjectTrait {
 }
 
 impl ProjectTrait for SubmitProject {
-  fn new_project(&self, uuid: String, version: Version) -> Result<Value, String> {
+  fn new_project(&self, uuid: String, version: Version, template_serde: Value) -> Result<Value, String> {
       // Actually it's template uuid, but end user can't understand. 
       if self.template_uuid.is_none() { return Err(TEMPLATE_CANNOT_NULL.to_string()); }
       Ok(json!({
@@ -31,7 +31,8 @@ impl ProjectTrait for SubmitProject {
         "description": self.description.clone(),
         "t_uuid": self.template_uuid.clone(),
         "t_ver": version,
-        "pipelines": []
+        // "pipelines": gen_empty_pipeline(template_serde)
+        // "pipelines": []
       }))
   }
 

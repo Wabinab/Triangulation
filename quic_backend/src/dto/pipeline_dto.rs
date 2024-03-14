@@ -22,3 +22,29 @@ impl PipelineTrait for SubmitPipeline {
     Ok(pipeline)
   }
 }
+
+
+// =======================================================
+/// Used to generate empty pipeline, to allow easier "insert" later. 
+/// Actually, "pipeline" refers to "stage" and "pipeline" here. 
+pub(crate) fn gen_empty_pipeline(data: Value) -> Result<Value, String> {
+  // let mut filepath = get_savepath(data_path);
+  // filepath.push(gen_filename(TEMPLATE_NAME.to_owned(), t_uuid, Some(t_ver)));
+  // let data = retrieve_decompress_fullpath(filepath.clone());
+  // if data.is_err() { return Err(data.unwrap_err()); }
+  // let data = data.unwrap();
+
+  let mut script: Vec<Value> = Vec::new();
+  let stages = data["stages"].as_array().unwrap();
+  for i in 0..stages.len() {
+    let mut l1_script: Vec<Value> = Vec::new();
+    let pipelines = stages[i]["pipeline"].as_array().unwrap();
+    for j in 0..pipelines.len() {
+      info!("{:#?}", pipelines[j]);
+      l1_script.push(json!(vec![""; pipelines[j]["others"].as_array().unwrap().len()]));
+    }
+    script.push(json!(l1_script));
+  }
+
+  Ok(json!(script))
+}

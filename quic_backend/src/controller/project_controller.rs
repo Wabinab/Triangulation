@@ -2,7 +2,7 @@ use uuid::Uuid;
 
 use crate::*;
 
-use self::{compressor::{compress_and_save, retrieve_decompress}, file::gen_filename, project_dto::{to_nlist_proj, ProjectTrait, SubmitGetProject, SubmitProject}, template_dto::to_nlist_temp, versioning::{get_verpath, upd_ver_proj}};
+use self::{compressor::{compress_and_save, retrieve_decompress}, file::gen_filename, project_dto::{to_nlist_proj, ProjectTrait, SubmitGetProject, SubmitProject}, template_dto::to_nlist_temp, versioning::{get_savepath, get_verpath, upd_ver_proj}};
 
 // ===========================================
 // GET
@@ -21,16 +21,20 @@ pub(crate) fn get_project(data_path: PathBuf, msg: Bytes) -> Result<Option<Strin
 
   // Get corresponding template. 
   let template_filename = gen_filename(
-    TEMPLATE_NAME.to_owned(), proj["t_uuid"].as_str().unwrap().to_owned(), None);
+    TEMPLATE_NAME.to_owned(), 
+    proj["t_uuid"].as_str().unwrap().to_owned(), 
+    Some(proj["t_ver"].as_u64().unwrap() as usize)
+  );
   let temp = retrieve_decompress(
-    modify_datapath_temp(data_path), template_filename);
+    get_savepath(data_path), template_filename);
   if temp.is_err() { return Err(temp.unwrap_err()); }
   let temp_nlist = serde_json::to_value(
     &to_nlist_temp(temp.unwrap()));
   if temp_nlist.is_err() { return Err(temp_nlist.unwrap_err().to_string()); }
 
   Ok(Some(json!({
-    "project": proj_nlist.unwrap(),
+    // "project": proj_nlist.unwrap(),
+    "project": proj,  // we need to do some testing. 
     "template": temp_nlist.unwrap()
   }).to_string()))
 }
@@ -39,15 +43,30 @@ pub(crate) fn get_project(data_path: PathBuf, msg: Bytes) -> Result<Option<Strin
 // POST and PUT
 pub(crate) fn new_project(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
   let submit: SubmitProject = serde_json::from_slice(&msg).unwrap();
+  if submit.template_uuid.is_none() { return Err("Template UUID cannot be null".to_owned()); }
 
   let uuid = Uuid::now_v7().to_string();
   let filename = gen_filename(PROJECT_NAME.to_string(), uuid.clone(), None);
 
+  let template_filename = gen_filename(
+    TEMPLATE_NAME.to_owned(), 
+    submit.template_uuid.clone().unwrap(), 
+    None
+  );
   let version = upd_ver_proj(
-    get_verpath(data_path.clone()), filename.clone(), data_path.clone());
+    get_verpath(data_path.clone()), template_filename, data_path.clone());
   if version.is_err() { return Err(version.unwrap_err()); }
 
-  let data = submit.new_project(uuid.clone(), version.unwrap());
+  let template_filename = gen_filename(
+    TEMPLATE_NAME.to_owned(), 
+    submit.template_uuid.clone().unwrap(), 
+    Some(version.clone().unwrap())
+  );
+  let temp = retrieve_decompress(
+    get_savepath(data_path.clone()), template_filename);
+  if temp.is_err() { return Err(temp.unwrap_err()); }
+
+  let data = submit.new_project(uuid.clone(), version.unwrap(), temp.unwrap());
   if data.is_err() { return Err(data.unwrap_err()); }
 
   let data = data.unwrap();
@@ -75,8 +94,8 @@ fn get_data(data_path: PathBuf, filename: String) -> Result<Value, String> {
   retrieve_decompress(data_path, filename)
 }
 
-fn modify_datapath_temp(data_path: PathBuf) -> PathBuf {
-  let mut data_path = data_path;
-  data_path.push("template");
-  data_path
-}
+// fn modify_datapath_temp(data_path: PathBuf) -> PathBuf {
+//   let mut data_path = data_path;
+//   data_path.push("template");
+//   data_path
+// }

@@ -80,9 +80,9 @@ pub(crate) fn retrieve_decompress_fullpath(fullpath: PathBuf) -> Result<Value, S
     
     // Cannot unpack empty json, so we'll do it manually. 
     if v == empty_packed() { return Ok(json!({})); }
-
+    // info!("{:#?}", v.clone());
     let unpacked: Result<Value, UnpackerError> = unpacker.unpack(&v);
-    if unpacked.is_err() { return Err("retrieve_decompress: fail to unpack.".to_string()); }
+    if unpacked.is_err() { error!("{:#?}", v.clone()); error!("{:?}", unpacked.err()); return Err("retrieve_decompress: fail to unpack.".to_string()); }
 
     Ok(unpacked.unwrap())
 }
