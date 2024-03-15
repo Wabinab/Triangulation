@@ -21,7 +21,6 @@ use self::{compressor::{compress_and_save, retrieve_decompress, retrieve_decompr
 
 pub(crate) fn get_template_nlist(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
   let submit: SubmitGetTemplate = serde_json::from_slice(&msg).unwrap();
-  // if submit.filename.is_none() { return Err("Filename must be defined.".to_owned()); }
 
   let data = get_data(data_path, submit.filename.clone());
   if data.is_err() { error!("get_template_nlist data"); return Err(data.unwrap_err()); }
@@ -46,13 +45,10 @@ pub(crate) fn get_templates_nameonly(data_path: PathBuf) -> Result<Option<String
     if retval.is_err() { errors.push(retval.unwrap_err().to_string()); continue; }
     retvals.push(retval.unwrap());
   }
-
-  let retval = json!({
+  Ok(Some(json!({
     "data": retvals,
     "err": errors
-  }).to_string();
-
-  Ok(Some(retval))
+  }).to_string()))
 }
 
 /// Get the current version for this template
@@ -81,16 +77,18 @@ pub(crate) fn new_template(data_path: PathBuf, msg: Bytes) -> Result<Option<Stri
     data.to_string(), data_path, filename.clone());
   if ret.is_err() { error!("new_template ret"); return Err(ret.unwrap_err()); }
 
-  Ok(Some(filename))
+  Ok(Some(json!({
+    "filename": filename
+  }).to_string()))
 }
 
 pub(crate) fn edit_template(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
-  let data_path = modify_datapath(data_path);
-  
   // Edit Template (Name and Description)
   let submit: SubmitTemplate = serde_json::from_slice(&msg).unwrap();
+  if submit.filename.is_none() { error!("edit_template filename template"); 
+    return Err("Filename cannot be null".to_owned()); }
 
-  let old_serde = retrieve_decompress(
+  let old_serde = get_data(
     data_path.clone(), submit.filename.clone().unwrap());
   if old_serde.is_err() { error!("edit_template old_serde"); return Err(old_serde.unwrap_err()); }
   let old_serde = old_serde.unwrap();
@@ -100,9 +98,10 @@ pub(crate) fn edit_template(data_path: PathBuf, msg: Bytes) -> Result<Option<Str
 
   // Edit Stage
   let submit: SubmitStage = serde_json::from_slice(&msg).unwrap();
-  
+
   let new_serde = submit.edit_stage(edited_serde);
-  let ret = compress_and_save(new_serde.to_string(), data_path.clone(), submit.filename.clone());
+  let ret = compress_and_save(
+    new_serde.to_string(), modify_datapath(data_path.clone()), submit.filename.clone());
   if ret.is_err() { error!("edit_template save new serde"); return Err(ret.unwrap_err()); }
 
   // Update versioning when update template. 
@@ -112,26 +111,6 @@ pub(crate) fn edit_template(data_path: PathBuf, msg: Bytes) -> Result<Option<Str
   // We'll update to change filename too in the future. That isn't too important for now. 
   Ok(Some(new_serde.to_string()))
 }
-
-
-// pub(crate) fn save_reminder(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
-//   let mut data_path = data_path;
-//   data_path.push("template");
-
-//   let submit: SubmitReminder = serde_json::from_slice(&msg).unwrap();
-
-//   let old_serde = retrieve_decompress(
-//     data_path.clone(), submit.filename.clone());
-//   if old_serde.is_err() { return Err(old_serde.unwrap_err()); }
-//   let old_serde = old_serde.unwrap();
-
-//   let edited_serde = submit.to_serde(old_serde);
-//   if edited_serde.is_none() { return Err("There's an error with to_serde reminder_dto.".to_owned()); }
-//   let ret = compress_and_save(edited_serde.clone().unwrap().to_string(), data_path.clone(), submit.filename.clone());
-//   if ret.is_err() { return Err(ret.unwrap_err()); }
-
-//   Ok(Some(edited_serde.unwrap().to_string()))
-// }
 
 
 // ================================================

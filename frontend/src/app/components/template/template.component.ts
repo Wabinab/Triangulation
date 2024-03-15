@@ -46,16 +46,15 @@ export class TemplateComponent {
   }
 
   async load(curr_stage: number = 0) {
-    if (!this.filename) { this.doErr("Filename not defined.", this.loading); return;}
-    const row = {
-      filename: this.filename
-    };
-    let value: any = await this.http3.send("/template/nlist", JSON.stringify(row));
-    this.template = JSON.parse(value);
-    this.stages = this.template?.stages;
-    this.stages.sort(this.compareSteps);
-    this.pipeline = this.stages[curr_stage]['pipeline'] ?? [];
-    this.loading = false;
+    if (!this.filename) { this.doErr("Filename not defined."); this.loading = false; return;}
+    const row = { filename: this.filename };
+    this.http3.send("/template/nlist", JSON.stringify(row)).then(async (value: any) => {
+      this.template = this.http3.json_handler(value);
+      this.stages = this.template?.stages;
+      this.stages.sort(this.compareSteps);
+      this.pipeline = this.stages[curr_stage]['pipeline'] ?? [];
+      this.loading = false;
+    }).catch(err => { this.doErr(err); this.loading = false; }) 
   }
 
   private compareSteps(a: any, b: any) {
@@ -71,9 +70,9 @@ export class TemplateComponent {
       description: this.template.description,
     };
     this.http3.send("/template/edit", JSON.stringify(row)).then((value: any) => {
-      this.template = JSON.parse(value);
+      this.template = this.http3.json_handler(value);
       this.saving = false;
-    }, (err: any) => { this.doErr(err, this.saving); });
+    }, (err: any) => { this.doErr(err); this.saving = false; });
   }
 
   // ===========================================
@@ -228,10 +227,10 @@ export class TemplateComponent {
     this.modalCancel.closed.subscribe(async (_: any) => {
       const i = this.curr_stage;
       if (i > -1) {
+        await this.save();
         var stage = this.stages.splice(i, 1)[0];
         this._internal_sel_stage(i - 1);
         this.toastr.success(`Removed ${stage.name}`);
-        await this.save();
       }
     });
   }
@@ -244,16 +243,20 @@ export class TemplateComponent {
     this.modalCancel.closed.subscribe(async (_: any) => {
       // Will call http3 later. 
       if (i > -1) {
-        var question = this.pipeline.splice(i, 1)[0];
-        this.toastr.success(`Removed Question ${i+1}: ${question.title}`);
-  
+        // var question = this.pipeline.splice(i, 1)[0];
+        // this.toastr.success(`Removed Question ${i+1}: ${question.title}`);
+        this.saving = true;
         const body = {
           filename: this.filename,
           stage_index: this.curr_stage,
           reminder_index: i
         };
-        const reply = await this.http3.send('/pipeline/0/delete', JSON.stringify(body));
-        console.log(reply);
+        this.http3.send('/pipeline/0/delete', JSON.stringify(body)).then(res => {
+          console.log(this.http3.json_handler(res));
+          var question = this.pipeline.splice(i, 1)[0];
+          this.toastr.success(`Removed Question ${i+1}: ${question.title}`);
+          this.saving = false;
+        }).catch(err => { this.doErr(err); this.saving = false; });
       }
     });
   }
@@ -305,8 +308,7 @@ export class TemplateComponent {
     return Object.keys(obj)[0];
   }
 
-  doErr(err: any, set_false: boolean) {
-    set_false = false;
+  doErr(err: any) {
     console.error(err);
     this.toastr.error(err);
   }

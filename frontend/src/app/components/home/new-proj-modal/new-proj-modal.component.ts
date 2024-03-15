@@ -38,14 +38,18 @@ export class NewProjModalComponent {
   }
 
   async onLoad() {
+    this.loading = true;
     let data = await this.http3.send("/templates", JSON.stringify({}));
     let json_data = JSON.parse(data);
     this.templates = json_data.data;
     if (json_data.err.length > 0) { 
       console.warn("json_data error starts below:");
       console.error(json_data.err); 
-      this.toastr.error("Please check F12 log", "There are some errors with json_data");
+      this.translate.get(["newProj.checkF12", "newProj.F12errors"], {}).subscribe((res: any) => {
+        this.toastr.error(res["newProj.F12errors"], res["newProj.checkF12"]);
+      });
     }
+    this.loading = false;
   }
   
   async onSubmit() {
@@ -57,17 +61,13 @@ export class NewProjModalComponent {
       template_uuid: this.myForm.get('template_uuid')!.value,
     };
 
-    this.http3.send("/project/new", JSON.stringify(row)).then((filename: any) => {
-      // if (JSON.parse(filename).err.length > 0) {
-      //   // console.error(JSON.parse(filename).err)
-      //   console.error(filename)
-      //   return;
-      // }
-      this.submitting = false;
+    this.http3.send("/project/new", JSON.stringify(row)).then((data: any) => {
+      let filename_json = this.http3.json_handler(data);
       this.router.navigate(["/project"], {queryParams: {
-        filename: filename
+        filename: filename_json.filename
       }});
-    }).catch(err => this.doErr(err));
+      this.submitting = false;
+    }).catch(err => { this.doErr(err); this.submitting = false; });
   }
 
   modalCancel: any;

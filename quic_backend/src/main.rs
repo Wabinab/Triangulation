@@ -28,14 +28,12 @@ use controller::*;
 use dto::*;
 use data::*;
 use types::*;
-// use json::*;
 
 // mod server_config;
 mod routes;
 mod controller;
 mod dto;
 mod data;
-mod json;
 mod types;
 mod messages;
 
@@ -78,7 +76,7 @@ async fn main() -> anyhow::Result<()>  {
         let root2 = root.as_path();
         // This is where they save their files. 
         let _ = fs::create_dir_all(root2.join("template"));
-        let _ = fs::create_dir_all(root2.join("projects"));
+        let _ = fs::create_dir_all(root2.join("project"));
         // We define some sample. 
         let _ = fs::create_dir_all(root2.join("sample_proj"));
         let _ = fs::create_dir_all(root2.join("sample_templ"));
@@ -265,7 +263,7 @@ fn check_and_renew(root: &Path, ng_path: &Path) -> bool {
 /// renew certificate.
 /// Always return true at end. 
 fn renew_cert(root: &Path, ng_path: &Path) -> bool {
-  info!("Certificate expiring. Renewing!");
+  info!("Certificate expired. Renewing!");
   let mut cert_params =
       rcgen::CertificateParams::new(vec!["localhost".to_string(), "127.0.0.1".to_string()]);
 

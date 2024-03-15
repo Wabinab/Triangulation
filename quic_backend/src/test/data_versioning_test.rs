@@ -3,11 +3,13 @@ use std::{fs::{self, File}, path::{Path, PathBuf}};
 use serde_json::{json, Value};
 use uuid::Uuid;
 
-use crate::{compressor::{compress_and_save, compress_and_save_fullpath, retrieve_decompress, retrieve_decompress_fullpath}, file::{add_ver_json_zl, strip_ext}, messages::CANNOT_FIND_VER, versioning::{get_savepath, get_ver, upd_ver_proj, upd_ver_temp}, UPDATE_VER};
+use crate::{compressor::{compress_and_save, compress_and_save_fullpath, retrieve_decompress_fullpath}, file::{add_ver_json_zl, strip_ext}, messages::CANNOT_FIND_VER, versioning::{get_savepath, get_ver, upd_ver_proj, upd_ver_temp}, UPDATE_VER};
 
-fn cleanup(filepath: PathBuf) {
-  fs::remove_file(filepath.as_path()).unwrap();
-}
+use super::helper::{get_datapath, cleanup};
+
+// fn cleanup(filepath: PathBuf) {
+//   fs::remove_file(filepath.as_path()).unwrap();
+// }
 
 fn gen_testver_filename() -> String {
   let mut filename = Uuid::new_v4().to_string();
@@ -15,9 +17,9 @@ fn gen_testver_filename() -> String {
   return filename;
 }
 
-fn get_datapath() -> PathBuf {
-  Path::new("../data").to_path_buf()
-}
+// fn get_datapath() -> PathBuf {
+//   Path::new("../data").to_path_buf()
+// }
 
 fn get_tempfile_path(filename: String) -> PathBuf {
   let mut filepath = get_datapath();

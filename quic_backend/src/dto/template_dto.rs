@@ -1,6 +1,6 @@
 use crate::*;
 
-use self::{compressor::retrieve_decompress_fullpath, file::{gen_filename, strip_ext}, versioning::{get_savepath, get_ver, get_verpath}};
+use self::{file::gen_filename, versioning::{get_ver, get_verpath}};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub(crate) struct SubmitTemplate {

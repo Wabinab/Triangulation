@@ -18,7 +18,7 @@ pub(crate) trait ProjectTrait {
   /// Use to edit existing file: name, description, and change template version. 
   /// We don't check upgrade or downgrade; but humans should keep track manually.
   /// We also don't allow upgrade only; because they can downgrade if needed be.
-  fn edit_template(&self, old_serde: Value) -> Result<Value, String>;
+  fn edit_project(&self, old_serde: Value) -> Result<Value, String>;
 }
 
 impl ProjectTrait for SubmitProject {
@@ -36,7 +36,7 @@ impl ProjectTrait for SubmitProject {
       }))
   }
 
-  fn edit_template(&self, old_serde: Value) -> Result<Value, String> {
+  fn edit_project(&self, old_serde: Value) -> Result<Value, String> {
       let mut new_serde = old_serde.clone();
       new_serde["name"] = json!(self.name.clone());
       new_serde["description"] = json!(self.description.clone());

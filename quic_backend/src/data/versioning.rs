@@ -14,17 +14,14 @@ pub(crate) fn upd_ver_proj(ver_path: PathBuf, temp_filename: String, data_path: 
   let ver_file = retrieve_decompress_fullpath(ver_path.clone());
   if ver_file.clone().is_err_and(|x| x == RD_CANNOT_FIND_FILE.to_owned()) {
     let output = File::create(ver_path.clone());
-    if output.is_err() { return Err("upd_ver_proj failed create file.".to_owned()); }
+    if output.is_err() { error!("upd_ver_proj ver_file create file"); return Err("upd_ver_proj failed create file.".to_owned()); }
     let res = compress_and_save_fullpath(json!({
       strip_ext(temp_filename.clone()): [0, UPDATE_VER]
     }).to_string(), ver_path.clone());
-    if res.is_err() { error!("upd_ver_proj ver_file no_find_file res"); return Err(res.unwrap_err()); }
+    if res.is_err() { error!("upd_ver_proj ver_file compress_and_save"); return Err(res.unwrap_err()); }
     let save_ver = save_a_version_of_this_template(
       data_path, temp_filename.clone(), 0);
-    if save_ver.is_err() { 
-      error!("upd_ver_proj ver_file no_find_file save_ver");
-      return Err(save_ver.unwrap_err()); 
-    }
+    if save_ver.is_err() { error!("upd_ver_proj ver_file save_ver"); return Err(save_ver.unwrap_err()); }
     return Ok(0);
   }
   if ver_file.is_err() { error!("upd_ver_proj ver_file"); return Err(ver_file.unwrap_err()); }
@@ -37,7 +34,7 @@ pub(crate) fn upd_ver_proj(ver_path: PathBuf, temp_filename: String, data_path: 
     updated = true;
   } else {
     let mut data = ver_file[strip_ext(temp_filename.clone())].clone();
-    if data[1] == !UPDATE_VER {
+    if data[1] == !UPDATE_VER {   // Skip if otherwise. 
       version = (data[0].as_u64().unwrap() + 1) as usize;
       data[0] = json!(version.clone());
       data[1] = json!(UPDATE_VER);
@@ -45,12 +42,13 @@ pub(crate) fn upd_ver_proj(ver_path: PathBuf, temp_filename: String, data_path: 
       updated = true;
     }
   }
-  let res = compress_and_save_fullpath(ver_file.to_string(), ver_path);
-  if res.is_err() { error!("upd_ver_proj save ver file failed"); return Err(res.unwrap_err()); }
   if updated {
+    let res = compress_and_save_fullpath(ver_file.to_string(), ver_path);
+    if res.is_err() { error!("upd_ver_proj compress_and_save"); return Err(res.unwrap_err()); }
+
     let save_ver = save_a_version_of_this_template(
       data_path, temp_filename.clone(), version.clone());
-    if save_ver.is_err() { error!("upd_ver_proj copy template failed"); return Err(save_ver.unwrap_err()); }
+    if save_ver.is_err() { error!("upd_ver_proj save_ver"); return Err(save_ver.unwrap_err()); }
   }
   Ok(version)
 }
@@ -65,13 +63,15 @@ pub(crate) fn upd_ver_temp(ver_path: PathBuf, filename: String) -> Result<(), St
 
   let mut ver_file = ver_file.unwrap();
   let mut data = ver_file[strip_ext(filename.clone())].clone();
+  // If inexistent (no project created yet on this template) or nothing change (no new project since last updated template), we return empty.
   if data.is_null() { return Ok(()); }
   if data[1] != UPDATE_VER { return Ok(());}
 
+  // Only when something change. 
   data[1] = json!(!UPDATE_VER);
   ver_file[strip_ext(filename.clone())] = data;
   let res = compress_and_save_fullpath(ver_file.to_string(), ver_path);
-  if res.is_err() { error!("upd_ver_temp res"); return Err(res.unwrap_err()); }
+  if res.is_err() { error!("upd_ver_temp compress_and_save"); return Err(res.unwrap_err()); }
   Ok(())
 }
 
@@ -82,7 +82,7 @@ pub(crate) fn get_ver(ver_path: PathBuf, filename: String) -> Result<Version, St
   let ver_file = ver_file.unwrap();
 
   let retval = ver_file[strip_ext(filename)].clone();
-  if retval.is_null() { error!("get_ver retval"); return Err(CANNOT_FIND_VER.to_owned()); }
+  if retval.is_null() { error!("get_ver retval is null"); return Err(CANNOT_FIND_VER.to_owned()); }
   Ok(retval[0].as_u64().unwrap() as usize)
 }
 
@@ -104,7 +104,7 @@ fn save_a_version_of_this_template(data_path: PathBuf, filename: String, ver_no:
   to.push(add_ver_json_zl(filename.clone(), ver_no));
 
   let res = fs::copy(from, to);
-  if res.is_err() { error!("copy template res"); return Err(res.unwrap_err().to_string()); }
+  if res.is_err() { error!("error saving a version of this template"); return Err(res.unwrap_err().to_string()); }
   Ok(())
 }
 

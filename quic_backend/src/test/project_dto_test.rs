@@ -84,7 +84,7 @@ fn test_edit_project() {
   }"#;
   let submit: SubmitProject = serde_json::from_str(&d).unwrap();
 
-  let edited_serde = submit.edit_template(old_serde.clone()).unwrap();
+  let edited_serde = submit.edit_project(old_serde.clone()).unwrap();
   assert_ne!(edited_serde["name"], old_serde["name"]);
   assert_eq!(edited_serde["name"], "New Project");
   assert_ne!(edited_serde["description"], old_serde["description"]);
@@ -103,7 +103,7 @@ fn test_edit_project_with_ver() {
   }"#;
   let submit: SubmitProject = serde_json::from_str(&d).unwrap();
 
-  let edited_serde = submit.edit_template(old_serde.clone()).unwrap();
+  let edited_serde = submit.edit_project(old_serde.clone()).unwrap();
   assert_eq!(edited_serde["name"], "New Project");
   assert_eq!(edited_serde["description"], "Project description");
   assert_ne!(edited_serde["t_ver"], old_serde["t_ver"]);

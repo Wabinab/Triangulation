@@ -1,7 +1,3 @@
-// use std::{io::Error, path::PathBuf};
-
-// use crate::*;
-
 /// derive filename given name and uuid. 
 pub(crate) fn gen_filename(name: String, uuid: String, version: Option<usize>) -> String {
   let mut filename: String = name.chars()
@@ -31,6 +27,9 @@ pub(crate) fn strip_ext(filename: String) -> String {
 }
 
 /// Only to be used with .json.zl file. It didn't detect original extension. 
+/// It's use to add _V1 or any other version to the back of file. 
+/// E.g. some-name.json.zl becomes some-name_V1.json.zl. 
+/// Any other extension will be replaced with .json.zl. 
 pub(crate) fn add_ver_json_zl(filename: String, version: usize) -> String {
   let mut stripped: String = strip_ext(filename);
   stripped.push_str("_V");

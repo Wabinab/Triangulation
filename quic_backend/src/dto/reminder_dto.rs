@@ -27,7 +27,7 @@ impl ReminderTrait for SubmitReminder {
     let mut new_serde = old_serde.clone();
 
     let stages = new_serde["stages"][self.stage_index].clone();
-    if stages.is_null() { return Err(OOB_STAGE_IDX.to_owned()); }
+    if stages.is_null() { error!("reminder_dto new stages"); return Err(OOB_STAGE_IDX.to_owned()); }
 
     let mut pipelines = stages["pipeline"].as_array().unwrap().clone();
     let data = json!({
@@ -45,10 +45,10 @@ impl ReminderTrait for SubmitReminder {
     let mut new_serde = old_serde.clone();
 
     let stages = new_serde["stages"][self.stage_index].clone();
-    if stages.is_null() { return Err(OOB_STAGE_IDX.to_owned()); }
+    if stages.is_null() { error!("reminder_dto edit stages"); return Err(OOB_STAGE_IDX.to_owned()); }
     if self.reminder_index.is_none() { return Err(REMINDER_IDX_CANNOT_NULL.to_owned()); }
     let pipeline = stages["pipeline"][self.reminder_index.unwrap()].clone();
-    if pipeline.is_null() { return Err(OOB_REMINDER_IDX.to_owned()); }
+    if pipeline.is_null() { error!("reminder_dto edit pipeline"); return Err(OOB_REMINDER_IDX.to_owned()); }
 
     let data = json!({
       "ty": REMINDER_TYPE,
@@ -65,9 +65,9 @@ impl ReminderTrait for SubmitReminder {
 
     let stages = new_serde["stages"][self.stage_index].clone();
     if stages.is_null() { return Err(OOB_STAGE_IDX.to_owned()); }
-    if self.reminder_index.is_none() { return Err(REMINDER_IDX_CANNOT_NULL.to_owned()); }
+    if self.reminder_index.is_none() { error!("reminder_dto delete stages"); return Err(REMINDER_IDX_CANNOT_NULL.to_owned()); }
     let pipeline = stages["pipeline"][self.reminder_index.unwrap()].clone();
-    if pipeline.is_null() { return Err(OOB_REMINDER_IDX.to_owned()); }
+    if pipeline.is_null() { error!("reminder_dto delete pipeline"); return Err(OOB_REMINDER_IDX.to_owned()); }
 
     let bind_pipeline = stages["pipeline"].clone();
     let mut pipelines = bind_pipeline.as_array().unwrap().clone();

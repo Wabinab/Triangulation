@@ -21,8 +21,8 @@
     "description": "Description",
     "template": "Modèle",
     "letsGo": "Allons-y!",
-    "charRemain": "caractères restants",
-    "charOver": "characters dépassant la limite"
+    "checkF12": "Veuillez vérifier les journaux F12",
+    "F12errors": "Il y a quelque erreurs avec le json_data"
   },
   "newTempl": {
     "title": "Créer une Nouveau Modèle",

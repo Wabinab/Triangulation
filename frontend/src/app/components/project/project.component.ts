@@ -44,34 +44,44 @@ export class ProjectComponent {
   }
 
   async load() {
-    if (!this.filename) { this.doErr("Filename not defined.", this.loading); return; }
+    if (!this.filename) { this.doErr("Filename not defined."); this.loading = false; return; }
     const row = { filename: this.filename };
-    let value: any = await this.http3.send("/project", JSON.stringify(row));
-    let data = JSON.parse(value);
-    if (data.err && data.err.length > 0) { this.doErr(data.err, this.loading); return; }
-    this.project = data.project;
-    this.template = data.template;
-    // let value: any = await this.http3.send("/template/nlist", JSON.stringify(row));
-    // this.template = JSON.parse(value);
-    this.stages = this.template?.stages;
-    this.stages.sort(this.compareSteps);
-    this.pipeline = this.stages[0]['pipeline'] ?? [];
 
-    const row1 = { t_uuid: this.project.t_uuid };
-    let value2: any = await this.http3.send("/template/version/newest", JSON.stringify(row1));
-    let data2: any = JSON.parse(value2);
-    if (data2.err && data.err.length > 0) {this.doErr(data2.err, this.loading); return; }
-    this.newest_version = data2.version;
-
-    this.loading = false;
+    // Any subsequent error can be catch this way; since it doesn't directly raise error but return Err json. 
+    this.http3.send("/project", JSON.stringify(row)).then(async (value: any) => {
+      let data = this.http3.json_handler(value);
+      this.project = data.project;
+      this.template = data.template;
+      this.stages = this.template?.stages;
+      this.stages.sort(this.compareSteps);
+      this.pipeline = this.stages[0]['pipeline'] ?? [];
+  
+      const row1 = { t_uuid: this.project.t_uuid };
+      let value2: any = await this.http3.send("/template/version/newest", JSON.stringify(row1));
+      let data2: any = this.http3.json_handler(value2);
+      this.newest_version = data2.version;
+  
+      this.loading = false;
+    }).catch(err => { this.doErr(err); this.loading = false; })
   }
 
   private compareSteps(a: any, b: any) {
     return a.step - b.step;
   }
 
-  async save() {
-    // this.saving = true;
+  async save(save_ver: boolean = false) {
+    this.saving = true;
+    let row = {
+      filename: this.filename,
+      name: this.project['name'],
+      description: this.project['description'],
+      version: save_ver ? parseInt(this.project['t_ver']) : null
+    };
+    this.http3.send("/project/edit", JSON.stringify(row)).then(data => {
+      let _ = this.http3.json_handler(data);
+      this.load();
+      this.saving = false;
+    }).catch(err => { this.doErr(err); this.saving = false; });
   }
 
   // =====================================
@@ -128,7 +138,7 @@ export class ProjectComponent {
   finish_edit_ver() {
     this.project['t_ver'] = this.curr_ver;
     this.is_edit_ver = false;
-    this.save();
+    this.save(true);
   }
 
   get_versions(): number[] {
@@ -194,8 +204,8 @@ export class ProjectComponent {
   //   return Object.keys(obj)[0];
   // }
 
-  doErr(err: any, set_false: boolean) {
-    set_false = false;
+  doErr(err: any) {
+    console.log(this.saving);
     console.error(err);
     this.toastr.error(err);
   }

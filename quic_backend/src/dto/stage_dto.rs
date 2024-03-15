@@ -10,10 +10,8 @@ pub(crate) struct SubmitStage {
 }
 
 pub(crate) trait StageTrait {
-  /// Add new stage to the back. 
-  // fn new_stage(&self, old_serde: Value) -> Value;
-
   /// Update ALL existing stages (when click save button)
+  /// Same for add new, also use this function. 
   fn edit_stage(&self, old_serde: Value) -> Value;
 
   /// Delete existing stage, given stage_index. 
@@ -46,7 +44,7 @@ impl StageTrait for SubmitStage {
 
     let bind_stages = old_serde["stages"].clone();
     let mut stages = bind_stages.as_array().unwrap().clone();
-    if self.stage_index.unwrap() >= stages.len() { return Err("Invalid Stage Index.".to_owned()); }
+    if self.stage_index.unwrap() >= stages.len() { error!("stage_dto delete"); return Err("Invalid Stage Index.".to_owned()); }
 
     stages.remove(self.stage_index.unwrap());
 

@@ -43,16 +43,17 @@ export class NewTemplModalComponent {
     const row = {
       name: this.myForm.get('name')!.value,
       description: this.myForm.get('description')!.value,
-      locale: this.translate.currentLang ?? 'en'
+      // locale: this.translate.currentLang ?? 'en'
     };
-    this.http3.send("/template/new", JSON.stringify(row)).then((filename) => {
-      this.submitting = false;
+    this.http3.send("/template/new", JSON.stringify(row)).then((data: any) => {
+      let filename_json: any = this.http3.json_handler(data);
       this.router.navigate(["/template"], {queryParams: {
-        filename: filename
+        filename: filename_json.filename
       }});
-      // console.log(filename);
+      this.submitting = false;
     }).catch((err) => {
       this.doErr(err);
+      this.submitting = false;
     });
     
   }

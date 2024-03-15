@@ -39,4 +39,5 @@ purgecss -css browser/*.css --content browser/index.html browser/*.js -o browser
 
 This will write back to `browser/`. If we don't want that, we can write in a new directory. **Make sure you create the folder manually, as it won't create for you.**
 
-### 
+### Why Controller `submit` call `unwrap` rather than check for `is_err()`?
+Because we programmers are the ones that handle that, so we'll discover if we make a mistake early. When it reaches the end user, it shouldn't have any of that error anymore. 

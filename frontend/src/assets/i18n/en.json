@@ -20,7 +20,9 @@
     "name": "Project Name",
     "description": "Description",
     "template": "Template",
-    "letsGo": "Let's Go!"
+    "letsGo": "Let's Go!",
+    "checkF12": "Please check F12 log",
+    "F12errors": "There are some errors with json_data"
   },
   "newTempl": {
     "title": "Create a New Template",

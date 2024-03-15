@@ -16,9 +16,9 @@ pub(crate) fn delete_pipeline(data_path: PathBuf, msg: Bytes, ty: usize) -> Resu
 pub(crate) fn get_pipeline(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
   let submit: SubmitPipeline = serde_json::from_slice(&msg).unwrap();
   let old_serde = get_data(data_path.clone(), submit.filename.clone());
-  if old_serde.is_err() { return Err(old_serde.unwrap_err()); }
+  if old_serde.is_err() { error!("get_pipeline old_serde"); return Err(old_serde.unwrap_err()); }
   let pipeline = submit.get_pipeline(old_serde.unwrap());
-  if pipeline.is_err() { return Err(pipeline.unwrap_err()); }
+  if pipeline.is_err() { error!("get_pipeline pipeline"); return Err(pipeline.unwrap_err()); }
   Ok(Some(pipeline.unwrap().to_string()))
 }
 
@@ -27,21 +27,21 @@ pub(crate) fn get_pipeline(data_path: PathBuf, msg: Bytes) -> Result<Option<Stri
 fn modify_reminder(data_path: PathBuf, msg: Bytes, is_new: CRUD) -> Result<Option<String>, String> {
   let submit: SubmitReminder = serde_json::from_slice(&msg).unwrap();
   let old_serde = get_data(data_path.clone(), submit.filename.clone());
-  if old_serde.is_err() { return Err(old_serde.unwrap_err()); }
+  if old_serde.is_err() { error!("modify_reminder old_serde"); return Err(old_serde.unwrap_err()); }
 
   let edited_serde = match is_new {
     CRUD::Create => submit.new_reminder(old_serde.unwrap()),
     CRUD::Update => submit.edit_reminder(old_serde.unwrap()),
     CRUD::Delete => submit.delete_reminder(old_serde.unwrap())
   };
-  if edited_serde.is_err() { return Err(edited_serde.unwrap_err()); }
+  if edited_serde.is_err() { error!("modify_reminder edited_serde"); return Err(edited_serde.unwrap_err()); }
   let ret = compress_and_save(edited_serde.clone().unwrap().to_string(), 
     modify_datapath(data_path.clone()), submit.filename.clone());
-  if ret.is_err() { return Err(ret.unwrap_err()); }
+  if ret.is_err() { error!("modify_reminder compress_and_save"); return Err(ret.unwrap_err()); }
 
   // Update versioning if applicable. 
   let ret = upd_ver_temp(get_verpath(data_path.clone()), submit.filename.clone());
-  if ret.is_err() { return Err(ret.unwrap_err()); }
+  if ret.is_err() { error!("modify_reminder upd_ver_temp"); return Err(ret.unwrap_err()); }
 
   Ok(Some(edited_serde.unwrap().to_string()))
 }

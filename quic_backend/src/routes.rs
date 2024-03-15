@@ -19,6 +19,7 @@ pub(crate) fn routes_handler(msg: Bytes, path: String, data_path: PathBuf) -> Re
 
         "/project" => project_controller::get_project(data_path, msg),
         "/project/new" => project_controller::new_project(data_path, msg),
-        _ => Ok(None)
+        "/project/edit" => project_controller::edit_project(data_path, msg),
+        _ => Err("Cannot find route.".to_owned())
     };
 }

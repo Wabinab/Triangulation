@@ -81,6 +81,7 @@ export class RemindersComponent {
       this.loading = false;
       return;
     }
+    if (this.items.err && this.items.err.length > 0) { this.doErr(this.items.err); this.loading = false; return; }
     await this.loadData();
   }
 
@@ -109,20 +110,9 @@ export class RemindersComponent {
     this.http3.send(this.is_new ? "/pipeline/0/new" : "/pipeline/0/edit", JSON.stringify(row))
     .then((res: any) => {
       this.submitting = false;
-      this.bsModalRef.close({ ty: res });
-    }, (err: any) => this.doErr(err, this.submitting));
+      this.bsModalRef.close({ ty: this.http3.json_handler(res) });
+    }, (err: any) => { this.doErr(err); this.submitting = false; });
   }
-
-  // delete() {
-  //   const row = {
-  //     filename: this.filename,
-  //     stage_index: this.curr_stage,
-  //     reminder_index: this.id
-  //   }
-  //   this.http3.send("/pipeline/0/delete", JSON.stringify(row)).then((res: any) => {
-  //     console.log(res);
-  //   });
-  // }
 
   cancel() {
     this.bsModalRef.dismiss();
@@ -270,17 +260,6 @@ export class RemindersComponent {
     arr.insert(new_index, item);
   }
 
-  // private array_move(arr: any[], old_index: number, new_index: number) {
-  //   if (new_index >= arr.length) {
-  //       var k = new_index - arr.length + 1;
-  //       while (k--) {
-  //           arr.push(undefined);
-  //       }
-  //   }
-  //   arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
-  //   // return arr; // for testing
-  // };
-
   // =============================================
   // Private functions and helps
   range(size:number, startAt:number = 0) : ReadonlyArray<number> {
@@ -297,8 +276,7 @@ export class RemindersComponent {
     return qs.at(i);
   }
 
-  doErr(err: any, set_false: boolean | null = null) {
-    if (set_false != null) set_false = false;
+  doErr(err: any) {
     console.error(err);
     this.toastr.error(err);
   }

@@ -24,12 +24,6 @@ export class Http3Service {
       }
       // console.log(this.fingerprint);
     }, err => {
-      // let fHex = "50b628ebd64ff1f061255c97402e954f9c0afd991ecf31675ca4c926dda9787e";
-      // let fHex = "8ac49231c05972d3e1f18e9605c1a6a5b289a74c7ae9180af20bea1570dbf076"
-      // this.fingerprint = [];
-      // for (let c = 0; c < fHex.length - 1; c += 2) {
-      //   this.fingerprint.push(parseInt(fHex.substring(c, c + 2), 16));
-      // }
       console.error(err);
       this.toastr.error("Renewing cert. Refreshing in 5 seconds...");
       setTimeout(() => window.location.reload(), 5000);
@@ -71,6 +65,17 @@ export class Http3Service {
     let data = await this.read(reader);
     transport.close();
     return await data;
+  }
+
+  /// While this is used in lots of situations, it's not in all situations. 
+  /// That's why we separate it from the send() function. 
+  /// if suppress_err (suppress error), won't check for "err". 
+  json_handler(data: string, suppress_err: boolean = false) {
+    let json_data = JSON.parse(data);
+    if (!suppress_err && json_data.err && json_data.err.length > 0) {
+      throw new Error(json_data.err);
+    }
+    return json_data;
   }
 
   // =====================================================================
