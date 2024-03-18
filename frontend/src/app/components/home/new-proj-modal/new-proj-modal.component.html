@@ -21,12 +21,17 @@
 			<app-error [form]="myForm" control="description"></app-error>
 
 			<div class="pt-2"></div>
-			<div class="form-floating">
+      <label for="template_uuid">{{ 'newProj.template' | translate }}</label>
+      <ng-select formControlName="template_uuid">
+        <ng-option *ngFor="let t of templates" [value]="t.uuid">{{ t.name }}</ng-option>
+      </ng-select>
+			<!-- <div class="form-floating">
 				<select class="form-select" id="template_uuid" formControlName="template_uuid">
 					<option *ngFor="let t of templates" [value]="t.uuid">{{ t.name }}</option>
 				</select>
+        
 				<label for="template_uuid">{{ 'newProj.template' | translate }}</label>
-			</div>
+			</div> -->
 			<!-- No app error -->
 
 			<div class="float-end pt-3">

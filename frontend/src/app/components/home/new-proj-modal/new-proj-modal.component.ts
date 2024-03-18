@@ -1,4 +1,4 @@
-import { Component, inject, Output, EventEmitter } from '@angular/core';
+import { Component, inject, Output, EventEmitter, importProvidersFrom } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { SharedModule } from '../../../shared/shared.module';
 import { SharedFormsModule } from '../../../shared/shared-forms.module';
@@ -8,11 +8,12 @@ import { TranslateService } from '@ngx-translate/core';
 import { Http3Service } from '../../../services/http3.service';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 @Component({
   selector: 'app-new-proj-modal',
   standalone: true,
-  imports: [SharedModule, SharedFormsModule],
+  imports: [SharedModule, SharedFormsModule, NgSelectModule],
   templateUrl: './new-proj-modal.component.html',
   styleUrl: './new-proj-modal.component.scss'
 })

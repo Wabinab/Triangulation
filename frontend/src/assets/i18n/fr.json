@@ -51,6 +51,7 @@
   "QuestionChoice": {
     "Short": "Réponse courte",
     "Long": "Paragraphe",
+    "Long2": "Réponse longue",
     "MultipleChoice": "Choix multiples",
     "Checkbox": "Cases à cocher",
     "RateScale": "Échelle linéaire",

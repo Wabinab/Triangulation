@@ -51,6 +51,11 @@
                 "input": "src/assets/themes/purple.scss",
                 "inject": false,
                 "bundleName": "purple"
+              },
+              {
+                "input": "@ng-select/ng-select/themes/default.theme.css",
+                "inject": true,
+                "bundleName": "ng-select"
               }
             ],
             "scripts": [

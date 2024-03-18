@@ -1,5 +1,5 @@
 use crate::*;
-use self::{compressor::{compress_and_save, retrieve_decompress}, pipeline_dto::{PipelineTrait, SubmitPipeline}, reminder_dto::{ReminderTrait, SubmitReminder}, versioning::{get_verpath, upd_ver_temp}};
+use self::{compressor::{compress_and_save, retrieve_decompress}, pipeline_dto::{PipelineTrait, PipelineViaProjTrait, SubmitPipeline, SubmitPipelineViaProj}, reminder_dto::{ReminderTrait, SubmitReminder}, versioning::{get_savepath, get_verpath, upd_ver_temp}};
 
 pub(crate) fn new_pipeline(data_path: PathBuf, msg: Bytes, ty: usize) -> Result<Option<String>, String> {
   choose_ty(data_path, msg, ty, CRUD::Create)
@@ -19,6 +19,16 @@ pub(crate) fn get_pipeline(data_path: PathBuf, msg: Bytes) -> Result<Option<Stri
   if old_serde.is_err() { error!("get_pipeline old_serde"); return Err(old_serde.unwrap_err()); }
   let pipeline = submit.get_pipeline(old_serde.unwrap());
   if pipeline.is_err() { error!("get_pipeline pipeline"); return Err(pipeline.unwrap_err()); }
+  Ok(Some(pipeline.unwrap().to_string()))
+}
+
+pub(crate) fn get_pipeline_by_uuid_ver(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
+  let submit: SubmitPipelineViaProj = serde_json::from_slice(&msg).unwrap();
+  let filename = submit.get_filename();
+  let old_serde = retrieve_decompress(get_savepath(data_path.clone()), filename);
+  if old_serde.is_err() { error!("get_pipeline_by_uuid_ver old_serde"); return Err(old_serde.unwrap_err()); }
+  let pipeline = submit.get_pipeline(old_serde.unwrap());
+  if pipeline.is_err() { error!("get_pipeline_by_uuid_ver pipeline"); return Err(pipeline.unwrap_err()); }
   Ok(Some(pipeline.unwrap().to_string()))
 }
 

@@ -51,6 +51,7 @@
   "QuestionChoice": {
     "Short": "Short Answer",
     "Long": "Paragraph",
+    "Long2": "Long Answer",
     "MultipleChoice": "Multiple choice",
     "Checkbox": "Checkboxes",
     "RateScale": "Linear scale",

@@ -1,1 +1,59 @@
-<p>reminders-proj works!</p>
+<div class="modal-header">
+  <h3>{{ title }}</h3>
+</div>
+
+<div class="modal-body">
+  <form [formGroup]="myForm" (ngSubmit)="onSubmit()">
+    <ng-container formArrayName="questions">
+      <ng-container *ngFor="let q of questions; let i=index; trackBy:trackByFn" [formGroupName]="i">
+        <div class="card">
+          <div class="card-body row">
+            <div class="col-1 col-lg-1"><span class="text-center">{{ i + 1 }}</span></div>
+            <!-- <div class="col-11 col-lg-11"><h5>{{ q.question }}</h5></div> -->
+            <div class="col-11 col-lg-11"><h5>
+              {{ q.get('question')!.value }}
+            </h5></div>
+
+            <div class="col-1 col-lg-1"></div>
+            <div class="col-11 col-lg-11">
+              @if (q.get('q_type')!.value == "0") {
+                <input type="text" class="form-control" formControlName="answer" 
+                placeholder="{{ 'QuestionChoice.Short' | translate }}" />
+                <app-error [form]="q" control="answer"></app-error>
+              }
+              @if (q.get('q_type')!.value == "1") {
+                <textarea rows="3" class="form-control" 
+                formControlName="answer" placeholder="{{ 'QuestionChoice.Long2' | translate}}"></textarea>
+                <app-error [form]="q" control="answer"></app-error>
+              }
+              @if (q.get('q_type')!.value == "2") {
+                @for (r of q.get('rows')!.value; track r; let i = $index) {
+                  <div class="form-check">
+                    <input type="radio" class="form-check-input" formControlName="answer" [value]="i">
+                    <label class="form-check-label">{{ r }}</label>
+                  </div>
+                }
+              }
+              @if (q.get('q_type')!.value == "3") {
+                <ng-container formArrayName="answer">
+                  <ng-container *ngFor="let r of q.get('rows')!.value; let j=index; trackBy:trackByFn" [formGroupName]="j">
+                    <div class="form-check">
+                      <input type="checkbox" class="form-check-input" (change)="checking(j, $event)" />
+                      <label class="form-check-label">{{ r }}</label>
+                    </div>
+                  </ng-container>
+                </ng-container>
+              }
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </ng-container>
+  </form>
+</div>
+
+<!-- DEBUG -->
+<pre>
+  <!-- {{ items | json}} -->
+  {{ myForm.value | json }}
+</pre>

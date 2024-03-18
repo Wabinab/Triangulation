@@ -170,9 +170,11 @@ export class ProjectComponent {
       fullscreen: 'sm',
       size: 'xl'
     });
-    // this.modalReminder.componentInstance.id = id;
-    // this.modalReminder.componentInstance.curr_stage = this.curr_stage;
+    this.modalReminder.componentInstance.id = id;
+    this.modalReminder.componentInstance.curr_stage = this.curr_stage;
     // this.modalReminder.componentInstance.filename = this.filename;
+    this.modalReminder.componentInstance.t_uuid = this.project.t_uuid;
+    this.modalReminder.componentInstance.t_ver = this.project.t_ver;
     this.modalReminder.closed.subscribe(async (_: any) => {
 
     });

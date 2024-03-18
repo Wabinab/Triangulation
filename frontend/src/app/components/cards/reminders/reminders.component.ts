@@ -51,7 +51,8 @@ export class RemindersComponent {
   public myForm: FormGroup;
 
   constructor(private http3: Http3Service, private fb: FormBuilder, 
-    private translate: TranslateService, private toastr: ToastrService) {
+    private translate: TranslateService, private toastr: ToastrService
+  ) {
     this.myForm = this.fb.group({
       t: [CardTypes.Reminders, [Validators.required]],
       title: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
@@ -205,7 +206,7 @@ export class RemindersComponent {
     if (j > this.maxrowcol) return;
     let mcqs = this.get_formarray('questions', i, rowcol);
     mcqs.push(this.fb.group({
-      option: [data, [Validators.required, Validators.minLength(10), Validators.maxLength(75)]]
+      option: [data, [Validators.required, Validators.minLength(1), Validators.maxLength(75)]]
     }));
   }
 

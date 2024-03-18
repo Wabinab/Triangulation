@@ -1,6 +1,6 @@
 use crate::*;
 
-use self::messages::{OOB_PIPELINE_IDX, OOB_STAGE_IDX};
+use self::{file::gen_filename, messages::{OOB_PIPELINE_IDX, OOB_STAGE_IDX}};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub(crate) struct SubmitPipeline {
@@ -19,6 +19,36 @@ impl PipelineTrait for SubmitPipeline {
     if stages.is_null() { error!("pipeline_dto get_pipeline stages"); return Err(OOB_STAGE_IDX.to_owned()); }
     let pipeline = stages["pipeline"][self.pipeline_index].clone();
     if pipeline.is_null() { error!("pipeline_dto get_pipeline pipeline"); return Err(OOB_PIPELINE_IDX.to_owned()); }
+    Ok(pipeline)
+  }
+}
+
+
+// Submit pipeline from project side, so use t_uuid and t_ver instead. 
+#[derive(Serialize, Deserialize, Debug)]
+pub(crate) struct SubmitPipelineViaProj {
+  pub(crate) t_uuid: String,
+  pub(crate) t_ver: usize,
+  pub(crate) stage_index: usize,
+  pub(crate) pipeline_index: usize
+}
+
+pub(crate) trait PipelineViaProjTrait {
+  fn get_filename(&self) -> String;  // get filename, not the actual file content. 
+  fn get_pipeline(&self, old_serde: Value) -> Result<Value, String>;
+}
+
+impl PipelineViaProjTrait for SubmitPipelineViaProj {
+  fn get_filename(&self) -> String {
+    return gen_filename(TEMPLATE_NAME.to_owned(), 
+      self.t_uuid.clone(), Some(self.t_ver.clone()));
+  }
+
+  fn get_pipeline(&self, old_serde: Value) -> Result<Value, String> {
+    let stages = old_serde["stages"][self.stage_index].clone();
+    if stages.is_null() { error!("pipeline_dto_proj get_pipeline stages"); return Err(OOB_STAGE_IDX.to_owned()); }
+    let pipeline = stages["pipeline"][self.pipeline_index].clone();
+    if pipeline.is_null() { error!("pipeline_dto_proj get_pipeline pipeline"); return Err(OOB_PIPELINE_IDX.to_owned()); }
     Ok(pipeline)
   }
 }
