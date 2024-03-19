@@ -8,6 +8,7 @@ import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { ToastNoAnimationModule, provideToastr } from 'ngx-toastr';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 // import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 export function HttpLoaderFactory(httpClient: HttpClient) {
@@ -25,6 +26,6 @@ export const appConfig: ApplicationConfig = {
     })), 
     provideToastr(),
     importProvidersFrom(ToastNoAnimationModule.forRoot()), 
-    importProvidersFrom(NgSelectModule)
+    importProvidersFrom(NgSelectModule), provideAnimationsAsync()
   ]
 };

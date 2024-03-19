@@ -1,3 +1,29 @@
+// @import "@angular/material/prebuilt-themes/deeppurple-amber.css";
+// @import "ng-material.css";
+
 .no-outline {
   outline: 0 !important;
 }
+
+.no-margin {
+  margin-right: 0 !important;
+}
+
+.pr-4 {
+  padding-right: 1.5rem !important;
+}
+
+.pl-4 {
+  padding-left: 1.5rem !important;
+}
+
+// https://stackoverflow.com/questions/75223207/angular-material-15-matinput-type-datetime-local-is-missing-native-datetime-pick
+.mdc-text-field__input::-webkit-calendar-picker-indicator {
+  display: block !important;
+}
+
+// input[type=radio] {
+//   border: 0px;
+//   width: 100%;
+//   height: 2em;
+// }

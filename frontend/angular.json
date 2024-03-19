@@ -35,7 +35,11 @@
                 "inject": false,
                 "bundleName": "ng-material"
               },
-              "node_modules/@fortawesome/fontawesome-svg-core/styles.css",
+              {
+                "input": "node_modules/@fortawesome/fontawesome-svg-core/styles.css",
+                "inject": false,
+                "bundleName": "fontawesome"
+              },
               "src/styles.scss",
               {
                 "input": "src/assets/themes/orange.scss",

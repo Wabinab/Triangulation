@@ -1,3 +1,4 @@
+<!-- <link rel="stylesheet" href="ng-material.css" /> -->
 <div class="modal-header">
   <h3>{{ title }}</h3>
 </div>
@@ -9,10 +10,7 @@
         <div class="card">
           <div class="card-body row">
             <div class="col-1 col-lg-1"><span class="text-center">{{ i + 1 }}</span></div>
-            <!-- <div class="col-11 col-lg-11"><h5>{{ q.question }}</h5></div> -->
-            <div class="col-11 col-lg-11"><h5>
-              {{ q.get('question')!.value }}
-            </h5></div>
+            <div class="col-11 col-lg-11"><h5>{{ q.get('question')!.value }}</h5></div>
 
             <div class="col-1 col-lg-1"></div>
             <div class="col-11 col-lg-11">
@@ -22,27 +20,89 @@
                 <app-error [form]="q" control="answer"></app-error>
               }
               @if (q.get('q_type')!.value == "1") {
-                <textarea rows="3" class="form-control" 
-                formControlName="answer" placeholder="{{ 'QuestionChoice.Long2' | translate}}"></textarea>
+                <textarea rows="3" class="form-control" formControlName="answer"
+                placeholder="{{ 'QuestionChoice.Long2' | translate}}"></textarea>
                 <app-error [form]="q" control="answer"></app-error>
               }
               @if (q.get('q_type')!.value == "2") {
-                @for (r of q.get('rows')!.value; track r; let i = $index) {
+                @for (r of q.get('rows')!.value; track r; let j = $index) {
                   <div class="form-check">
-                    <input type="radio" class="form-check-input" formControlName="answer" [value]="i">
+                    <input type="radio" class="form-check-input" formControlName="answer" [value]="j">
                     <label class="form-check-label">{{ r }}</label>
                   </div>
                 }
               }
               @if (q.get('q_type')!.value == "3") {
-                <ng-container formArrayName="answer">
-                  <ng-container *ngFor="let r of q.get('rows')!.value; let j=index; trackBy:trackByFn" [formGroupName]="j">
-                    <div class="form-check">
-                      <input type="checkbox" class="form-check-input" (change)="checking(j, $event)" />
-                      <label class="form-check-label">{{ r }}</label>
-                    </div>
-                  </ng-container>
-                </ng-container>
+                @for (r of q.get('rows')!.value; let j = $index; track j) {
+                  <div class="form-check">
+                    <input type="checkbox" class="form-check-input" 
+                    [ngClass]="at_least_one_true_css(q.get('answer')!.errors)"
+                    (change)="checking(j, $event, q.get('answer')!)" />
+                    <label class="form-check-label">{{ r }}</label>
+                  </div>
+                }
+              }
+              @if (q.get('q_type')!.value == "4") {
+                @if (q.get('min_name')?.value) { <span class="pr-4">{{ q.get('min_name')!.value }}</span> }
+                @for (c of range_min_max(q.get('min')!.value, q.get('max')!.value); track c) {
+                  <div class="form-check-inline">
+                    <label class="form-check-label text-center" for="inlineRadio1">{{ c }}<br>
+                      <input class="form-check-input no-margin" type="radio" formControlName="answer" [value]="c">
+                    </label>
+                  </div>
+                }
+                @if (q.get('max_name')?.value) { <span class="pl-4">{{ q.get('max_name')!.value }}</span> }
+              }
+              @if (["5", "6"].includes(q.get('q_type')!.value)) {
+                <table class="table table-borderless">
+                  <thead>
+                    <tr>
+                      <td scope="col"></td>
+                      @for (c of q.get('cols')!.value; track c) { <td scope="col">{{ c }}</td> }
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <ng-container formArrayName="answer">
+                      @for (r of q.get('rows')!.value; let j = $index; track j) {
+                        <tr>
+                          <td scope="row">{{ r }}</td>
+                          @for (c of q.get('cols')!.value; track c; let k = $index) { 
+                            @if (q.get('q_type')!.value == "5") {
+                              <td><input type="radio" class="form-check-input" 
+                                [formControlName]="j.toString()" [value]="k"></td>
+                            }
+                            @if (q.get('q_type')!.value == "6") {
+                              <td><input type="checkbox" class="form-check-input"
+                                [ngClass]="at_least_one_true_css(q.get(['answer', j])!.errors)"
+                                (change)="checking_grid(j, k, $event, q.get('answer')!)">
+                              </td>
+                            }
+                          }
+                        </tr>
+                      }
+                    </ng-container> 
+                  </tbody>
+                </table>
+              }
+              @if (q.get('q_type')!.value == "7") {
+                <!-- <mat-form-field>
+                  <mat-label>Choose a date</mat-label>
+                  <input matInput [matDatepicker]="picker">
+                  <mat-hint>MM/DD/YYYY</mat-hint>
+                  <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                  <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field> -->
+                <mat-form-field>
+                  <mat-label>Choose Date and Time</mat-label>
+                  <input 
+                    matInput
+                    placeholder="dd/MM/yyyy hh:mm"
+                    formControlName="answer"
+                    type="datetime-local"
+                    required
+                    tabindex="1"
+                  />
+                </mat-form-field>
               }
             </div>
           </div>
@@ -55,5 +115,6 @@
 <!-- DEBUG -->
 <pre>
   <!-- {{ items | json}} -->
-  {{ myForm.value | json }}
+  {{ myForm.get("questions")!.value[7] | json }}
 </pre>
+<!-- {{ bool_to_index(myForm.get("questions")!.value[3]["answer"]) | json }} -->

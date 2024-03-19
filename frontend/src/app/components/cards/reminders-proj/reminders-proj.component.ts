@@ -8,11 +8,19 @@ import { AnswerTypes } from '../../../models/answer-types';
 import { Http3Service } from '../../../services/http3.service';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
+import { atLeastOneTrueValidator } from '../../../directives/at-least-one-true-validator.directive';
+import {MatDatepickerModule} from '@angular/material/datepicker';
+import {MatInputModule} from '@angular/material/input';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {provideNativeDateAdapter} from '@angular/material/core';
+// import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
 
 @Component({
   selector: 'app-reminders-proj',
   standalone: true,
-  imports: [SharedModule, SharedFormsModule, FontAwesomeModule, HumanPipe],
+  imports: [SharedModule, SharedFormsModule, FontAwesomeModule, HumanPipe,
+    MatFormFieldModule, MatInputModule, MatDatepickerModule],
+  providers: [provideNativeDateAdapter()],
   templateUrl: './reminders-proj.component.html',
   styleUrl: './reminders-proj.component.scss'
 })
@@ -90,8 +98,8 @@ export class RemindersProjComponent {
       // https://stackoverflow.com/questions/42322968/angular2-dynamic-input-field-lose-focus-when-input-changes
       rows: this.fb.array(data.r ?? []),
       cols: this.fb.array(data.c ?? []),
-      min: [data.min ?? null],
-      max: [data.max ?? null],
+      min: [parseInt(data.min) ?? null],
+      max: [parseInt(data.max) ?? null],
       min_name: [data.min_name ?? null],
       max_name: [data.max_name ?? null],
 
@@ -107,10 +115,22 @@ export class RemindersProjComponent {
   // Return fb.array if is grid or checkbox; otherwise, return string with corresponding validators. 
   private get_answer(q_type: string, rows: any[], cols: any[]) {
     if (q_type == AnswerTypes.Checkbox) {
-      return [[...Array(rows.length).fill(false)]]
+      return [[...Array(rows.length).fill(false)], atLeastOneTrueValidator()] // We'll think of validators later for at least one true. 
     }
     if ([AnswerTypes.GridCheckbox, AnswerTypes.GridMultipleChoice].includes(q_type as AnswerTypes)) {
-      return this.fb.array([])
+      let arr: FormArray = this.fb.array([]);
+      for (let r in rows) {
+        // arr.push(this.fb.group({
+        //   option: q_type == AnswerTypes.GridCheckbox 
+        //     ? this.get_answer(AnswerTypes.Checkbox, cols, []) // loop over cols instead of rows
+        //     : ['', Validators.required]
+        // }));
+        arr.push(q_type == AnswerTypes.GridCheckbox
+          ? this.fb.control([...Array(cols.length).fill(false)], [atLeastOneTrueValidator()])
+          : this.fb.control('', [Validators.required])  
+        );
+      }
+      return arr;
     }
     return ['', this.get_validators(q_type)]
   }
@@ -123,10 +143,18 @@ export class RemindersProjComponent {
   }
 
   // For checkbox only
-  checking(index: number, event: any) {
-    let checked = event.target.checked;
-    console.log(`${checked} ${index}`);
-    // TBD
+  checking(index: number, event: any, control: AbstractControl) {
+    let value = control.value;
+    value[index] = event.target.checked;
+    control.setValue(value);
+  }
+
+  // For grid checkbox only
+  checking_grid(j: number, k: number, event: any, control: AbstractControl) {
+    // let value = control.get([j, 'option'])!.value;
+    let value = control.get([j])!.value;
+    value[k] = event.target.checked;
+    control.get([j, 'option'])!.setValue(value);
   }
 
   // ===========================================================
@@ -158,6 +186,22 @@ export class RemindersProjComponent {
 
   // ===========================================================
   // Helpers
+  // This is inclusive of min and max. 
+  range_min_max(min: number, max: number) : ReadonlyArray<number> {
+    const size = Math.abs(max - min + 1);
+    const startAt = min;
+    return this.range(size, startAt);
+  }
+
+  range(size:number, startAt:number = 0) : ReadonlyArray<number> {
+    return [...Array(size).keys()].map(i => i + startAt);
+  }
+
+  at_least_one_true_css(errors: any): string {
+    if (errors && errors.atLeastOneTrue) { return "ng-invalid" }
+    return "ng-valid";
+  }
+
   private get_formarray(first: string, i: number, second: string ): FormArray {
     let q = this.get_q(first, i);
     return q.get(second) as FormArray;
@@ -166,5 +210,19 @@ export class RemindersProjComponent {
   private get_q(first: string, i: number): AbstractControl {
     let qs = this.myForm.get(first) as FormArray;
     return qs.at(i);
+  }
+
+  // Convert boolean array to indices. 
+  // https://stackoverflow.com/questions/50981806/javascript-get-indices-of-true-values-in-a-boolean-array
+  private bool_to_index(arr: any[]) {
+    return arr.reduce(
+      (out: any, bool: boolean, index: number) => bool ? out.concat(index) : out, 
+      []
+    );
+  }
+
+  private index_to_bool(bool_arr: any[], indices_arr: number[]) {
+    indices_arr.map(i => bool_arr[i] = true);
+    return bool_arr;
   }
 }
