@@ -9,3 +9,4 @@ pub(crate) mod project_dto_test;
 pub(crate) mod data_file_test;
 pub(crate) mod data_versioning_test;
 pub(crate) mod data_compressor_test;
+pub(crate) mod response_dto_test;

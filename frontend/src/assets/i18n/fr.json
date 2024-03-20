@@ -39,7 +39,10 @@
   "proj": {
     "ConfirmVer": "Le Version peut incompatible. Es-tu sûr?",
     "Version": "Version",
-    "TempInfo": "Informations sur le modèle"
+    "TempInfo": "Informations sur le modèle",
+    "DateTime": "Choisir la date et l'heure",
+    "Submit": "Sauvegarder",
+    "Autosave": "Sauvegarder Automatique en cours"
   },
   "reminder": {
     "title": "Titre",

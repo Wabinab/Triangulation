@@ -88,6 +88,39 @@ fn get_specific_pipeline() -> Value {
   serde_json::from_str(&c).unwrap()
 }
 
+fn get_old_serde_proj() -> Value {
+  let c = r#" {
+    "name": "With Special Question",
+    "description": "This is version 3 of template, with special questions. ",
+    "t_uuid": "018e1be4-582c-70bf-8972-d0e5c4786f2a",
+    "uuid": "018e5065-393a-7cc9-beca-9945f961068f",
+    "t_ver": 2,
+    "pipelines": [
+      [
+        [
+          "",
+          "",
+          ""
+        ],
+        [
+          "mid response"
+        ],
+        [
+          "short response",
+          "long response",
+          1,
+          [0, 1],
+          3,
+          [3, 4, 0],
+          [[1, 2], [2]],
+          "2024-03-20T11:23"
+        ]
+      ]
+    ]
+  }"#;
+  serde_json::from_str(&c).unwrap()
+}
+
 // =================================================
 #[test]
 fn test_pipeline_valid() {
@@ -139,4 +172,47 @@ fn test_gen_empty_pipeline_correct() {
   let old_serde = get_old_serde();
   let empty_pipeline = gen_empty_pipeline(old_serde.clone());
   assert_eq!(empty_pipeline, get_specific_pipeline());
+}
+
+#[test]
+fn test_response_valid() {
+  let old_serde = get_old_serde_proj();
+  let d = r#"{
+    "filename": "...",
+    "stage_index": 0,
+    "pipeline_index": 1
+  }"#;
+  let submit: SubmitPipeline = serde_json::from_str(&d).unwrap();
+
+  let edited_serde = submit.get_response(old_serde).unwrap();
+  assert_eq!(edited_serde.as_array().unwrap().len(), 1);
+  assert_eq!(edited_serde[0], "mid response");
+}
+
+#[test]
+fn test_response_invalid_stage_index() {
+  let old_serde = get_old_serde_proj();
+  let d = r#"{
+    "filename": "...",
+    "stage_index": 500,
+    "pipeline_index": 1
+  }"#;
+  let submit: SubmitPipeline = serde_json::from_str(&d).unwrap();
+  
+  let edited_serde = submit.get_response(old_serde);
+  assert!(edited_serde.is_err_and(|x| x == OOB_STAGE_IDX.to_owned()));
+}
+
+#[test]
+fn test_response_invalid_pipeline_index() {
+  let old_serde = get_old_serde_proj();
+  let d = r#"{
+    "filename": "...",
+    "stage_index": 0,
+    "pipeline_index": 500
+  }"#;
+  let submit: SubmitPipeline = serde_json::from_str(&d).unwrap();
+  
+  let edited_serde = submit.get_response(old_serde);
+  assert!(edited_serde.is_err_and(|x| x == OOB_PIPELINE_IDX.to_owned()));
 }

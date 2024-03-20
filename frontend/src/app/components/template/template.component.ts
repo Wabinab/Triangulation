@@ -206,7 +206,7 @@ export class TemplateComponent {
     this.modalReminder.componentInstance.filename = this.filename;
     this.modalReminder.closed.subscribe(async (_: any) => {
       await this.load(this.curr_stage);
-      console.log("Curr Stage: "+this.curr_stage);
+      // console.log("Curr Stage: "+this.curr_stage);
     });
     // this.modalReminder.dismissed.subscribe((res: any) => {
     //   console.log("dismissed");

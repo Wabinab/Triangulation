@@ -6,6 +6,7 @@ pub(crate) mod stage_dto;
 pub(crate) mod pipeline_dto;
 pub(crate) mod reminder_dto;
 pub(crate) mod project_dto;
+pub(crate) mod response_dto;
 
 
 // ================================================================

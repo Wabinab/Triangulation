@@ -39,7 +39,10 @@
   "proj": {
     "ConfirmVer": "Project May Break. Are You Sure?",
     "Version": "Version",
-    "TempInfo": "Template Info"
+    "TempInfo": "Template Info",
+    "DateTime": "Choose Date and Time",
+    "Submit": "Save",
+    "Autosave": "Autosave in progress"
   },
   "reminder": {
     "title": "Title",

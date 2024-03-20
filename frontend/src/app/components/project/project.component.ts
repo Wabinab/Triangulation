@@ -43,7 +43,7 @@ export class ProjectComponent {
     setTimeout(() => this.load(), 150);
   }
 
-  async load() {
+  async load(curr_stage: number = 0) {
     if (!this.filename) { this.doErr("Filename not defined."); this.loading = false; return; }
     const row = { filename: this.filename };
 
@@ -54,7 +54,7 @@ export class ProjectComponent {
       this.template = data.template;
       this.stages = this.template?.stages;
       this.stages.sort(this.compareSteps);
-      this.pipeline = this.stages[0]['pipeline'] ?? [];
+      this.pipeline = this.stages[curr_stage]['pipeline'] ?? [];
   
       const row1 = { t_uuid: this.project.t_uuid };
       let value2: any = await this.http3.send("/template/version/newest", JSON.stringify(row1));
@@ -172,11 +172,11 @@ export class ProjectComponent {
     });
     this.modalReminder.componentInstance.id = id;
     this.modalReminder.componentInstance.curr_stage = this.curr_stage;
-    // this.modalReminder.componentInstance.filename = this.filename;
+    this.modalReminder.componentInstance.filename = this.filename;
     this.modalReminder.componentInstance.t_uuid = this.project.t_uuid;
     this.modalReminder.componentInstance.t_ver = this.project.t_ver;
     this.modalReminder.closed.subscribe(async (_: any) => {
-
+      await this.load(this.curr_stage)
     });
   }
 

@@ -5,3 +5,4 @@
 pub(crate) mod template_controller;
 pub(crate) mod pipeline_controller;
 pub(crate) mod project_controller;
+pub(crate) mod response_controller;

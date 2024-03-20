@@ -34,7 +34,7 @@ pub(crate) fn get_project(data_path: PathBuf, msg: Bytes) -> Result<Option<Strin
 
   Ok(Some(json!({
     // "project": proj_nlist.unwrap(),
-    "project": proj,  // we need to do some testing. 
+    "project": proj_nlist.unwrap(),  // we need to do some testing. 
     "template": temp_nlist.unwrap()
   }).to_string()))
 }

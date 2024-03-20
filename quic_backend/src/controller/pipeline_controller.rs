@@ -34,12 +34,12 @@ pub(crate) fn get_pipeline_by_uuid_ver(data_path: PathBuf, msg: Bytes) -> Result
 
 // =====================================================================================
 /// Either new_reminder or edit_reminder, use this. 
-fn modify_reminder(data_path: PathBuf, msg: Bytes, is_new: CRUD) -> Result<Option<String>, String> {
+fn modify_reminder(data_path: PathBuf, msg: Bytes, crud: CRUD) -> Result<Option<String>, String> {
   let submit: SubmitReminder = serde_json::from_slice(&msg).unwrap();
   let old_serde = get_data(data_path.clone(), submit.filename.clone());
   if old_serde.is_err() { error!("modify_reminder old_serde"); return Err(old_serde.unwrap_err()); }
 
-  let edited_serde = match is_new {
+  let edited_serde = match crud {
     CRUD::Create => submit.new_reminder(old_serde.unwrap()),
     CRUD::Update => submit.edit_reminder(old_serde.unwrap()),
     CRUD::Delete => submit.delete_reminder(old_serde.unwrap())
@@ -50,7 +50,8 @@ fn modify_reminder(data_path: PathBuf, msg: Bytes, is_new: CRUD) -> Result<Optio
   if ret.is_err() { error!("modify_reminder compress_and_save"); return Err(ret.unwrap_err()); }
 
   // Update versioning if applicable. 
-  let ret = upd_ver_temp(get_verpath(data_path.clone()), submit.filename.clone());
+  let ret = upd_ver_temp(get_verpath(data_path.clone()),
+    submit.filename.clone());
   if ret.is_err() { error!("modify_reminder upd_ver_temp"); return Err(ret.unwrap_err()); }
 
   Ok(Some(edited_serde.unwrap().to_string()))
@@ -58,10 +59,10 @@ fn modify_reminder(data_path: PathBuf, msg: Bytes, is_new: CRUD) -> Result<Optio
 
 
 // ===================================================
-fn choose_ty(data_path: PathBuf, msg: Bytes, ty: usize, is_new: CRUD) -> Result<Option<String>, String> {
+fn choose_ty(data_path: PathBuf, msg: Bytes, ty: usize, crud: CRUD) -> Result<Option<String>, String> {
   match ty {
-    0 => modify_reminder(data_path, msg, is_new),
-    _ => Err(format!("{:?} Pipeline: None of the ty matches.", is_new))
+    0 => modify_reminder(data_path, msg, crud),
+    _ => Err(format!("{:?} Pipeline: None of the ty matches.", crud))
   }
 }
 

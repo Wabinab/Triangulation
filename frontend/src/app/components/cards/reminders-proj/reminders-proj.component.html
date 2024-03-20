@@ -21,7 +21,9 @@
               }
               @if (q.get('q_type')!.value == "1") {
                 <textarea rows="3" class="form-control" formControlName="answer"
-                placeholder="{{ 'QuestionChoice.Long2' | translate}}"></textarea>
+                placeholder="{{ 'QuestionChoice.Long2' | translate}}"
+                (keyup)="textCounter($event)" ></textarea>
+                <div class="form-text">{{ charcount }}</div>
                 <app-error [form]="q" control="answer"></app-error>
               }
               @if (q.get('q_type')!.value == "2") {
@@ -37,7 +39,8 @@
                   <div class="form-check">
                     <input type="checkbox" class="form-check-input" 
                     [ngClass]="at_least_one_true_css(q.get('answer')!.errors)"
-                    (change)="checking(j, $event, q.get('answer')!)" />
+                    (change)="checking(j, $event, q.get('answer')!)" 
+                    [checked]="get_check_value(i, j)" />
                     <label class="form-check-label">{{ r }}</label>
                   </div>
                 }
@@ -74,7 +77,8 @@
                             @if (q.get('q_type')!.value == "6") {
                               <td><input type="checkbox" class="form-check-input"
                                 [ngClass]="at_least_one_true_css(q.get(['answer', j])!.errors)"
-                                (change)="checking_grid(j, k, $event, q.get('answer')!)">
+                                (change)="checking_grid(j, k, $event, q.get('answer')!)"
+                                [checked]="get_check_value_grid(i, j, k)">
                               </td>
                             }
                           }
@@ -85,15 +89,8 @@
                 </table>
               }
               @if (q.get('q_type')!.value == "7") {
-                <!-- <mat-form-field>
-                  <mat-label>Choose a date</mat-label>
-                  <input matInput [matDatepicker]="picker">
-                  <mat-hint>MM/DD/YYYY</mat-hint>
-                  <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-                  <mat-datepicker #picker></mat-datepicker>
-                </mat-form-field> -->
                 <mat-form-field>
-                  <mat-label>Choose Date and Time</mat-label>
+                  <mat-label>{{ 'proj.DateTime' | translate }}</mat-label>
                   <input 
                     matInput
                     placeholder="dd/MM/yyyy hh:mm"
@@ -109,12 +106,22 @@
         </div>
       </ng-container>
     </ng-container>
+
+    <div class="float-end pt-3">
+      <div class="d-flex gap-1">
+        <span class="loader" *ngIf="loading">&nbsp;&nbsp;</span>
+        <button type="button" (click)="cancel()" class="btn btn-danger" [disabled]="loading || submitting">{{ 'cancel' | translate }}</button>
+        <button type="submit" class="btn btn-primary" [disabled]="!myForm.valid || loading || submitting">
+          {{ 'proj.Submit' | translate }}
+        </button>
+      </div>
+    </div>
   </form>
 </div>
 
 <!-- DEBUG -->
 <pre>
   <!-- {{ items | json}} -->
-  {{ myForm.get("questions")!.value[7] | json }}
+  {{ myForm.get("questions")!.value | json }}
 </pre>
 <!-- {{ bool_to_index(myForm.get("questions")!.value[3]["answer"]) | json }} -->

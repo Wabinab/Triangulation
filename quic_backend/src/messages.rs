@@ -5,3 +5,5 @@ pub(crate) const OOB_STAGE_IDX: &'static str = "Out of Bound stage index.";
 pub(crate) const OOB_PIPELINE_IDX: &'static str = "Out of Bound pipeline index.";
 pub(crate) const OOB_REMINDER_IDX: &'static str = "Out of Bound reminder index.";
 pub(crate) const REMINDER_IDX_CANNOT_NULL: &'static str = "Reminder Index cannot be null.";
+pub(crate) const LEN_PIPELINE_NOT_MATCH: &'static str = "Length of pipeline not match.";
+pub(crate) const ANSWER_NULL: &'static str = "Answer cannot be null.";

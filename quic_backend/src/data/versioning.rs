@@ -9,7 +9,7 @@ use crate::*;
 use self::{compressor::{compress_and_save_fullpath, retrieve_decompress_fullpath}, file::{add_ver_json_zl, strip_ext}, messages::{CANNOT_FIND_VER, RD_CANNOT_FIND_FILE}};
 
 /// Update Version Save Project
-/// temp_filename is template filename. 
+/// temp_filename is (original non-versioned) template filename. 
 pub(crate) fn upd_ver_proj(ver_path: PathBuf, temp_filename: String, data_path: PathBuf) -> Result<Version, String> {
   let ver_file = retrieve_decompress_fullpath(ver_path.clone());
   if ver_file.clone().is_err_and(|x| x == RD_CANNOT_FIND_FILE.to_owned()) {
