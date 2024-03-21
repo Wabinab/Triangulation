@@ -64,3 +64,17 @@ pub(crate) struct ProjectNList {
   pub(crate) t_uuid: String,
   pub(crate) t_ver: Version
 }
+
+// ==============================================
+pub(crate) fn to_basic_project(old_serde: Value) -> ProjectBasic {
+  serde_json::from_value(old_serde).unwrap()
+}
+
+#[derive(Serialize, Deserialize)]
+pub(crate) struct ProjectBasic {
+  pub(crate) name: String,
+  pub(crate) uuid: String,
+  pub(crate) description: String,
+  pub(crate) t_name: Option<String>,
+  pub(crate) t_ver: usize
+}

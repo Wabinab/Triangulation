@@ -14,6 +14,7 @@ import { MovetoComponent } from '../../moveto/moveto.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { CancellationComponent } from '../../cancellation/cancellation.component';
 
 @Component({
   selector: 'app-reminders',
@@ -115,9 +116,37 @@ export class RemindersComponent {
     }, (err: any) => { this.doErr(err); this.submitting = false; });
   }
 
+  modalCancel: any;
   cancel() {
-    this.bsModalRef.dismiss();
+    if (this.loading || this.submitting) return;
+    // Too many actions that don't automatically
+    // set dirty and touched. We'll just ask everytime, to be safe. 
+    
+    // if (this.is_dirty()) {
+      this.modalCancel = this.modalSvc.open(CancellationComponent);
+      this.modalCancel.componentInstance.back_path = "hide modal";
+      this.modalCancel.componentInstance.back_dismiss = true;
+      this.modalCancel.closed.subscribe((res: any) => {
+        // yes, save (if valid)
+        this.onSubmit();
+        this.bsModalRef.dismiss();
+      });
+      this.modalCancel.dismissed.subscribe((_: any) => {
+        this.bsModalRef.dismiss();
+      })
+    //   return;
+    // }
+    // this.bsModalRef.dismiss();
   }
+
+  // private is_dirty() {
+  //   let dirty = false;
+  //   Object.keys(this.myForm.controls).forEach(key => {
+  //     const field = this.myForm.get(key)!;
+  //     if (field.dirty && field.touched) { dirty = true; }
+  //   });
+  //   return dirty;
+  // }
 
   set_row() {
     // let qs = this.myForm.get('questions') as FormArray;

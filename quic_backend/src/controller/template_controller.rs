@@ -3,9 +3,7 @@ use std::fs;
 
 use crate::*;
 
-use self::{compressor::{compress_and_save, retrieve_decompress, retrieve_decompress_fullpath}, 
-  file::gen_filename, stage_dto::{StageTrait, SubmitStage}, 
-  template_dto::{to_nameonly, to_nlist_temp, SubmitGetTemplate, SubmitTemplate, SubmitTemplateVer, TemplateTrait, TemplateVerTrait}, versioning::{get_verpath, upd_ver_temp}
+use self::{compressor::{compress_and_save, retrieve_decompress, retrieve_decompress_fullpath}, file::gen_filename, filelist_dto::SubmitFileList, stage_dto::{StageTrait, SubmitStage}, template_dto::{to_basic_template, to_nameonly, to_nlist_temp, SubmitGetTemplate, SubmitTemplate, SubmitTemplateVer, TemplateTrait, TemplateVerTrait}, versioning::{get_verpath, upd_ver_temp}
 };
 
 // =================================================
@@ -38,11 +36,11 @@ pub(crate) fn get_templates_nameonly(data_path: PathBuf) -> Result<Option<String
   let mut errors: Vec<String> = vec![]; 
   let mut retvals: Vec<Value> = vec![];
   for path in paths {
-    if path.is_err() { errors.push(path.unwrap_err().to_string()); continue; }
+    if path.is_err() { error!("get_templates_nameonly path as_ref"); errors.push(path.unwrap_err().to_string()); continue; }
     let data = retrieve_decompress_fullpath(path.unwrap().path());
-    if data.is_err() { errors.push(data.unwrap_err()); continue; }
+    if data.is_err() { error!("get_templates_nameonly retrieve data"); errors.push(data.unwrap_err()); continue; }
     let retval = serde_json::to_value(&to_nameonly(data.unwrap()));
-    if retval.is_err() { errors.push(retval.unwrap_err().to_string()); continue; }
+    if retval.is_err() { error!("get_templates_nameonly retval"); errors.push(retval.unwrap_err().to_string()); continue; }
     retvals.push(retval.unwrap());
   }
   Ok(Some(json!({
@@ -61,6 +59,33 @@ pub(crate) fn get_template_version(data_path: PathBuf, msg: Bytes) -> Result<Opt
   }).to_string()))
 }
 
+/// Apart from name and uuid, also return description. 
+/// This is use for display list in frontend. 
+pub(crate) fn get_templates(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
+  let submit: SubmitFileList = serde_json::from_slice(&msg).unwrap();
+  let paths: Vec<_> = fs::read_dir(modify_datapath(data_path)).unwrap().collect();
+  let mut errors: Vec<String> = vec![]; 
+  let mut retvals: Vec<Value> = vec![];
+  for path in paths
+    .iter()
+    .skip(submit.page_no * submit.page_size)
+    .take(submit.page_size) 
+  {
+    let path = path.as_ref();
+    if path.is_err() { error!("get_templates path as_ref"); errors.push(path.unwrap_err().to_string()); continue; }
+    let data = retrieve_decompress_fullpath(path.unwrap().path());
+    if data.is_err() { error!("get_templates retrieve temp"); errors.push(data.unwrap_err()); continue; }
+    let retval = serde_json::to_value(&to_basic_template(data.unwrap()));
+    if retval.is_err() { error!("get_templates retval"); errors.push(retval.unwrap_err().to_string()); continue; }
+    retvals.push(retval.unwrap());
+  }
+
+  Ok(Some(json!({
+    "total_count": paths.len(),
+    "data": retvals,
+    "err": errors
+  }).to_string()))
+}
 
 // =============================================
 // POST and PUT

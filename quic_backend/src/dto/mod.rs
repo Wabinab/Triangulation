@@ -7,6 +7,8 @@ pub(crate) mod pipeline_dto;
 pub(crate) mod reminder_dto;
 pub(crate) mod project_dto;
 pub(crate) mod response_dto;
+pub(crate) mod filelist_dto;
+pub(crate) mod misc_dto;
 
 
 // ================================================================

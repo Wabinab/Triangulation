@@ -83,6 +83,18 @@ pub(crate) struct TemplateNameonly {
 }
 
 // ================================================
+pub(crate) fn to_basic_template(old_serde: Value) -> TemplateBasic {
+  serde_json::from_value(old_serde).unwrap()
+}
+
+#[derive(Serialize, Deserialize)]
+pub(crate) struct TemplateBasic {
+  pub(crate) name: String,
+  pub(crate) uuid: String,
+  pub(crate) description: String
+}
+
+// ================================================
 #[derive(Serialize, Deserialize, Debug)]
 pub(crate) struct SubmitTemplateVer {
   pub(crate) t_uuid: String

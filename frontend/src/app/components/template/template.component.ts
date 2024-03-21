@@ -52,7 +52,7 @@ export class TemplateComponent {
       this.template = this.http3.json_handler(value);
       this.stages = this.template?.stages;
       this.stages.sort(this.compareSteps);
-      this.pipeline = this.stages[curr_stage]['pipeline'] ?? [];
+      this.pipeline = this.stages[curr_stage] ? this.stages[curr_stage]['pipeline'] : [];
       this.loading = false;
     }).catch(err => { this.doErr(err); this.loading = false; }) 
   }

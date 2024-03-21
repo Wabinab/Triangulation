@@ -3,9 +3,13 @@
 // @import 'assets/themes/orange.scss';
 // @import 'app/assets/styles/custom-vendor';
 
+$card-height: 100%;
 @import 'bootstrap/scss/bootstrap';
 @import 'ngx-toastr/toastr-bs5-alert';
 
+.card-hover:hover {
+  cursor: pointer;
+}
 
 // [data-bs-theme="blue"] {
 //   --bs-body-color: var(--bs-white);

@@ -2,7 +2,7 @@ use uuid::Uuid;
 
 use crate::*;
 
-use self::{compressor::{compress_and_save, retrieve_decompress}, file::gen_filename, project_dto::{to_nlist_proj, ProjectTrait, SubmitGetProject, SubmitProject}, template_dto::to_nlist_temp, versioning::{get_savepath, get_verpath, upd_ver_proj}};
+use self::{compressor::{compress_and_save, retrieve_decompress, retrieve_decompress_fullpath}, file::gen_filename, filelist_dto::SubmitFileList, project_dto::{to_basic_project, to_nlist_proj, ProjectTrait, SubmitGetProject, SubmitProject}, template_dto::to_nlist_temp, versioning::{get_savepath, get_verpath, upd_ver_proj}};
 
 // ===========================================
 // GET
@@ -36,6 +36,45 @@ pub(crate) fn get_project(data_path: PathBuf, msg: Bytes) -> Result<Option<Strin
     // "project": proj_nlist.unwrap(),
     "project": proj_nlist.unwrap(),  // we need to do some testing. 
     "template": temp_nlist.unwrap()
+  }).to_string()))
+}
+
+pub(crate) fn get_projects(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
+  let submit: SubmitFileList = serde_json::from_slice(&msg).unwrap();
+  let paths: Vec<_> = fs::read_dir(modify_datapath(data_path.clone())).unwrap().collect();
+  let mut errors: Vec<String> = vec![]; 
+  let mut retvals: Vec<Value> = vec![];
+  for path in paths
+    .iter()
+    .skip(submit.page_no * submit.page_size)
+    .take(submit.page_size) 
+  {
+    let path = path.as_ref();
+    if path.is_err() { error!("get_projects path as_ref"); errors.push(path.unwrap_err().to_string()); continue; }
+    let data = retrieve_decompress_fullpath(path.unwrap().path());
+    if data.is_err() { error!("get_projects retrieve proj"); errors.push(data.unwrap_err()); continue; }
+    let mut project = to_basic_project(data.clone().unwrap());
+
+    let proj = data.unwrap();
+    let template_filename = gen_filename(
+      TEMPLATE_NAME.to_owned(), 
+      proj["t_uuid"].as_str().unwrap().to_owned(), 
+      Some(proj["t_ver"].as_u64().unwrap() as usize)
+    );
+    let temp = retrieve_decompress(get_savepath(data_path.clone()), template_filename);
+    if temp.is_err() { error!("get_projects retrieve temp"); return Err(temp.unwrap_err()); }
+    let template = to_nlist_temp(temp.unwrap());
+    project.t_name = Some(template.name);
+
+    let retval = serde_json::to_value(&project);
+    if retval.is_err() { error!("get_projects retval"); errors.push(retval.unwrap_err().to_string()); continue; }
+    retvals.push(retval.unwrap());
+  }
+
+  Ok(Some(json!({
+    "total_count": paths.len(),
+    "data": retvals,
+    "err": errors
   }).to_string()))
 }
 

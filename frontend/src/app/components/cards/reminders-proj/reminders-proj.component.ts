@@ -3,7 +3,7 @@ import { SharedModule } from '../../../shared/shared.module';
 import { SharedFormsModule } from '../../../shared/shared-forms.module';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { HumanPipe } from '../../../directives/human.pipe';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AnswerTypes } from '../../../models/answer-types';
 import { Http3Service } from '../../../services/http3.service';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -15,6 +15,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {provideNativeDateAdapter} from '@angular/material/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription, interval } from 'rxjs';
+import { CancellationComponent } from '../../cancellation/cancellation.component';
 // import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
 
 @Component({
@@ -28,6 +29,7 @@ import { Subscription, interval } from 'rxjs';
 })
 export class RemindersProjComponent {
   bsModalRef = inject(NgbActiveModal);
+  private modalSvc = inject(NgbModal);
 
   @Input() id: number = -1;
   @Input() curr_stage: number = 0;
@@ -188,6 +190,7 @@ export class RemindersProjComponent {
     let value = control.value;
     value[index] = event.target.checked;
     control.setValue(value);
+    this.mark_question_dirty_touched();
   }
 
   get_check_value(i: number, j: number) {
@@ -201,11 +204,17 @@ export class RemindersProjComponent {
     let value = control.get([j])!.value;
     value[k] = event.target.checked;
     control.get([j])!.setValue(value);
+    this.mark_question_dirty_touched();
   }
 
   get_check_value_grid(i: number, j: number, k: number) {
     let qs = this.myForm.get('questions') as FormArray;
     return qs.get([i, 'answer', j])!.value[k];
+  }
+
+  private mark_question_dirty_touched() {
+    this.myForm.get("questions")!.markAsDirty();
+    this.myForm.get("questions")!.markAsTouched();
   }
 
   // ===========================================================
@@ -260,9 +269,48 @@ export class RemindersProjComponent {
   }
 
   // Will call cancellation modal later. 
+  modalCancel: any;
   cancel() {
+    if (this.loading || this.submitting) return;
+    if (this.is_dirty()) {
+      this.modalCancel = this.modalSvc.open(CancellationComponent);
+      this.modalCancel.componentInstance.back_path = "hide modal";
+      this.modalCancel.componentInstance.back_dismiss = true;
+      this.modalCancel.closed.subscribe((res: any) => {
+        // yes, save (if valid)
+        this.onSubmit();
+        this.bsModalRef.dismiss();
+      });
+      this.modalCancel.dismissed.subscribe((_: any) => {
+        this.bsModalRef.dismiss();
+      })
+      return;
+    }
     this.bsModalRef.dismiss();
   }
+
+  private is_dirty() {
+    let dirty = false;
+    Object.keys(this.myForm.controls).forEach(key => {
+      const field = this.myForm.get(key)!;
+      if (field.dirty && field.touched) { dirty = true; }
+    });
+    return dirty;
+  }
+
+  // all_dirty(): string[] {
+  //   let changedProperties: any[] = [];
+  
+  //   Object.keys(this.myForm.controls).forEach((name) => {
+  //     const currentControl = this.myForm.controls[name];
+  
+  //     if (currentControl.dirty) {
+  //       changedProperties.push(name);
+  //     }
+  //   });
+  
+  //   return changedProperties;
+  // }
 
   // ===========================================================
   get title() {

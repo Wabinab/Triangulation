@@ -6,10 +6,11 @@ pub(crate) fn routes_handler(msg: Bytes, path: String, data_path: PathBuf) -> Re
 
         // "/template" => template_controller::get_template(data_path, msg),
         "/template/nlist" => template_controller::get_template_nlist(data_path, msg),
-        "/templates" => template_controller::get_templates_nameonly(data_path),
         "/template/new" => template_controller::new_template(data_path, msg),
         "/template/edit" => template_controller::edit_template(data_path, msg),
         "/template/version/newest" => template_controller::get_template_version(data_path, msg),
+        "/templates" => template_controller::get_templates(data_path, msg),
+        "/templates/nameonly" => template_controller::get_templates_nameonly(data_path),
 
         // "/template/pipeline/reminder/save" => template_controller::save_reminder(data_path, msg),
         "/pipeline" => pipeline_controller::get_pipeline(data_path, msg),
@@ -21,10 +22,14 @@ pub(crate) fn routes_handler(msg: Bytes, path: String, data_path: PathBuf) -> Re
         "/project" => project_controller::get_project(data_path, msg),
         "/project/new" => project_controller::new_project(data_path, msg),
         "/project/edit" => project_controller::edit_project(data_path, msg),
+        "/projects" => project_controller::get_projects(data_path, msg),
 
         "/response" => response_controller::get_response(data_path, msg),
         "/response/edit" => response_controller::edit_response(data_path, msg),
         "/response/delete" => response_controller::delete_response(data_path, msg),
+
+        // Miscellaneous functions
+        "/gen_filename" => misc_controller::get_filename(msg),
         _ => Err("Cannot find route.".to_owned())
     };
 }

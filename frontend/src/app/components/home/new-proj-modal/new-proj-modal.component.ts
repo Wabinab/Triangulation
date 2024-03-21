@@ -40,7 +40,7 @@ export class NewProjModalComponent {
 
   async onLoad() {
     this.loading = true;
-    let data = await this.http3.send("/templates", JSON.stringify({}));
+    let data = await this.http3.send("/templates/nameonly", JSON.stringify({}));
     let json_data = JSON.parse(data);
     this.templates = json_data.data;
     if (json_data.err.length > 0) { 

@@ -13,7 +13,9 @@
     "newTemplate": "New Template",
     "allProject": "All Projects",
     "allTemplate": "All Templates",
-    "Filters": "Filters"
+    "Filters": "Filters",
+    "TemplateName": "Template Name",
+    "Version": "Version"
   },
   "newProj": {
     "title": "Create a New Project",

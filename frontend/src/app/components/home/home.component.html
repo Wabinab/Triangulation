@@ -30,15 +30,35 @@
 		<div class="col-md-4 col-xl-3 col-xxl-2 pt-3">
 			<h5>{{ 'home.Filters' | translate }}</h5>
 			<ul class="navbar-nav">
-				<li class="nav-item nav-filter" [ngClass]="is_active('proj')"><a class="nav-link" role="button" 
-					(click)="set_filter('proj')">{{ 'home.allProject' | translate }}</a></li>
-				<li class="nav-item nav-filter" [ngClass]="is_active('templ')"><a class="nav-link" role="button" 
-					(click)="set_filter('templ')">{{ 'home.allTemplate' | translate }}</a></li>
+				<li class="nav-item nav-filter" [ngClass]="is_active(HomeFilter.Project)"><a class="nav-link" role="button" 
+					(click)="set_filter(HomeFilter.Project)">{{ 'home.allProject' | translate }}</a></li>
+				<li class="nav-item nav-filter" [ngClass]="is_active(HomeFilter.Template)"><a class="nav-link" role="button" 
+					(click)="set_filter(HomeFilter.Template)">{{ 'home.allTemplate' | translate }}</a></li>
 			</ul>
 		</div>
 
 		<div class="col-md-8 col-xl-9 col-xxl-10 pt-3">
 			<!-- List of cards -->
+      <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 row-cols-xxl-4 g-3 card-group">
+        @for (item of items | paginate: page; track item.uuid) {
+          <div class="col">
+            <div class="card card-hover" hover-class="border-primary | null" (click)="redirect_to(item.uuid)">
+              <div class="card-header">
+                {{ item.name }}
+              </div>
+              <div class="card-body">
+                <p class="card-text">{{ item.description }}</p>
+              </div>
+              <div class="card-footer" *ngIf="item.t_name">
+                <span>{{ 'home.TemplateName' | translate }}: {{ item.t_name }}</span><br>
+                <span>{{ 'home.Version' | translate }}: {{ item.t_ver + 1 }}</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+      <div class="pt-5"></div>
+      <pagination-controls (pageChange)="change_page($event)" class="text-center"></pagination-controls>
 		</div>
 	</div>
 </ng-container>
@@ -58,3 +78,7 @@
     <app-new-templ-modal (emitCallback)="templCallback($event)"></app-new-templ-modal>
   }
 </ng-container>
+
+
+<!-- <button (click)="get_templates()">GET templates</button> -->
+<!-- {{ items | json }} -->

@@ -13,7 +13,9 @@
     "newTemplate": "Nouveau Modèle",
     "allProject": "Tous les Projets",
     "allTemplate": "Tous les Modèle",
-    "Filters": "Filtres"
+    "Filters": "Filtres",
+    "TemplateName": "Nom Modèle",
+    "Version": "Version"
   },
   "newProj": {
     "title": "Créer une Nouveau Projet",
