@@ -1,6 +1,6 @@
-use crate::{pipeline_dto::gen_empty_pipeline, *};
+use crate::{messages::VER_TEMP_NONE, pipeline_dto::gen_empty_pipeline, *};
 
-use self::messages::TEMPLATE_CANNOT_NULL;
+use self::{messages::TEMPLATE_CANNOT_NULL, migration::{migrate_data, unsafe_migrate_data}};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub(crate) struct SubmitProject {
@@ -18,7 +18,7 @@ pub(crate) trait ProjectTrait {
   /// Use to edit existing file: name, description, and change template version. 
   /// We don't check upgrade or downgrade; but humans should keep track manually.
   /// We also don't allow upgrade only; because they can downgrade if needed be.
-  fn edit_project(&self, old_serde: Value) -> Result<Value, String>;
+  fn edit_project(&self, old_serde: Value, new_templ_serde: Option<Value>) -> Result<Value, String>;
 }
 
 impl ProjectTrait for SubmitProject {
@@ -36,12 +36,42 @@ impl ProjectTrait for SubmitProject {
       }))
   }
 
-  fn edit_project(&self, old_serde: Value) -> Result<Value, String> {
+  fn edit_project(&self, old_serde: Value, new_templ_serde: Option<Value>) -> Result<Value, String> {
       let mut new_serde = old_serde.clone();
       new_serde["name"] = json!(self.name.clone());
       new_serde["description"] = json!(self.description.clone());
-      if self.version.is_some() { new_serde["t_ver"] = json!(self.version.clone().unwrap()); }
+      if self.version.is_some() { 
+        if new_templ_serde.is_none() { error!("{}", VER_TEMP_NONE); return Err(VER_TEMP_NONE.to_owned()); }
+        let res = migrate_data(
+          new_templ_serde.unwrap(), new_serde["pipelines"].clone());
+        if res.is_err() { error!("project_dto edit_project migrate_data"); return Err(res.unwrap_err()); }
+        new_serde["t_ver"] = json!(self.version.clone().unwrap()); 
+        new_serde["pipelines"] = res.unwrap();
+      }
       return Ok(new_serde);
+  }
+}
+
+// =========================================
+#[derive(Serialize, Deserialize, Debug)]
+pub(crate) struct SubmitProjVer {
+  pub(crate) filename: String,
+  pub(crate) version: Version
+}
+
+pub(crate) trait ProjVerTrait {
+  fn edit_version(&self, old_serde: Value, new_templ_serde: Value) -> Result<Value, String>;
+}
+
+impl ProjVerTrait for SubmitProjVer {
+  fn edit_version(&self, old_serde: Value, new_templ_serde: Value) -> Result<Value, String> {
+    let mut new_serde = old_serde.clone();
+    let res = unsafe_migrate_data(new_templ_serde, 
+      new_serde["pipelines"].clone());
+    if res.is_err() { error!("project_dto edit_version unsafe_migrate_data"); return Err(res.unwrap_err()); }
+    new_serde["t_ver"] = json!(self.version.clone());
+    new_serde["pipelines"] = res.unwrap();
+    return Ok(new_serde);
   }
 }
 

@@ -7,3 +7,5 @@ pub(crate) const OOB_REMINDER_IDX: &'static str = "Out of Bound reminder index."
 pub(crate) const REMINDER_IDX_CANNOT_NULL: &'static str = "Reminder Index cannot be null.";
 pub(crate) const LEN_PIPELINE_NOT_MATCH: &'static str = "Length of pipeline not match.";
 pub(crate) const ANSWER_NULL: &'static str = "Answer cannot be null.";
+pub(crate) const OOB_MIGRATE: &'static str = "Data outside bound detected. Force it with 'unsafe'";
+pub(crate) const VER_TEMP_NONE: &'static str = "new_templ_serde cannot be none when editing version.";

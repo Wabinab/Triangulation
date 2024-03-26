@@ -58,7 +58,7 @@ struct Args {
     pub data_path: path::PathBuf,
 
     /// Move localhost.hex to angular path
-    #[arg(long, default_value = "../frontend/src/assets")]
+    #[arg(long, default_value = "../client-app/src/assets")]
     pub ng_asset_path: path::PathBuf,
 }
 

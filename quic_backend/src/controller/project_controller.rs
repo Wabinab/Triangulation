@@ -2,7 +2,7 @@ use uuid::Uuid;
 
 use crate::*;
 
-use self::{compressor::{compress_and_save, retrieve_decompress, retrieve_decompress_fullpath}, file::gen_filename, filelist_dto::SubmitFileList, project_dto::{to_basic_project, to_nlist_proj, ProjectTrait, SubmitGetProject, SubmitProject}, template_dto::to_nlist_temp, versioning::{get_savepath, get_verpath, upd_ver_proj}};
+use self::{compressor::{compress_and_save, retrieve_decompress, retrieve_decompress_fullpath}, file::gen_filename, filelist_dto::SubmitFileList, project_dto::{to_basic_project, to_nlist_proj, ProjVerTrait, ProjectTrait, SubmitGetProject, SubmitProjVer, SubmitProject}, template_dto::to_nlist_temp, versioning::{get_savepath, get_verpath, upd_ver_proj}};
 
 // ===========================================
 // GET
@@ -130,12 +130,52 @@ pub(crate) fn edit_project(data_path: PathBuf, msg: Bytes) -> Result<Option<Stri
   if old_serde.is_err() { error!("edit_project old_serde"); return Err(old_serde.unwrap_err()); }
   let old_serde = old_serde.unwrap();
 
-  let edited_serde = submit.edit_project(old_serde).unwrap();  // no Err branch confirmed. 
-  let ret = compress_and_save(edited_serde.to_string(), 
+  let mut new_templ_serde = None;
+  if submit.version.is_some() {
+    let temp_filename = gen_filename(TEMPLATE_NAME.to_owned(), 
+      old_serde["t_uuid"].as_str().unwrap().to_string(), 
+      Some(submit.version.unwrap().clone())
+    );
+    let temp = retrieve_decompress(
+      get_savepath(data_path.clone()), temp_filename);
+    if temp.is_err() { error!("edit_project temp inside version."); return Err(temp.unwrap_err()); }
+    new_templ_serde = Some(temp.unwrap());
+  }
+
+  let edited_serde = submit.edit_project(old_serde, new_templ_serde);
+  if edited_serde.is_err() { error!("edit project edited_serde"); return Err(edited_serde.unwrap_err()); } 
+  let ret = compress_and_save(edited_serde.clone().unwrap().to_string(), 
   modify_datapath(data_path.clone()), submit.filename.clone().unwrap());
   if ret.is_err() { error!("edit_project compress_and_save"); return Err(ret.unwrap_err()); }
 
-  Ok(Some(edited_serde.to_string()))
+  Ok(Some(edited_serde.unwrap().to_string()))
+}
+
+/// This is the unsafe saving of 'version' only. 
+/// Data loss at one's discretion. 
+pub(crate) fn edit_version_unsafe(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
+  let submit: SubmitProjVer = serde_json::from_slice(&msg).unwrap();
+
+  let old_serde = get_data(data_path.clone(), submit.filename.clone());
+  if old_serde.is_err() { error!("edit_version_unsafe old_serde"); return Err(old_serde.unwrap_err()); }
+  let old_serde = old_serde.unwrap();
+
+  let temp_filename = gen_filename(TEMPLATE_NAME.to_owned(), 
+    old_serde["t_uuid"].as_str().unwrap().to_string(), 
+    Some(submit.version.clone())
+  );
+  let temp = retrieve_decompress(
+    get_savepath(data_path.clone()), temp_filename);
+  if temp.is_err() { error!("edit_version_unsafe temp"); return Err(temp.unwrap_err()); }
+
+  let edited_serde = submit.edit_version(
+    old_serde, temp.unwrap());
+  if edited_serde.is_err() { error!("edit_version_unsafe edited_serde"); return Err(edited_serde.unwrap_err()); }
+  let ret = compress_and_save(edited_serde.clone().unwrap().to_string(), 
+    modify_datapath(data_path.clone()), submit.filename.clone());
+  if ret.is_err() { error!("edit_version_unsafe compress_and_save"); return Err(ret.unwrap_err()); }
+
+  Ok(Some(edited_serde.unwrap().to_string()))
 }
 
 // ================================================

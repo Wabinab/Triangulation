@@ -1,0 +1,114 @@
+<!-- <div>
+  <h2>{{ 'header.title' | translate }}</h2>
+  <label>
+    {{ 'home.select' | translate }}
+    <select #langSelect (change)="translate.use(langSelect.value)">
+      <option *ngFor="let lang of translate.getLangs()" [value]="lang" [selected]="lang === translate.currentLang">{{ lang }}</option>
+    </select>
+  </label>
+</div> -->
+
+<div class="app-component app-container">
+  <!-- <a class="close-navbar-toggler collapsed" data-bs-toggle="collapse" data-bs-target=".menuItemsContainer">
+  </a>
+
+  <nav id="header" class="navbar navbar-expand-lg bg-body-tertiary fixed-top">
+    <div class="container-xl px-md-3 px-xxl-4">
+      <a class="navbar-brand" routerLink="/">
+        <img src="https://getbootstrap.com/docs/5.2/assets/brand/bootstrap-logo.svg" class="d-inline-block align-top" alt="logo" width="40" height="32">
+        <span class="d-lg-none d-xl-inline">{{'header.title' | translate}}</span>
+      </a>
+      <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".menuItemsContainer">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse menuItemsContainer">
+        <ul class="nav nav-pills flex-column flex-lg-row flex-fill">
+          <li class="nav-item ms-lg-auto me-lg-2" routerLinkActive="active">
+            <a class="nav-link" routerLink="/settings" (click)="closeMenu()">
+              <fa-icon [icon]="faSettings"></fa-icon>
+            </a>
+          </li>
+        </ul>
+        <ul class="nav nav-pills flex-column flex-lg-row ms-lg-1">
+          <li class="nav-item dropdown" routerLinkActive="active">
+            <a class="nav-link dropdown-toggle" href="javascript:void(0)" role="button" 
+            data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+              <fa-icon [icon]="faGlobe"></fa-icon>
+            </a>
+
+            <ul class="dropdown-menu dropdown-menu-lg-end">
+              <li class="dropdown-item" *ngFor="let lang of translate.getLangs()"
+              (click)="translate.use(lang)" [class]="lang === translate.currentLang ? 'special-active' : ''">
+                {{ lang }}
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav> -->
+
+  <header>
+    <nav class="navbar navbar-expand-md navbar-toggleable-md navbar bg-body-tertiary border-bottom box-shadow mb-3">
+      <div class="container">
+        <a class="navbar-brand" routerLink="/">
+          <img src="https://getbootstrap.com/docs/5.2/assets/brand/bootstrap-logo.svg" class="d-inline-block align-top" alt="logo" width="40" height="32">
+          <span class="d-lg-none d-xl-inline">{{'header.title' | translate}}</span>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-toggle="collapse"
+          data-target=".navbar-collapse"
+          aria-label="Toggle navigation"
+          [attr.aria-expanded]="isExpanded"
+          (click)="toggle()"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="navbar-collapse collapse d-md-inline-flex justify-content-end" [ngClass]="{ show: isExpanded }">
+          <ul class="navbar-nav flex-grow">
+            <!-- <li class="nav-item ms-lg-auto me-lg-2" routerLinkActive="active">
+              <a class="nav-link" routerLink="/settings" (click)="closeMenu()">
+                <fa-icon [icon]="faSettings"></fa-icon>
+              </a>
+            </li> -->
+            <li class="nav-item ms-lg-auto me-lg-2" routerLinkActive="active">
+              <a class="nav-link" type="button" (click)="toggle_light_dark()">
+                <fa-icon [icon]="mode_icon"></fa-icon>
+              </a>
+            </li>
+            <li class="nav-item dropdown" routerLinkActive="active">
+              <a class="nav-link dropdown-toggle" href="javascript:void(0)" role="button" 
+              data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
+                <fa-icon [icon]="faGlobe"></fa-icon>
+              </a>
+  
+              <ul class="dropdown-menu dropdown-menu-lg-end">
+                <li class="dropdown-item" *ngFor="let lang of translate.getLangs()"
+                (click)="translate.use(lang)" [class]="lang === translate.currentLang ? 'special-active' : ''">
+                  {{ lang }}
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container-xl px-3 px-md-4 px-xxl-5">
+    <!-- <div class="pt-5p5"></div> -->
+    <router-outlet></router-outlet>
+    <div class="footer-height"></div>
+  </main>
+
+  <!-- <footer class="footer fixed-bottom">
+    <div class="container">
+      <p class="text-center text-muted">
+        Wabinab Triangulation
+      </p>
+    </div>
+  </footer> -->
+</div>

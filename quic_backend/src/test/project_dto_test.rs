@@ -1,6 +1,6 @@
 use serde_json::{json, Value};
 
-use crate::{messages::TEMPLATE_CANNOT_NULL, project_dto::{to_nlist_proj, ProjectTrait, SubmitProject}};
+use crate::{messages::{TEMPLATE_CANNOT_NULL, VER_TEMP_NONE}, project_dto::{to_nlist_proj, ProjectTrait, SubmitProject}};
 
 fn get_old_serde() -> Value {
   let c = r#"{
@@ -14,7 +14,82 @@ fn get_old_serde() -> Value {
         ["answer 1", "answer 2", 3, ["grid answer 4.1", "grid answer 4.2"]],
         ["pipeline 2 answers here"]
       ],
-      ["stages 2 answers here"]
+      [
+        ["stages 2 answers here"]
+      ]
+    ]
+  }"#;
+  serde_json::from_str(&c).unwrap()
+}
+
+fn get_aligning_templ_serde() -> Value {
+  let c = r#"{
+    "name": "...",
+    "uuid": "...",
+    "description": "...",
+    "stages": [
+        {"name": "Stage 1", "pipeline": [
+          {
+            "ty": 0,
+            "others": [
+              {
+                "t": "2",
+                "q": "Question 1",
+                "r": [
+                  "Option 1 is here",
+                  "We now have option 2"
+                ]
+              },
+              {
+                "min": 1,
+                "max_name": "Good",
+                "q": "This is a range",
+                "min_name": "Bad",
+                "t": "4",
+                "max": 5
+              },
+              {
+                "q": "This is a grid",
+                "c": [
+                  "Nothing we can do",
+                  "Are you sure?"
+                ],
+                "r": [
+                  "What can we do?",
+                  "You think so? "
+                ],
+                "t": "5"
+              },
+              {
+                "q": "With only a single paragraph",
+                "t": "1"
+              }
+            ],
+            "title": "This is the title"
+          },
+          {
+            "title": "Another question",
+            "ty": 0,
+            "others": [
+              {
+                "q": "With only a single paragraph",
+                "t": "1"
+              }
+            ]
+          }
+        ]},
+        {"name": "Stage 2", "pipeline": [
+          {
+            "title": "Another question at another pipeline",
+            "ty": 0,
+            "others": [
+              {
+                "q": "With only a single paragraph",
+                "t": "1"
+              }
+            ]
+          }
+        ]}
     ]
   }"#;
   serde_json::from_str(&c).unwrap()
@@ -84,7 +159,7 @@ fn test_edit_project() {
   }"#;
   let submit: SubmitProject = serde_json::from_str(&d).unwrap();
 
-  let edited_serde = submit.edit_project(old_serde.clone()).unwrap();
+  let edited_serde = submit.edit_project(old_serde.clone(), None).unwrap();
   assert_ne!(edited_serde["name"], old_serde["name"]);
   assert_eq!(edited_serde["name"], "New Project");
   assert_ne!(edited_serde["description"], old_serde["description"]);
@@ -103,11 +178,28 @@ fn test_edit_project_with_ver() {
   }"#;
   let submit: SubmitProject = serde_json::from_str(&d).unwrap();
 
-  let edited_serde = submit.edit_project(old_serde.clone()).unwrap();
+  let temp = get_aligning_templ_serde();
+
+  let edited_serde = submit.edit_project(old_serde.clone(), Some(temp)).unwrap();
   assert_eq!(edited_serde["name"], "New Project");
   assert_eq!(edited_serde["description"], "Project description");
   assert_ne!(edited_serde["t_ver"], old_serde["t_ver"]);
   assert_eq!(edited_serde["t_ver"], 13);
+}
+
+#[test]
+fn test_edit_project_with_ver_no_file() {
+  let old_serde = get_old_serde();
+
+  let d = r#"{
+    "name": "New Project",
+    "description": "Project description",
+    "version": 13
+  }"#;
+  let submit: SubmitProject = serde_json::from_str(&d).unwrap();
+
+  let edited_serde = submit.edit_project(old_serde.clone(), None);
+  assert!(edited_serde.is_err_and(|x| x == VER_TEMP_NONE.to_owned()));
 }
 
 #[test]

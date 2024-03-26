@@ -22,6 +22,7 @@ pub(crate) fn routes_handler(msg: Bytes, path: String, data_path: PathBuf) -> Re
         "/project" => project_controller::get_project(data_path, msg),
         "/project/new" => project_controller::new_project(data_path, msg),
         "/project/edit" => project_controller::edit_project(data_path, msg),
+        "/project/edit/unsafe_ver" => project_controller::edit_version_unsafe(data_path, msg),
         "/projects" => project_controller::get_projects(data_path, msg),
 
         "/response" => response_controller::get_response(data_path, msg),

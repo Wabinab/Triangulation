@@ -1,0 +1,173 @@
+/* You can add global styles to this file, and also import other style files */
+$card-height: 100%;
+@import 'bootstrap/scss/bootstrap';
+@import 'ngx-toastr/toastr-bs5-alert';
+
+.card-hover:hover {
+  cursor: pointer;
+}
+
+input.form-control.left-status,
+textarea.form-control.left-status,
+.ng-select.form-control.left-status {
+  border-left-width: 5px;
+}
+
+.ng-valid[required],
+.ng-valid.required {
+  border-left: 5px solid $form-feedback-valid-color;
+}
+
+.ng-invalid:not(form):not(div) {
+  border-left: 5px solid $form-feedback-invalid-color;
+}
+
+.is-valid {
+  .ng-select.form-control {
+    border-color: $form-feedback-valid-color;
+
+    &.ng-select-focused {
+      border-color: $form-feedback-valid-color;
+      box-shadow: 0 0 0 $input-focus-width rgba($form-feedback-valid-color, .25);
+    }
+
+    padding-right: $input-height-inner;
+    background-image: escape-svg($form-feedback-icon-valid);
+    background-repeat: no-repeat;
+    background-position: right $input-height-inner-quarter center;
+    background-size: $input-height-inner-half $input-height-inner-half;
+  }
+}
+
+.is-invalid {
+  .ng-select.form-control {
+    border-color: $form-feedback-invalid-color;
+
+    &.ng-select-focused {
+      border-color: $form-feedback-invalid-color;
+      box-shadow: 0 0 0 $input-focus-width rgba($form-feedback-invalid-color, .25);
+    }
+
+    padding-right: $input-height-inner;
+    background-image: escape-svg($form-feedback-icon-invalid);
+    background-repeat: no-repeat;
+    background-position: right $input-height-inner-quarter center;
+    background-size: $input-height-inner-half $input-height-inner-half;
+  }
+}
+
+.dropdown-toggle.btn-light {
+  background-color: #fff;
+  border-color: #ccc;
+}
+
+.nav > li > a:hover,
+.nav > li > a:focus {
+  background-color: #eee;
+}
+
+.nav > .nav-item.active > a,
+.nav > .nav-item.active > a:hover,
+.nav > .nav-item.active > a:focus {
+  background-color: #efefef;
+}
+
+.navbar .nav-item > a:hover,
+.nav li.toolbaritem a:hover {
+  color: #e09f30;
+}
+
+// =======================================================
+.container-center {
+  text-align: center;
+
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.pt-5p5 {
+  padding-top: 4rem;
+}
+
+.pt-6 {
+  padding-top: 6rem;
+}
+
+.form-modal {
+  padding-top: 4.5em;
+}
+
+// .bg-outline-primary {
+//   --bs-bg-opacity: 1;
+//   border-color: black;
+//   border-radius: 1em;
+// }
+
+// =======================================================
+.nav-tab-link-mod {
+  vertical-align: top;
+  display: inline-block;
+  text-align: center;
+  width: 5em;
+}
+
+.caption {
+  display: block;
+}
+
+.nav-sidebar {
+  padding-left: 1em;
+  padding-right: 1em;
+  border-top-right-radius: 1em;
+  border-bottom-right-radius: 3em;
+}
+
+.vl {
+  border-left: 0.2em solid var(--bs-primary);
+  height: 3.5em;
+  // position: absolute;
+  // left: 50%;
+  margin-left: 0.4em;
+  margin-right: 0.4em;
+  // top: 0;
+  margin-top: -0.5em;
+  margin-bottom: -0.5em;
+}
+
+.nav-sidebar-active {
+  background-color: var(--bs-highlight-bg);
+  color: var(--bs-highlight-color);
+}
+
+
+[data-bs-theme="light"] {
+  // To be changed to use secondary colors. 
+  .nav-tab-active {
+    background-color: rgba(137, 43, 226, 0.7);
+    a {
+      color: #eeebeb;
+      &:hover { color: rgb(179, 232, 253); }
+    }
+  }
+  .nav-sidebar:hover {
+    background-color: #c1cbe9;
+    color: var(--bs-highlight-color)
+  }
+}
+
+[data-bs-theme="dark"] {
+  // To be changed to use secondary colors. 
+  .nav-tab-active {
+    background-color: rgb(203, 221, 236);
+    a {
+      color: #555;
+    }
+  }
+  .nav-sidebar:hover {
+    background-color: #14a7cc;
+    color: #fefefe
+  }
+}
