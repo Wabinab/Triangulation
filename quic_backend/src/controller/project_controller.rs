@@ -1,6 +1,6 @@
 use uuid::Uuid;
 
-use crate::*;
+use crate::{messages::{FILENAME_NO_NULL, UUID_NO_NULL}, *};
 
 use self::{compressor::{compress_and_save, retrieve_decompress, retrieve_decompress_fullpath}, file::gen_filename, filelist_dto::SubmitFileList, project_dto::{to_basic_project, to_nlist_proj, ProjVerTrait, ProjectTrait, SubmitGetProject, SubmitProjVer, SubmitProject}, template_dto::to_nlist_temp, versioning::{get_savepath, get_verpath, upd_ver_proj}};
 
@@ -83,8 +83,8 @@ pub(crate) fn get_projects(data_path: PathBuf, msg: Bytes) -> Result<Option<Stri
 pub(crate) fn new_project(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
   let submit: SubmitProject = serde_json::from_slice(&msg).unwrap();
   if submit.template_uuid.is_none() { 
-    error!("new_project template_uuid");
-    return Err("Template UUID cannot be null".to_owned()); 
+    error!("new_project template_uuid uuid cannot be null");
+    return Err(UUID_NO_NULL.to_owned()); 
   }
 
   let uuid = Uuid::now_v7().to_string();
@@ -120,10 +120,11 @@ pub(crate) fn new_project(data_path: PathBuf, msg: Bytes) -> Result<Option<Strin
   Ok(Some(json!({ "filename": filename }).to_string()))
 }
 
+
 pub(crate) fn edit_project(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
   let submit: SubmitProject = serde_json::from_slice(&msg).unwrap();
-  if submit.filename.is_none() { error!("edit_project filename"); 
-    return Err("Filename cannot be null".to_owned()); }
+  if submit.filename.is_none() { error!("edit_project filename cannot be null."); 
+    return Err(FILENAME_NO_NULL.to_owned()); }
 
   let old_serde = get_data(
     data_path.clone(), submit.filename.clone().unwrap());

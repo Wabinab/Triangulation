@@ -4,7 +4,7 @@
 /// Then, when a new project is added, we change the project version. 
 /// If there are no change in template, nothing change. 
 
-use crate::*;
+use crate::{messages::UPD_VER_PROJ_FILE, *};
 
 use self::{compressor::{compress_and_save_fullpath, retrieve_decompress_fullpath}, file::{add_ver_json_zl, strip_ext}, messages::{CANNOT_FIND_VER, RD_CANNOT_FIND_FILE}};
 
@@ -14,7 +14,7 @@ pub(crate) fn upd_ver_proj(ver_path: PathBuf, temp_filename: String, data_path: 
   let ver_file = retrieve_decompress_fullpath(ver_path.clone());
   if ver_file.clone().is_err_and(|x| x == RD_CANNOT_FIND_FILE.to_owned()) {
     let output = File::create(ver_path.clone());
-    if output.is_err() { error!("upd_ver_proj ver_file create file"); return Err("upd_ver_proj failed create file.".to_owned()); }
+    if output.is_err() { error!("upd_ver_proj ver_file create file"); return Err(UPD_VER_PROJ_FILE.to_owned()); }
     let res = compress_and_save_fullpath(json!({
       strip_ext(temp_filename.clone()): [0, UPDATE_VER]
     }).to_string(), ver_path.clone());

@@ -1,6 +1,6 @@
 // use clap::builder::Str;
 
-use crate::*;
+use crate::{messages::OOB_STAGE_IDX, *};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub(crate) struct SubmitStage {
@@ -44,7 +44,7 @@ impl StageTrait for SubmitStage {
 
     let bind_stages = old_serde["stages"].clone();
     let mut stages = bind_stages.as_array().unwrap().clone();
-    if self.stage_index.unwrap() >= stages.len() { error!("stage_dto delete"); return Err("Invalid Stage Index.".to_owned()); }
+    if self.stage_index.unwrap() >= stages.len() { error!("stage_dto delete"); return Err(OOB_STAGE_IDX.to_owned()); }
 
     stages.remove(self.stage_index.unwrap());
 

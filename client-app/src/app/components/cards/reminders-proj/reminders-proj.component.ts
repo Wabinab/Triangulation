@@ -369,10 +369,10 @@ export class RemindersProjComponent {
   //   return q.get(second) as FormArray;
   // }
 
-  private get_q(first: string, i: number): AbstractControl {
-    let qs = this.myForm.get(first) as FormArray;
-    return qs.at(i);
-  }
+  // private get_q(first: string, i: number): AbstractControl {
+  //   let qs = this.myForm.get(first) as FormArray;
+  //   return qs.at(i);
+  // }
 
   // Convert boolean array to indices. 
   // https://stackoverflow.com/questions/50981806/javascript-get-indices-of-true-values-in-a-boolean-array

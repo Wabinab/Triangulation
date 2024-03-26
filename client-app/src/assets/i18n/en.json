@@ -102,6 +102,29 @@
     "title": "Move To", 
     "originally": "Currently Occupied By",
     "empty": "Empty"
+  },
+  "backend": {
+    "UuidNoNull": "Template UUID Cannot Be Null.",
+    "FilenameNoNull": "Filename Cannot Be Null.",
+    "CompressPacking": "compress_and_save: Packing Error.",
+    "CompressFlate2": "compress_and_save: flate2 compression error.",
+    "CompressCFile": "compress_and_save: file creation failed.",
+    "CompressWFile": "compress_and_save: write file failed.",
+    "RDNoFile": "retrieve_decompress: cannot find file.",
+    "RDDecompress": "retrieve_decompress: failed to decompress file.",
+    "RDUnpacking": "retrieve_decompress: unpacking packed_json failed.",
+    "RDConvJson": "retrieve_decompress: failed to serde json.",
+    "OOBMigrate": "Data will be lost changing to this version. Force change with 'unsafe save'.",
+    "UVPFile": "upd_ver_proj: file creation failed.",
+    "GetVer": "Cannot get this version for this specific filename.",
+    "OOBStage": "Stage Index Out Of Bound.",
+    "OOBPipeline": "Pipeline Index Out of Bound.",
+    "OOBReminder": "Reminder Index Out of Bound.",
+    "TemplateNull": "Template (uuid) cannot be null. Please report bug.",
+    "VerTempNull": "new_templ_serde cannot be null if editing version. Please report bug.",
+    "ReminderIdxNull": "reminder_index cannot be null. Please report bug.",
+    "AnswerNull": "answer cannot be null. Please report bug.",
+    "PipelineLen": "Pipeline length does not match."
   }
 }
   

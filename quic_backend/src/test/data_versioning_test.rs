@@ -1,4 +1,4 @@
-use std::{fs::{self, File}, path::{Path, PathBuf}};
+use std::{fs::File, path::{Path, PathBuf}};
 
 use serde_json::{json, Value};
 use uuid::Uuid;

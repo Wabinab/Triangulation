@@ -1,7 +1,7 @@
 use uuid::Uuid;
 use std::fs;
 
-use crate::*;
+use crate::{messages::FILENAME_NO_NULL, *};
 
 use self::{compressor::{compress_and_save, retrieve_decompress, retrieve_decompress_fullpath}, file::gen_filename, filelist_dto::SubmitFileList, stage_dto::{StageTrait, SubmitStage}, template_dto::{to_basic_template, to_nameonly, to_nlist_temp, SubmitGetTemplate, SubmitTemplate, SubmitTemplateVer, TemplateTrait, TemplateVerTrait}, versioning::{get_verpath, upd_ver_temp}
 };
@@ -107,11 +107,14 @@ pub(crate) fn new_template(data_path: PathBuf, msg: Bytes) -> Result<Option<Stri
   }).to_string()))
 }
 
+
 pub(crate) fn edit_template(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
   // Edit Template (Name and Description)
   let submit: SubmitTemplate = serde_json::from_slice(&msg).unwrap();
-  if submit.filename.is_none() { error!("edit_template filename template"); 
-    return Err("Filename cannot be null".to_owned()); }
+  if submit.filename.is_none() { 
+    error!("edit_template filename template"); 
+    return Err(FILENAME_NO_NULL.to_owned()); 
+  }
 
   let old_serde = get_data(
     data_path.clone(), submit.filename.clone().unwrap());

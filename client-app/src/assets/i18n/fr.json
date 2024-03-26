@@ -100,6 +100,29 @@
     "title": "Déménager À",
     "originally": "Maintenant occupé par",
     "empty": "Vide"
+  },
+  "backend": {
+    "UuidNoNull": "L'UUID du modèle ne peut pas être nul.",
+    "FilenameNoNull": "Le nom fichier ne peut pas être nul.",
+    "CompressPacking": "compress_and_save: Échec d'emballage.",
+    "CompressFlate2": "compress_and_save: Échec de compression avec flate2.",
+    "CompressCFile": "compress_and_save: Échec de création de fichier.",
+    "CompressWFile": "compress_and_save: Échec d'écriture du fichier.",
+    "RDNoFile": "retrieve_decompress: Le fichier pas trouvé.",
+    "RDDecompress": "retrieve_decompress: Échec décompresser le fichier.",
+    "RDUnpacking": "retrieve_decompress: Échec du déballage.",
+    "RDConvJson": "retrieve_decompress: Échec de la saisie de json.",
+    "OOBMigrate": "Les données seront perdues en passant à cette version. Forcer le changement avec 'sauvegarde dangereux'.",
+    "UVPFile": "upd_ver_proj: Échec de création de fichier.",
+    "GetVer": "Impossible d'obtenir cette version pour ce nom de fichier spécifique.",
+    "OOBStage": "Index de la étapes hors limite.",
+    "OOBPipeline": "Index de la pipeline hors limite.",
+    "OOBReminder": "Index de la 'Rappel' hors limite.",
+    "TemplateNull": "(UUID) Modèle ne peut pas être nul. Signaler un bug s'il te plaît.",
+    "VerTempNull": "new_templ_serde ne peut pas être nul si modifiez la version. Signaler un bug s'il te plaît.",
+    "ReminderIdxNull": "reminder_index ne peut pas être nul. Signaler un bug s'il te plaît.",
+    "AnswerNull": "answer ne peut pas être nul. Signaler un bug s'il te plaît.",
+    "PipelineLen": "La longueur du pipeline ne correspond pas."
   }
 }
   

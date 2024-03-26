@@ -8,7 +8,7 @@ use jsonm::{packer::{PackOptions, Packer}, unpacker::{Unpacker, UnpackerError}};
 use flate2::{Compression, write::ZlibEncoder, read::ZlibDecoder};
 // use uuid::Uuid;
 
-use crate::*;
+use crate::{messages::{COMPRESS_CFILE, COMPRESS_FLATE2, COMPRESS_PACKING, COMPRESS_WFILE, RD_CONVJSON, RD_DECOMPRESS, RD_UNPACKING}, *};
 
 use self::messages::RD_CANNOT_FIND_FILE;
 
@@ -27,22 +27,22 @@ pub(crate) fn compress_and_save_fullpath(data: String, fullpath: PathBuf) -> Res
     let mut packer = Packer::new();
     let options = PackOptions::new();
     let packed = packer.pack_string(input, &options);
-    if packed.is_err() { error!("compress_and_save packer"); return Err("compress_and_save: packing error.".to_string()); }
+    if packed.is_err() { error!("compress_and_save packer"); return Err(COMPRESS_PACKING.to_string()); }
     let packed = packed.unwrap();
 
     let mut enc = ZlibEncoder::new(Vec::new(), Compression::default());
     let _ = enc.write_all(packed.to_string().as_bytes());
     let compressed_bytes = enc.finish();
-    if compressed_bytes.is_err() { error!("compress_and_save compressor"); return Err("compress_and_save: flate2 compression failed.".to_string()); }
+    if compressed_bytes.is_err() { error!("compress_and_save compressor"); return Err(COMPRESS_FLATE2.to_string()); }
     let compressed_bytes = compressed_bytes.unwrap();
 
     let output = File::create(fullpath);
-    if output.is_err() { error!("compress_and_save create file"); return Err("compress_and_save create file failed.".to_string()); }
+    if output.is_err() { error!("compress_and_save create file"); return Err(COMPRESS_CFILE.to_string()); }
     let mut output = output.unwrap();
     let c = output.write_all(&compressed_bytes);
-    if c.is_err() { error!("compress_and_save write_file"); return Err("compress_and_save: write file failed.".to_string()); }
+    if c.is_err() { error!("compress_and_save write file"); return Err(COMPRESS_WFILE.to_string()); }
 
-    Ok("Successful".to_owned())
+    Ok("Successful".to_owned())  // This is never used. 
 }
 
 
@@ -65,10 +65,10 @@ pub(crate) fn retrieve_decompress_fullpath(fullpath: PathBuf) -> Result<Value, S
     let mut dec = ZlibDecoder::new(contents);
     let mut packed = String::new();
     let ret = dec.read_to_string(&mut packed);
-    if ret.is_err() { error!("retrieve_decompress decompress failed."); return Err("retrieve_decompress: failed to decompress.".to_owned()); }
+    if ret.is_err() { error!("retrieve_decompress decompress failed."); return Err(RD_DECOMPRESS.to_owned()); }
 
     let v: Result<Value, serde_json::Error> = serde_json::from_str(&packed);
-    if v.is_err() { return Err("retrieve_decompress: cannot convert packed into json value.".to_string()); }
+    if v.is_err() { error!("retrieve_decompress convert pack failed."); return Err(RD_CONVJSON.to_string()); }
     let v: Value = v.unwrap();
     
     // Cannot unpack empty json, so we'll do it manually. 
@@ -76,7 +76,7 @@ pub(crate) fn retrieve_decompress_fullpath(fullpath: PathBuf) -> Result<Value, S
 
     let mut unpacker = Unpacker::new();
     let unpacked: Result<Value, UnpackerError> = unpacker.unpack(&v);
-    if unpacked.is_err() { error!("{:#?}\n{:?}", v.clone(), unpacked.err()); return Err("retrieve_decompress: fail to unpack.".to_string()); }
+    if unpacked.is_err() { error!("{:#?}\n{:?}", v.clone(), unpacked.err()); return Err(RD_UNPACKING.to_string()); }
 
     Ok(unpacked.unwrap())
 }

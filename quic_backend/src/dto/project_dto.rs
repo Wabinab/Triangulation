@@ -24,7 +24,7 @@ pub(crate) trait ProjectTrait {
 impl ProjectTrait for SubmitProject {
   fn new_project(&self, uuid: String, version: Version, template_serde: Value) -> Result<Value, String> {
       // Actually it's template uuid, but end user can't understand. 
-      if self.template_uuid.is_none() { return Err(TEMPLATE_CANNOT_NULL.to_string()); }
+      if self.template_uuid.is_none() { error!("new_project template uuid null."); return Err(TEMPLATE_CANNOT_NULL.to_string()); }
       Ok(json!({
         "name": self.name.clone(),
         "uuid": uuid,

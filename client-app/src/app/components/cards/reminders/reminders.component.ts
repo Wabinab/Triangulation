@@ -78,7 +78,7 @@ export class RemindersComponent {
     // console.log(data);
     let value: any = await this.http3.send(Routes.Pi, JSON.stringify(data));
     this.items = JSON.parse(value ?? '{}');
-    if (this.items.err && this.items.err == "Out of Bound pipeline index.") {
+    if (this.items.err && this.items.err == "backend.OOBPipeline") {
       this.is_new = true;
       this.add_new_question();
       this.loading = false;
@@ -103,6 +103,19 @@ export class RemindersComponent {
     this.loading = false;
   }
 
+  // async test_submit_error() {
+  //   let data = {
+  //     filename: this.filename,
+  //     stage_index: 500,
+  //     pipeline_index: this.id,
+  //   }
+  //   // console.log(data);
+  //   this.http3.send(Routes.Pi, JSON.stringify(data)).then((res: any) => {
+  //     let data = this.http3.json_handler(res);
+  //     // this.bsModalRef.close({ ty: data });
+  //   }).catch((err: any) => { this.doErr(err); });
+  // }
+
   onSubmit() {
     this.submitting = true;
     const row = {
@@ -117,7 +130,7 @@ export class RemindersComponent {
     .then((res: any) => {
       this.submitting = false;
       this.bsModalRef.close({ ty: this.http3.json_handler(res) });
-    }, (err: any) => { this.doErr(err); this.submitting = false; });
+    }).catch((err: any) => { this.doErr(err); this.submitting = false; });
   }
 
   modalCancel: any;

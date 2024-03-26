@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 
 @Injectable({
@@ -11,7 +12,9 @@ export class Http3Service {
   cert_host = "assets/localhost.hex"
   fingerprint: any;
 
-  constructor(private http: HttpClient, private toastr: ToastrService) {
+  constructor(private http: HttpClient, private toastr: ToastrService,
+    private translate: TranslateService
+  ) {
     this.fetch_fingerprint();
   }
 
@@ -73,7 +76,7 @@ export class Http3Service {
   json_handler(data: string, suppress_err: boolean = false) {
     let json_data = JSON.parse(data);
     if (!suppress_err && json_data.err && json_data.err.length > 0) {
-      throw new Error(json_data.err);
+      throw new Error(this.translate.instant(json_data.err, {}));
     }
     return json_data;
   }

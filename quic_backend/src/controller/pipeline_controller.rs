@@ -62,7 +62,10 @@ fn modify_reminder(data_path: PathBuf, msg: Bytes, crud: CRUD) -> Result<Option<
 fn choose_ty(data_path: PathBuf, msg: Bytes, ty: usize, crud: CRUD) -> Result<Option<String>, String> {
   match ty {
     0 => modify_reminder(data_path, msg, crud),
-    _ => Err(format!("{:?} Pipeline: None of the ty matches.", crud))
+    _ => {
+      error!("pipeline_controller choose_ty No ty matches.");
+      Err(format!("{:?} Pipeline: None of the ty matches.", crud))
+    }
   }
 }
 

@@ -1,4 +1,4 @@
-use serde_json::{json, Value};
+use serde_json::Value;
 
 use crate::{messages::{TEMPLATE_CANNOT_NULL, VER_TEMP_NONE}, project_dto::{to_nlist_proj, ProjectTrait, SubmitProject}};
 
