@@ -63,7 +63,7 @@ export class RemindersProjComponent {
     // Save every 5 minute, if applicable. 
     const source = interval(60_000 * 5);
     // const source = interval(5_000);
-    this.subscription = source.subscribe(val => this.autoSave());
+    this.subscription = source.subscribe(_ => this.autoSave());
   }
 
   // ===========================================================

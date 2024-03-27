@@ -16,6 +16,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { CancellationComponent } from '../../cancellation/cancellation.component';
 import { Routes } from '../../../models/routes';
+import { Subscription, interval } from 'rxjs';
 
 @Component({
   selector: 'app-reminders',
@@ -51,6 +52,7 @@ export class RemindersComponent {
   loading: boolean = true;
   submitting: boolean = false;
   public myForm: FormGroup;
+  subscription: Subscription;
 
   constructor(private http3: Http3Service, private fb: FormBuilder, 
     private translate: TranslateService, private toastr: ToastrService
@@ -65,6 +67,9 @@ export class RemindersComponent {
     setTimeout(() => { 
       this.get_pipeline_item_by_id();
     }, 100);
+
+    const source = interval(60_000 * 5);  // Save every 5 mins. 
+    this.subscription = source.subscribe(_ => this.autoSave());
   }
 
   // Remember to save clicking backdrop. 
@@ -116,7 +121,41 @@ export class RemindersComponent {
   //   }).catch((err: any) => { this.doErr(err); });
   // }
 
+  autoSave() {
+    if (this.submitting || this.loading || !this.myForm.valid) return;
+    this.translate.get('proj.Autosave', {}).subscribe((res: string) => {
+      this.toastr.info(res, '', { timeOut: 1000 });
+    });
+    this.submitting = true;
+    const row = {
+      filename: this.filename,
+      stage_index: this.curr_stage,
+      reminder_index: this.id,
+      title: this.myForm.get('title')?.value,
+      question: this.filter_row()
+    }
+
+    this.http3.send(this.is_new ? Routes.PiNew0 : Routes.PiEdit0, JSON.stringify(row))
+    .then((res: any) => {
+      this.submitting = false;
+      this.is_new = false;
+      // No need update reminder_index, as it's already defined even for new. 
+    }).catch((err: any) => { this.doErr(err); this.submitting = false; });
+  }
+
+  // test_handler() {
+  //   let data = {
+  //     filename: this.filename,
+  //     stage_index: this.curr_stage,
+  //     pipeline_index: 500,
+  //   }
+  //   this.http3.send(Routes.Pi, JSON.stringify(data)).then((res: any) => {
+  //     this.bsModalRef.close({ ty: this.http3.json_handler(res) });
+  //   }).catch((err: any) => { this.doErr(err); });
+  // }
+
   onSubmit() {
+    if (this.submitting || this.loading || !this.myForm.valid) return;
     this.submitting = true;
     const row = {
       filename: this.filename,
