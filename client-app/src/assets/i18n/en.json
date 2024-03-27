@@ -57,6 +57,11 @@
     "DescLong": "Description too long.",
     "VerChangeCancel": "Changing Version Cancelled"
   },
+  "tooltip": {
+    "RubbishBin": "Delete Current Stage",
+    "Save": "Save",
+    "Investment": "Investment"
+  },
   "reminder": {
     "title": "Title",
     "isNew": "New",
@@ -102,6 +107,10 @@
     "title": "Move To", 
     "originally": "Currently Occupied By",
     "empty": "Empty"
+  },
+  "page": {
+    "Previous": "Previous",
+    "Next": "Next"
   },
   "backend": {
     "UuidNoNull": "Template UUID Cannot Be Null.",

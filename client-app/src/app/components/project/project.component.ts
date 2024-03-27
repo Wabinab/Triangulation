@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, HostListener, inject } from '@angular/core';
 import { SharedModule } from '../../shared/shared.module';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { SharedFormsModule } from '../../shared/shared-forms.module';
@@ -127,6 +127,11 @@ export class ProjectComponent {
     this.is_edit_title = true;
   }
 
+  cancel_edit_title() {
+    this.is_edit_title = false;
+    this.title_name = this.project.name;
+  }
+
   finish_edit_title() {
     if (this.title_name.length < 1) { 
       this.translate.get(["proj.AtLeast", "proj.TitleShort"], {value: 1}).subscribe((res: any) => {
@@ -150,6 +155,11 @@ export class ProjectComponent {
     this.is_edit_desc = true;
   }
 
+  cancel_edit_desc() {
+    this.is_edit_desc = false;
+    this.desc_name = this.project.description;
+  }
+
   finish_edit_desc() {
     if (this.desc_name.length > 255) { 
       this.translate.get(["proj.AtMost", "proj.DescLong"], {value: 255}).subscribe((res: any) => {
@@ -168,6 +178,11 @@ export class ProjectComponent {
     this.is_edit_ver = true;
   }
 
+  cancel_edit_ver() {
+    this.is_edit_ver = false;
+    this.curr_ver = this.project.t_ver;
+  }
+
   finish_edit_ver() {
     this.project['t_ver'] = this.curr_ver;
     this.is_edit_ver = false;
@@ -182,6 +197,13 @@ export class ProjectComponent {
 
   get_versions(): number[] {
     return [...Array(this.newest_version + 1).keys()];
+  }
+
+  @HostListener('document:keydown.esc', ['$event'])
+  esc_events(event: KeyboardEvent) {
+    if (this.is_edit_title) this.cancel_edit_title();
+    if (this.is_edit_desc) this.cancel_edit_desc();
+    if (this.is_edit_ver) this.cancel_edit_ver();
   }
 
   // ====================================================

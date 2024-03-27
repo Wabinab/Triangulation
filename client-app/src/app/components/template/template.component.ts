@@ -1,5 +1,5 @@
-import { AfterViewChecked, Component, ElementRef, HostListener, ViewChild, inject } from '@angular/core';
-import { faBell, faPencil, faPlus, faSave, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import { AfterViewChecked, AfterViewInit, Component, ElementRef, HostListener, ViewChild, inject } from '@angular/core';
+import { faBell, faMoneyBillWheat, faPencil, faPlus, faSave, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { SharedModule } from '../../shared/shared.module';
 import { SharedFormsModule } from '../../shared/shared-forms.module';
 import { Http3Service } from '../../services/http3.service';
@@ -15,6 +15,8 @@ import { ToastrService } from 'ngx-toastr';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { HoverClassDirective } from '../../directives/hover-class.directive';
 import { Routes } from '../../models/routes';
+import { Tooltip } from 'bootstrap';
+import { KellyComponent } from '../../cards/kelly/kelly.component';
 
 @Component({
   selector: 'app-template',
@@ -24,12 +26,13 @@ import { Routes } from '../../models/routes';
   templateUrl: './template.component.html',
   styleUrl: './template.component.scss'
 })
-export class TemplateComponent {
+export class TemplateComponent implements AfterViewInit {
   faSave = faSave;
   faAddStage = faPlus;
   faReminder = faBell;
   faEdit = faPencil;
   faRemove = faTrashAlt;
+  faInvestment = faMoneyBillWheat;
 
   stages: any[] = [];
   filename = this.route.snapshot.queryParamMap.get('filename');
@@ -44,6 +47,13 @@ export class TemplateComponent {
   ) {
     this.loading = true;
     setTimeout(() => this.load(), 150);
+  }
+
+  ngAfterViewInit() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+      var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new Tooltip(tooltipTriggerEl)
+      });    
   }
 
   async load(curr_stage: number = 0) {
@@ -136,7 +146,9 @@ export class TemplateComponent {
 
   @HostListener('document:keydown.esc', ['$event'])
   esc_events(event: KeyboardEvent) {
-    if (this.curr_edit_stage) this.finish_edit_stage();
+    if (this.curr_edit_stage !== null) this.finish_edit_stage();
+    if (this.is_edit_title) this.cancel_edit_title();
+    if (this.is_edit_desc) this.cancel_edit_desc();
   }
 
   // focusing = false;
@@ -174,6 +186,11 @@ export class TemplateComponent {
     this.is_edit_title = true;
   }
 
+  cancel_edit_title() {
+    this.is_edit_title = false;
+    this.title_name = this.template.name;  // disable before set. 
+  }
+
   finish_edit_title() {
     if (this.title_name.length < 1) { 
       this.translate.get(["proj.AtLeast", "proj.TitleShort"], {value: 1}).subscribe((res: any) => {
@@ -195,6 +212,11 @@ export class TemplateComponent {
   edit_desc() {
     this.desc_name = this.template.description;
     this.is_edit_desc = true;
+  }
+
+  cancel_edit_desc() {
+    this.is_edit_desc = false;
+    this.desc_name = this.template.description;
   }
 
   finish_edit_desc() {
@@ -234,6 +256,24 @@ export class TemplateComponent {
 
   new_reminder() {
     this.openReminders(this.pipeline.length);
+  }
+
+  openKelly(id: number) {
+    this.modalReminder = this.modalSvc.open(KellyComponent, {
+      backdrop: 'static',
+      fullscreen: 'sm',
+      size: 'xl'
+    });
+    this.modalReminder.componentInstance.id = id;
+    this.modalReminder.componentInstance.curr_stage = this.curr_stage;
+    this.modalReminder.componentInstance.filename = this.filename;
+    this.modalReminder.closed.subscribe(async (_: any) => {
+      await this.load(this.curr_stage);
+    });
+  }
+
+  new_kelly() {
+    this.openKelly(this.pipeline.length);
   }
 
   modalCancel: any;

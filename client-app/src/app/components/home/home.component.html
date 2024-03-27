@@ -58,7 +58,12 @@
         }
       </div>
       <div class="pt-5"></div>
-      <pagination-controls (pageChange)="change_page($event)" class="text-center"></pagination-controls>
+      <pagination-controls (pageChange)="change_page($event)" 
+        class="text-center"
+        [autoHide]="true"
+        previousLabel="{{ 'page.Previous' | translate }}"
+        nextLabel="{{ 'page.Next' | translate }}"
+      ></pagination-controls>
 		</div>
 	</div>
 </ng-container>

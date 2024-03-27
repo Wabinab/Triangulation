@@ -57,6 +57,11 @@
     "DescLong": "Description trop longue.",
     "VerChangeCancel": "Changement de Version Annulé"
   },
+  "tooltip": {
+    "RubbishBin": "Supprimer cette l'étape",
+    "Save": "Sauvegarde",
+    "Investment": "Investissement"
+  },
   "reminder": {
     "title": "Titre",
     "isNew": "Nouveau",
@@ -100,6 +105,10 @@
     "title": "Déménager À",
     "originally": "Maintenant occupé par",
     "empty": "Vide"
+  },
+  "page": {
+    "Previous": "Précédent",
+    "Next": "Suivant"
   },
   "backend": {
     "UuidNoNull": "L'UUID du modèle ne peut pas être nul.",
