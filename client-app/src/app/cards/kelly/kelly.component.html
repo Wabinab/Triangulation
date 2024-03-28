@@ -7,3 +7,110 @@
 information to calculate Kelly Criterion and Brier score.  -->
 <!-- Then, we can add another line that's purely for "sell" (no purely for "buy")
 that's not involved in calculation of Kelly Criterion and Brier score. -->
+
+<div class="modal-header">
+  <h3>{{ (is_new ? "reminder.isNew" : "reminder.isEdit") | translate}} 
+    {{ 'kelly.Name' | translate }} ({{ 'reminder.Item' | translate }} {{ id + 1 }})</h3>
+</div>
+
+<div class="modal-body">
+  <form [formGroup]="myForm" (ngSubmit)="onSubmit()">
+    <!-- Kelly Criterion and Brier Score -->
+    <div class="row">
+      <div class="col-sm-6">
+        <h4 class="text-center">Kelly's Criterion</h4>
+        <div class="input-group mb-3">
+          <span class="input-group-text">Kelly %</span>
+          <!-- <input type="number" class="form-control" formControlName="k_perc" /> -->
+          <input type="number" class="form-control" [value]="calc_kelly_perc()" disabled />
+        </div>
+        <div class="input-group mb-3">
+          <span class="input-group-text">Winning Prob.</span>
+          <input type="number" class="form-control" min="0" max="1" formControlName="k_W" />
+        </div>
+        <div class="input-group mb-3">
+          <span class="input-group-text">Win/Loss Ratio</span>
+          <input type="number" class="form-control" min="0.00001" formControlName="k_R" />
+        </div>
+      </div>
+
+      <div class="col-sm-6">
+        <h4 class="text-center">Brier Score</h4>
+        <div class="input-group mb-3">
+          <span class="input-group-text">Brier Score</span>
+          <input type="number" class="form-control" [value]="calc_brier_score()" disabled />
+        </div>
+      </div>
+    </div>
+
+    <div class="row pt-3" formArrayName="transactions">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Coin<span class="text-danger">*</span></th>
+            <th scope="col">Buy/Sell<span class="text-danger">*</span></th>
+            <th scope="col">Price<span class="text-danger">*</span></th>
+            <th scope="col">Amt<span class="text-danger">*</span></th>
+  
+            <!-- For Buy/Sell only -->
+            <!-- <th scope="col">Sell only</th> -->
+            <th scope="col">Selling Price</th>
+            <th scope="col">Selling Amt</th>
+  
+            <!-- For Brier score -->
+            <th scope="col">Prediction Prob.</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="5"><button class="btn btn-primary" (click)="add_transaction()">
+              <fa-icon [icon]="faAdd"></fa-icon> Add New Transaction
+            </button></td>
+            <td colspan="2"><span>(Only stores latest 100 transactions.)</span></td>
+          </tr>
+          <ng-container *ngFor="let t of transactions; let i=index;" [formGroupName]="i">
+            <tr>
+              <td>
+                <input type="text" formControlName="coin" class="form-control" placeholder="BTC" appUppercase>
+                <app-error [form]="t" control="coin"></app-error>
+              </td>
+              <td>
+                <select name="buysell" formControlName="buysell" class="form-select">
+                  <option value="-1">Sell</option>
+                  <option value="1">Buy</option>
+                </select>
+              </td>
+              <td>
+                <input type="number" formControlName="price" min="0" class="form-control" />
+                <app-error [form]="t" control="price"></app-error>
+              </td>
+              <td>
+                <input type="number" formControlName="amt" min="0" class="form-control" />
+                <app-error [form]="t" control="amt"></app-error>
+              </td>
+              <!-- <td>
+                <input type="text" class="form-control" value="Sell" disabled>
+              </td> -->
+              <td>
+                <input type="number" formControlName="price_1" min="0" class="form-control" />
+                <app-error [form]="t" control="price_1"></app-error>
+              </td>
+              <td>
+                <input type="number" formControlName="amt_1" min="0" class="form-control" />
+                <app-error [form]="t" control="amt_1"></app-error>
+              </td>
+              <td>
+                <input type="number" formControlName="pred_prob" min="0" max="1" step="0.01" class="form-control" />
+                <app-error [form]="t" control="pred_prob"></app-error>
+              </td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+    </div>
+  </form>
+</div>
+
+<pre>
+  {{ myForm.get('transactions')!.value | json }}
+</pre>

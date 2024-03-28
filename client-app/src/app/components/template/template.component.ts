@@ -261,7 +261,7 @@ export class TemplateComponent implements AfterViewInit {
   openKelly(id: number) {
     this.modalReminder = this.modalSvc.open(KellyComponent, {
       backdrop: 'static',
-      fullscreen: 'sm',
+      fullscreen: 'lg',
       size: 'xl'
     });
     this.modalReminder.componentInstance.id = id;

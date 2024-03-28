@@ -68,8 +68,11 @@
     "isEdit": "Modifier",
     "Name": "Rappel",
     "Item": "Item",
-    "MismatchCard": "Il y a une décalage avec les types des cartes. Signaler un bug s'il te plaît."
+    "MismatchCard": "Il y a une décalage avec les types des cartes. Signaler un bug s'il te plaît.",
+    "IdMinusOne": "Id is -1. Signaler un bug s'il te plaît.",
+    "IdMinusOneDesc": "Id veux au moins de 0."
   },
+  
   "QuestionChoice": {
     "Short": "Réponse courte",
     "Long": "Paragraphe",

@@ -72,6 +72,9 @@
     "IdMinusOne": "Id is -1. Please report bug.",
     "IdMinusOneDesc": "Id must be larger or equal 0."
   },
+  "kelly": {
+    "Name": "Investissement"
+  },
   "QuestionChoice": {
     "Short": "Short Answer",
     "Long": "Paragraph",
