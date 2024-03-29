@@ -97,7 +97,8 @@
     "min": "Valeur minimum: {{ value }}",
     "max": "Valeur maximal: {{ value }}",
     "minLength": "Au moins {{ value }} caractère",
-    "maxLength": "{{ value }} caractère au plus"
+    "maxLength": "{{ value }} caractère au plus",
+    "InvalidForm": "Il y a une erreur avec le formulaire. Veuillez la corriger avant de l'envoyer."
   },
   "cancel": "Annuler",
   "cancellation": {

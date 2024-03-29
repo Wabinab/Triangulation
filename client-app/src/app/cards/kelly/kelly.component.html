@@ -26,11 +26,13 @@ that's not involved in calculation of Kelly Criterion and Brier score. -->
         </div>
         <div class="input-group mb-3">
           <span class="input-group-text">Winning Prob.</span>
-          <input type="number" class="form-control" min="0" max="1" formControlName="k_W" />
+          <!-- <input type="number" class="form-control" min="0" max="1" formControlName="k_W" /> -->
+          <input type="number" class="form-control" [value]="calc_winning_prob()" disabled />
         </div>
         <div class="input-group mb-3">
           <span class="input-group-text">Win/Loss Ratio</span>
-          <input type="number" class="form-control" min="0.00001" formControlName="k_R" />
+          <!-- <input type="number" class="form-control" min="0.00001" formControlName="k_R" /> -->
+          <input type="number" class="form-control" [value]="calc_winloss_ratio()" disabled />
         </div>
       </div>
 
@@ -47,6 +49,8 @@ that's not involved in calculation of Kelly Criterion and Brier score. -->
       <table class="table">
         <thead>
           <tr>
+            <!-- Below for X -->
+            <th scope="col"></th>  
             <th scope="col">Coin<span class="text-danger">*</span></th>
             <th scope="col">Buy/Sell<span class="text-danger">*</span></th>
             <th scope="col">Price<span class="text-danger">*</span></th>
@@ -63,7 +67,7 @@ that's not involved in calculation of Kelly Criterion and Brier score. -->
         </thead>
         <tbody>
           <tr>
-            <td colspan="5"><button class="btn btn-primary" (click)="add_transaction()">
+            <td colspan="5"><button class="btn btn-primary" type="button" (click)="add_transaction()">
               <fa-icon [icon]="faAdd"></fa-icon> Add New Transaction
             </button></td>
             <td colspan="2"><span>(Only stores latest 100 transactions.)</span></td>
@@ -71,13 +75,18 @@ that's not involved in calculation of Kelly Criterion and Brier score. -->
           <ng-container *ngFor="let t of transactions; let i=index;" [formGroupName]="i">
             <tr>
               <td>
+                <button type="button" class="btn btn-outline-danger" (click)="remove_transaction(i)">
+                  <fa-icon [icon]="faCross"></fa-icon>
+                </button>
+              </td>
+              <td>
                 <input type="text" formControlName="coin" class="form-control" placeholder="BTC" appUppercase>
                 <app-error [form]="t" control="coin"></app-error>
               </td>
               <td>
-                <select name="buysell" formControlName="buysell" class="form-select">
-                  <option value="-1">Sell</option>
-                  <option value="1">Buy</option>
+                <select name="buy" formControlName="buy" class="form-select">
+                  <option value="false">Sell</option>
+                  <option value="true">Buy</option>
                 </select>
               </td>
               <td>
@@ -92,11 +101,11 @@ that's not involved in calculation of Kelly Criterion and Brier score. -->
                 <input type="text" class="form-control" value="Sell" disabled>
               </td> -->
               <td>
-                <input type="number" formControlName="price_1" min="0" class="form-control" />
+                <input type="number" formControlName="price_1" class="form-control" appNumberEndWithDot />
                 <app-error [form]="t" control="price_1"></app-error>
               </td>
               <td>
-                <input type="number" formControlName="amt_1" min="0" class="form-control" />
+                <input type="number" formControlName="amt_1" min="0" class="form-control" appNumberEndWithDot />
                 <app-error [form]="t" control="amt_1"></app-error>
               </td>
               <td>
@@ -111,6 +120,21 @@ that's not involved in calculation of Kelly Criterion and Brier score. -->
   </form>
 </div>
 
+<div class="modal-footer">
+  <div class="d-flex gap-2">
+    <button class="btn btn-secondary" (click)="cancel()">
+      <fa-icon [icon]="faCross"></fa-icon>
+      <span class="caption"></span>
+    </button>
+    <button class="btn btn-primary" (click)="onSubmit()">
+      <fa-icon [icon]="faSave"></fa-icon>
+      <span class="caption"></span>
+    </button>
+  </div>
+</div>
+
 <pre>
-  {{ myForm.get('transactions')!.value | json }}
+  <!-- {{ is_dirty() }} -->
+  <!-- {{ myForm.get('transactions')!.value | json }} -->
+  {{ errors | json }}
 </pre>

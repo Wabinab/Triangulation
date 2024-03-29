@@ -28,3 +28,4 @@ time = "0.3"
 tokio = { version = "1.36", features = ["full"] }
 uuid = { version = "1", features = ["v7", "v4"] }  # "fast-rng" needs more dependencies. 
 webtransport-quinn = "0.7"
+string_calc = "0.3.0"

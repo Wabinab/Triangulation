@@ -155,7 +155,11 @@ export class RemindersComponent {
   // }
 
   onSubmit() {
-    if (this.submitting || this.loading || !this.myForm.valid) return;
+    if (this.submitting || this.loading || this.myForm.invalid) {
+      if (this.myForm.invalid) {this.translate.get("err.InvalidForm", {})
+      .subscribe((res: any) => { this.doErr(res); }); }
+      return;
+    }
     this.submitting = true;
     const row = {
       filename: this.filename,

@@ -99,7 +99,8 @@
     "min": "Min value: {{ value }}",
     "max": "Max value: {{ value }}",
     "minLength": "Min {{ value }} char.",
-    "maxLength": "Max {{ value }} char."
+    "maxLength": "Max {{ value }} char.",
+    "InvalidForm": "There's an error with the form. Please fix before submission."
   },
   "cancel": "Cancel",
   "cancellation": {

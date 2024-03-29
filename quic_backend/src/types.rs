@@ -1,4 +1,5 @@
 pub type Version = usize;
+pub type Decimal = String;
 
 pub const REMINDER_TYPE: u64 = 0;
 pub const UPDATE_VER: bool = true;

@@ -9,7 +9,7 @@ pub(crate) mod project_dto;
 pub(crate) mod response_dto;
 pub(crate) mod filelist_dto;
 pub(crate) mod misc_dto;
-
+pub(crate) mod kelly_dto;
 
 // ================================================================
 // NOTE: All these have problems, they don't live long enough. 
