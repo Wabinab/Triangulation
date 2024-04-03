@@ -7,6 +7,7 @@ import { NgControl } from '@angular/forms';
 })
 // This only works FORWARD, not BACKWARD. 
 // I.e. if your value is 86.4, and you press backspace, you GG. 
+// That's deliberate, because backspace not necessarily delete dot, but can be changing value.
 export class NumberNodotValidatorDirective {
 
   just_changed = false;
@@ -31,7 +32,7 @@ export class NumberNodotValidatorDirective {
     }
     this.orig_val = value;
     if (this.just_changed) {
-      this.control.control?.setValue(input.value.slice(0, -1))
+      this.control.control?.setValue(parseFloat(input.value.slice(0, -1)))
       this.just_changed = false;
     }
   }

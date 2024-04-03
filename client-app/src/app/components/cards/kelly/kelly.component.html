@@ -1,0 +1,109 @@
+<!-- Upside large "stats": LHS Kelly Criterion, RHS: Brier score -->
+<!-- Brier score we always assume something is up: otherwise why buy? -->
+<!-- Below, allow input buy sell in single line.  -->
+<!-- If buy sell separate price, can split multiple line.  -->
+<!-- Buy sell doesn't have to be same amount. We count ROI separately. -->
+<!-- E.g. if one buy 0.9 ETH, but sell only 0.5 ETH at higher price, we already have enough
+information to calculate Kelly Criterion and Brier score.  -->
+<!-- Then, we can add another line that's purely for "sell" (no purely for "buy")
+that's not involved in calculation of Kelly Criterion and Brier score. -->
+
+
+<div class="modal-header">
+  <h3>{{ (is_new ? "reminder.isNew" : "reminder.isEdit") | translate}} 
+    {{ 'kelly.Name' | translate }} ({{ 'reminder.Item' | translate }} {{ id + 1 }})
+  </h3><br>
+</div>
+
+<div class="modal-body">
+  <form [formGroup]="myForm" (ngSubmit)="onSubmit()">
+    <div class="form-floating">
+      <input type="text" class="form-control" formControlName="title" id="title" 
+      placeholder="{{ 'reminder.title' | translate }}" />
+      <label for="name">{{ 'reminder.title' | translate}}</label>
+    </div>
+    <app-error [form]="myForm" control="title"></app-error>
+    <div class="pb-3"></div>
+
+    <!-- Kelly Criterion and Brier Score -->
+    <div class="row">
+      <div class="col-sm-6">
+        <h4 class="text-center">Kelly's Criterion</h4>
+        <div class="input-group mb-3">
+          <span class="input-group-text">Kelly %</span>
+          <input type="number" class="form-control" disabled />
+        </div>
+        <div class="input-group mb-3">
+          <span class="input-group-text">Winning Prob.</span>
+          <input type="number" class="form-control" disabled />
+        </div>
+        <div class="input-group mb-3">
+          <span class="input-group-text">Win/Loss Ratio</span>
+          <input type="number" class="form-control" disabled />
+        </div>
+      </div>
+
+      <div class="col-sm-6">
+        <h4 class="text-center">Brier Score</h4>
+        <div class="input-group mb-3">
+          <span class="input-group-text">Brier Score</span>
+          <input type="number" class="form-control" disabled />
+        </div>
+      </div>
+    </div>
+
+    <div class="row pt-3">
+      <table class="table">
+        <thead>
+          <tr>
+            <!-- Below for X -->
+            <th scope="col"></th>  
+            <th scope="col">Coin<span class="text-danger">*</span></th>
+            <th scope="col">Buy/Sell<span class="text-danger">*</span></th>
+            <th scope="col">Price<span class="text-danger">*</span></th>
+            <th scope="col">Amt<span class="text-danger">*</span></th>
+
+            <!-- For Buy/Sell only -->
+            <!-- <th scope="col">Sell only</th> -->
+            <th scope="col">Selling Price</th>
+            <th scope="col">Selling Amt</th>
+
+            <!-- For Brier score -->
+            <th scope="col">Prediction Prob.</th>
+            
+            <th scope="col">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="6"><button class="btn btn-primary" type="button" disabled>
+              <fa-icon [icon]="faAdd"></fa-icon> Add New Transaction
+            </button></td>
+            <td colspan="3"><span>(Only stores latest 100 transactions.)</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </form>
+</div>
+
+
+<div class="modal-footer">
+  <div class="d-flex gap-2">
+    <button class="btn btn-secondary" (click)="cancel()">
+      <fa-icon [icon]="faCross"></fa-icon>
+      <span class="caption"></span>
+    </button>
+    <button class="btn btn-primary" (click)="onSubmit()">
+      <fa-icon [icon]="faSave"></fa-icon>
+      <span class="caption"></span>
+    </button>
+  </div>
+</div>
+
+<pre>
+  <!-- {{ is_dirty() }} -->
+  <!-- {{ myForm.value | json }} -->
+  <!-- {{ myForm.get('transactions')!.value | json }} -->
+  <!-- {{ errors | json }} -->
+</pre>

@@ -134,8 +134,11 @@
     "TemplateNull": "(UUID) Modèle ne peut pas être nul. Signaler un bug s'il te plaît.",
     "VerTempNull": "new_templ_serde ne peut pas être nul si modifiez la version. Signaler un bug s'il te plaît.",
     "ReminderIdxNull": "reminder_index ne peut pas être nul. Signaler un bug s'il te plaît.",
+    "PipelineIdxNull": "pipeline_index ne peut pas être nul. Signaler un bug s'il te plaît.",
     "AnswerNull": "answer ne peut pas être nul. Signaler un bug s'il te plaît.",
-    "PipelineLen": "La longueur du pipeline ne correspond pas."
+    "PipelineLen": "La longueur du pipeline ne correspond pas.",
+    "TitleNone": "Titre ne peut pas être vide.",
+    "QuestionNone": "Il besoin de au moins une question."
   }
 }
   

@@ -1,16 +1,5 @@
-<!-- Upside large "stats": LHS Kelly Criterion, RHS: Brier score -->
-<!-- Brier score we always assume something is up: otherwise why buy? -->
-<!-- Below, allow input buy sell in single line.  -->
-<!-- If buy sell separate price, can split multiple line.  -->
-<!-- Buy sell doesn't have to be same amount. We count ROI separately. -->
-<!-- E.g. if one buy 0.9 ETH, but sell only 0.5 ETH at higher price, we already have enough
-information to calculate Kelly Criterion and Brier score.  -->
-<!-- Then, we can add another line that's purely for "sell" (no purely for "buy")
-that's not involved in calculation of Kelly Criterion and Brier score. -->
-
 <div class="modal-header">
-  <h3>{{ (is_new ? "reminder.isNew" : "reminder.isEdit") | translate}} 
-    {{ 'kelly.Name' | translate }} ({{ 'reminder.Item' | translate }} {{ id + 1 }})</h3>
+  <h3>{{ title }}</h3>
 </div>
 
 <div class="modal-body">
@@ -21,17 +10,14 @@ that's not involved in calculation of Kelly Criterion and Brier score. -->
         <h4 class="text-center">Kelly's Criterion</h4>
         <div class="input-group mb-3">
           <span class="input-group-text">Kelly %</span>
-          <!-- <input type="number" class="form-control" formControlName="k_perc" /> -->
           <input type="number" class="form-control" [value]="calc_kelly_perc()" disabled />
         </div>
         <div class="input-group mb-3">
           <span class="input-group-text">Winning Prob.</span>
-          <!-- <input type="number" class="form-control" min="0" max="1" formControlName="k_W" /> -->
           <input type="number" class="form-control" [value]="calc_winning_prob()" disabled />
         </div>
         <div class="input-group mb-3">
           <span class="input-group-text">Win/Loss Ratio</span>
-          <!-- <input type="number" class="form-control" min="0.00001" formControlName="k_R" /> -->
           <input type="number" class="form-control" [value]="calc_winloss_ratio()" disabled />
         </div>
       </div>
@@ -55,22 +41,24 @@ that's not involved in calculation of Kelly Criterion and Brier score. -->
             <th scope="col">Buy/Sell<span class="text-danger">*</span></th>
             <th scope="col">Price<span class="text-danger">*</span></th>
             <th scope="col">Amt<span class="text-danger">*</span></th>
-  
+
             <!-- For Buy/Sell only -->
             <!-- <th scope="col">Sell only</th> -->
             <th scope="col">Selling Price</th>
             <th scope="col">Selling Amt</th>
-  
+
             <!-- For Brier score -->
             <th scope="col">Prediction Prob.</th>
+            
+            <th scope="col">Total</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td colspan="5"><button class="btn btn-primary" type="button" (click)="add_transaction()">
+            <td colspan="6"><button class="btn btn-primary" type="button" (click)="add_transaction()">
               <fa-icon [icon]="faAdd"></fa-icon> Add New Transaction
             </button></td>
-            <td colspan="2"><span>(Only stores latest 100 transactions.)</span></td>
+            <td colspan="3"><span>(Only stores latest 100 transactions.)</span></td>
           </tr>
           <ng-container *ngFor="let t of transactions; let i=index;" [formGroupName]="i">
             <tr>
@@ -94,12 +82,10 @@ that's not involved in calculation of Kelly Criterion and Brier score. -->
                 <app-error [form]="t" control="price"></app-error>
               </td>
               <td>
-                <input type="number" formControlName="amt" min="0" class="form-control" />
+                <input type="number" formControlName="amt" min="0" class="form-control"
+                (change)="upd_amt_1_validator(i)" />
                 <app-error [form]="t" control="amt"></app-error>
               </td>
-              <!-- <td>
-                <input type="text" class="form-control" value="Sell" disabled>
-              </td> -->
               <td>
                 <input type="number" formControlName="price_1" class="form-control" appNumberEndWithDot />
                 <app-error [form]="t" control="price_1"></app-error>
@@ -112,10 +98,15 @@ that's not involved in calculation of Kelly Criterion and Brier score. -->
                 <input type="number" formControlName="pred_prob" min="0" max="1" step="0.01" class="form-control" />
                 <app-error [form]="t" control="pred_prob"></app-error>
               </td>
+              <td class="text-center pt-3">
+                <span>{{ calc_row_total(i) }}</span>
+              </td>
             </tr>
           </ng-container>
         </tbody>
       </table>
+       <!-- We don't do overall total on purpose; it has no meaning, since we only
+          save the last 100 transactions, not all transactions. That should be inside Excel. -->
     </div>
   </form>
 </div>
@@ -133,8 +124,11 @@ that's not involved in calculation of Kelly Criterion and Brier score. -->
   </div>
 </div>
 
+
+<!-- DEBUG -->
 <pre>
-  <!-- {{ is_dirty() }} -->
-  <!-- {{ myForm.get('transactions')!.value | json }} -->
-  {{ errors | json }}
+  {{ loading | json }}
+  {{ submitting | json }}
+  {{ this.myForm.invalid | json }}
+  {{ myForm.value | json }}
 </pre>

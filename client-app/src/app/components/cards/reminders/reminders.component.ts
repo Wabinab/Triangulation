@@ -154,6 +154,7 @@ export class RemindersComponent {
   //   }).catch((err: any) => { this.doErr(err); });
   // }
 
+  // ==============================================================================
   onSubmit() {
     if (this.submitting || this.loading || this.myForm.invalid) {
       if (this.myForm.invalid) {this.translate.get("err.InvalidForm", {})

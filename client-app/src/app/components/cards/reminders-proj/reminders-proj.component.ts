@@ -40,7 +40,9 @@ export class RemindersProjComponent {
   @Input() t_ver: number = 0;
 
   AnswerTypes = AnswerTypes;
-  desc_limit = 10_000;
+  desc_limit = 4_000;
+
+  trackByFn(index: any, item: any) { return index; }
 
   items: any;
   loading: boolean = true;
@@ -52,7 +54,7 @@ export class RemindersProjComponent {
     private toastr: ToastrService, private translate: TranslateService
   ) {
     this.myForm = fb.group({
-      title: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
+      title: [{value: '', disabled: true}, [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
       questions: this.fb.array([]),  
     });
 
@@ -73,9 +75,7 @@ export class RemindersProjComponent {
       this.translate.get(["reminder.IdMinusOne", "reminder.IdMinusOneDesc"], {}).subscribe((res: any) => {
         this.toastr.error(res["reminder.IdMinusOne"], res["reminder.IdMinusOneDesc"]);
         this.bsModalRef.dismiss({ ty: res["reminder.IdMinusOne"] });
-      });
-
-      return;
+      }); return;
     }
     let row = {
       t_uuid: this.t_uuid,
@@ -155,10 +155,6 @@ export class RemindersProjComponent {
     else q.setValue(data);
   }
 
-  trackByFn(index: any, item: any) {
-    return index;
-  }
-
   // Return fb.array if is grid or checkbox; otherwise, return string with corresponding validators. 
   private get_answer_type(q_type: string, rows: any[], cols: any[]) {
     if (q_type == AnswerTypes.Checkbox) {
@@ -226,7 +222,7 @@ export class RemindersProjComponent {
 
   // ===========================================================
   autoSave() {
-    if (this.submitting || this.loading || !this.myForm.valid) return;
+    if (this.submitting || this.loading || this.myForm.invalid) return;
     this.translate.get('proj.Autosave', {}).subscribe((res: string) => {
       this.toastr.info(res, '', { timeOut: 1000 });
     });
@@ -238,13 +234,13 @@ export class RemindersProjComponent {
       answer: this.get_answer()
     };
 
-    this.http3.send(Routes.REdit, JSON.stringify(row)).then(async (value: any) => {
+    this.http3.send(Routes.REdit, JSON.stringify(row)).then((_: any) => {
       this.submitting = false;
     }).catch(err => { this.doErr(err); this.submitting = false; })
   }
 
   onSubmit() {
-    if (this.submitting || this.loading || !this.myForm.valid) return;
+    if (this.submitting || this.loading || this.myForm.invalid) return;
     this.submitting = true;
     const row = {
       filename: this.filename,
@@ -253,7 +249,7 @@ export class RemindersProjComponent {
       answer: this.get_answer()
     };
 
-    this.http3.send(Routes.REdit, JSON.stringify(row)).then(async (value: any) => {
+    this.http3.send(Routes.REdit, JSON.stringify(row)).then((value: any) => {
       this.submitting = false;
       this.bsModalRef.close({ ty: this.http3.json_handler(value) });
     }).catch(err => { this.doErr(err); this.submitting = false; })
@@ -272,7 +268,7 @@ export class RemindersProjComponent {
     return answers;
   }
 
-  // Will call cancellation modal later. 
+  // ========================================================
   modalCancel: any;
   cancel() {
     if (this.loading || this.submitting) return;
@@ -285,9 +281,7 @@ export class RemindersProjComponent {
         this.onSubmit();
         this.bsModalRef.dismiss();
       });
-      this.modalCancel.dismissed.subscribe((_: any) => {
-        this.bsModalRef.dismiss();
-      })
+      this.modalCancel.dismissed.subscribe((_: any) => this.bsModalRef.dismiss());
       return;
     }
     this.bsModalRef.dismiss();

@@ -131,7 +131,7 @@ export class HomeComponent {
     // console.log(row);
     this.http3.send(route, JSON.stringify(row)).then(async (_res: any) => {
       let res = this.http3.json_handler(_res);
-      this.items = res.data;
+      this.items = res.data.reverse();
       if (res.err && res.err.length > 0) {
         // this.toastr.error("Check F12 logs", "Error Found");
         this.translate.get(["newProj.checkF12", "newProj.F12errors"], {}).subscribe((res: any) => {

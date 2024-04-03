@@ -136,8 +136,11 @@
     "TemplateNull": "Template (uuid) cannot be null. Please report bug.",
     "VerTempNull": "new_templ_serde cannot be null if editing version. Please report bug.",
     "ReminderIdxNull": "reminder_index cannot be null. Please report bug.",
+    "PipelineIdxNull": "pipeline_index cannot be null. Please report bug.",
     "AnswerNull": "answer cannot be null. Please report bug.",
-    "PipelineLen": "Pipeline length does not match."
+    "PipelineLen": "Pipeline length does not match.",
+    "TitleNone": "Title cannot be empty.",
+    "QuestionNone": "There must be at least one question."
   }
 }
   

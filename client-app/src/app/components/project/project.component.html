@@ -63,7 +63,7 @@
 <ng-template #reminderTempl let-p let-i="i">
   <div class="col">
     <div class="card card-hover border-primary">
-      <h5 class="card-header" hover-class="text-bg-primary | null" (click)="openReminders(i)">
+      <h5 class="card-header" hover-class="text-bg-primary | null" (click)="openTemplate(i, p.ty)">
         {{ p.title }}
       </h5>
     </div>

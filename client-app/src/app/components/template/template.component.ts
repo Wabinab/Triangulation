@@ -16,7 +16,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { HoverClassDirective } from '../../directives/hover-class.directive';
 import { Routes } from '../../models/routes';
 import { Tooltip } from 'bootstrap';
-import { KellyComponent } from '../../cards/kelly/kelly.component';
+import { KellyComponent } from '../cards/kelly/kelly.component';
 
 @Component({
   selector: 'app-template',
@@ -233,6 +233,11 @@ export class TemplateComponent implements AfterViewInit {
   // ================================================
   // Modals
   private modalSvc = inject(NgbModal);
+
+  openTemplate(id: number, ty: number) {
+    if (ty == 0) { this.openReminders(id); return; }
+    if (ty == 1) { this.openKelly(id); return; }
+  }
 
   modalReminder: any;
   openReminders(id: number) {

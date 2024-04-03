@@ -50,7 +50,7 @@ impl ResponseTrait for SubmitResponse {
     }
     let pipeline = new_serde["pipelines"][self.stage_index][self.pipeline_index].clone();
     if pipeline.is_null() {
-      error!("response_dto edit pipeline"); return Err(OOB_PIPELINE_IDX.to_owned());
+      error!("response_dto delete pipeline"); return Err(OOB_PIPELINE_IDX.to_owned());
     }
     let mut pipelines = pipeline.as_array().unwrap().clone();
     pipelines = pipelines.iter_mut()

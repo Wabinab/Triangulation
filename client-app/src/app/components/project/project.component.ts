@@ -15,6 +15,8 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CancellationComponent } from '../cancellation/cancellation.component';
 import { RemindersProjComponent } from '../cards/reminders-proj/reminders-proj.component';
 import { Routes } from '../../models/routes';
+import { KellyComponent } from '../cards/kelly/kelly.component';
+import { KellyProjComponent } from '../cards/kelly-proj/kelly-proj.component';
 
 @Component({
   selector: 'app-project',
@@ -242,11 +244,16 @@ export class ProjectComponent {
     });
   }
 
+  openTemplate(id: number, ty: number) {
+    if (ty == 0) { this.openReminders(id, RemindersProjComponent); return; }
+    if (ty == 1) { this.openReminders(id, KellyProjComponent, "lg"); return; }
+  }
+
   modalReminder: any;
-  openReminders(id: number) {
-    this.modalReminder = this.modalSvc.open(RemindersProjComponent, {
+  openReminders(id: number, component: any = RemindersProjComponent, fullscreen = "sm") {
+    this.modalReminder = this.modalSvc.open(component, {
       backdrop: 'static',
-      fullscreen: 'sm',
+      fullscreen: fullscreen,
       size: 'xl'
     });
     this.modalReminder.componentInstance.id = id;

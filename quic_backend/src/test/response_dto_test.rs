@@ -37,7 +37,7 @@ fn get_old_serde() -> Value {
 
 // =============================================
 #[test]
-fn test_edit_correct_1() {
+fn test_edit_correct() {
   let old_serde = get_old_serde();
   let d = r#"{
     "filename": "...",
