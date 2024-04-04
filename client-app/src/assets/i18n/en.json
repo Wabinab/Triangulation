@@ -93,6 +93,7 @@
     "StoreLatest": "Storing latest {{ value }} transactions only.",
     "Buy": "Buy",
     "Sell": "Sell",
+    "ClearData?": "Clear Existing Data",
     "ClearData": "Successfully Cleared Data."
   },
   "QuestionChoice": {
@@ -123,6 +124,8 @@
     "InvalidForm": "There's an error with the form. Please fix before submission."
   },
   "cancel": "Cancel",
+  "yes": "Yes",
+  "no": "No",
   "cancellation": {
     "Save": "Save Changes?",
     "Sure": "Are You Sure?"

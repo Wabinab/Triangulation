@@ -93,6 +93,7 @@
     "StoreLatest": "Sauvegarde {{ value }} dernier transactions seulement.",
     "Buy": "Acheter",
     "Sell": "Vendre",
+    "ClearData?": "Effacées tous les données",
     "ClearData": "Succès effacées les données."
   },
   "QuestionChoice": {
@@ -123,6 +124,8 @@
     "InvalidForm": "Il y a une erreur avec le formulaire. Veuillez la corriger avant de l'envoyer."
   },
   "cancel": "Annuler",
+  "yes": "Oui",
+  "no": "Non",
   "cancellation": {
     "Save": "Sauvegarder les modifications?",
     "Sure": "Es-tu sûr?"

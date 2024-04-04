@@ -46,18 +46,18 @@ export class KellyProjComponent {
   constructor(private http3: Http3Service, private fb: FormBuilder,
     private toastr: ToastrService, private translate: TranslateService
   ) {
-    this.myForm = fb.group({
-      // title: [{value: '', disabled: true}, [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
-      transactions: fb.array([])
-    });
-
-    setTimeout(() => {
-      this.loadData();
-    }, 100);
+    this.assign_initial_form();
+    setTimeout(() => this.loadData(), 100);
 
     // Save every 5 minute, if applicable. 
     const source = interval(300_000);
     this.subscription = source.subscribe(_ => this.autoSave());
+  }
+
+  private assign_initial_form() {
+    this.myForm = this.fb.group({
+      transactions: this.fb.array([])
+    });
   }
 
   // ==============================================================
@@ -255,9 +255,14 @@ export class KellyProjComponent {
           this.toastr.success(res);
         });
         this.submitting = false;
-        this.loadData();
+        this.reset_form();
       }).catch(err => { this.doErr(err); this.submitting = false; })
     });
+  }
+
+  private reset_form() {
+    this.assign_initial_form();
+    this.loadData();
   }
 
   private is_dirty() {

@@ -17,6 +17,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { Subscription, interval } from 'rxjs';
 import { CancellationComponent } from '../../cancellation/cancellation.component';
 import { Routes } from '../../../models/routes';
+import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faSave } from '@fortawesome/free-regular-svg-icons';
 // import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
 
 @Component({
@@ -31,6 +33,9 @@ import { Routes } from '../../../models/routes';
 export class RemindersProjComponent {
   bsModalRef = inject(NgbActiveModal);
   private modalSvc = inject(NgbModal);
+
+  faCross = faXmark;
+  faSave = faSave;
 
   @Input() id: number = -1;
   @Input() curr_stage: number = 0;
@@ -53,19 +58,20 @@ export class RemindersProjComponent {
   constructor(private http3: Http3Service, private fb: FormBuilder,
     private toastr: ToastrService, private translate: TranslateService
   ) {
-    this.myForm = fb.group({
-      title: [{value: '', disabled: true}, [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
-      questions: this.fb.array([]),  
-    });
-
-    setTimeout(() => {
-      this.get_pipeline_item_by_id();
-    }, 100);
+    this.assign_initial_form();
+    setTimeout(() => this.get_pipeline_item_by_id(), 100);
 
     // Save every 5 minute, if applicable. 
     const source = interval(60_000 * 5);
     // const source = interval(5_000);
     this.subscription = source.subscribe(_ => this.autoSave());
+  }
+
+  private assign_initial_form() {
+    this.myForm = this.fb.group({
+      title: [{value: '', disabled: true}, [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
+      questions: this.fb.array([]),  
+    });
   }
 
   // ===========================================================
@@ -305,9 +311,14 @@ export class RemindersProjComponent {
           this.toastr.success(res);
         });
         this.submitting = false;
-        this.get_pipeline_item_by_id();
+        this.reset_form();
       }).catch(err => { this.doErr(err); this.submitting = false; })
     });
+  }
+
+  private reset_form() {
+    this.assign_initial_form();
+    this.get_pipeline_item_by_id();
   }
 
   private is_dirty() {
