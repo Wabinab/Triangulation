@@ -73,7 +73,27 @@
     "IdMinusOneDesc": "Id must be larger or equal 0."
   },
   "kelly": {
-    "Name": "Investissement"
+    "Name": "Investment",
+    "UpdAmt1OOB": "Bug: upd_amt_1_validators rowNo OOB. Please report bug.",
+    "CalcRowTotExceed": "Bug: calc_row_total rowNo must not exceed array length.",
+    "KellyCriterion": "Kelly's Criterion",
+    "Kelly%": "Kelly %",
+    "WinProb": "Winning Prob.",
+    "WLRatio": "Win/Loss Ratio",
+    "BrierScore": "Brier Score",
+    "Coin": "Coin",
+    "BuySell": "Buy/Sell",
+    "Price": "Price",
+    "Amt": "Amt",
+    "SellPrice": "Selling Price",
+    "SellAmt": "Selling Amt",
+    "PredProb": "Pred. Prob.",
+    "Total": "Total",
+    "AddNewTrans": "Add New Transaction",
+    "StoreLatest": "Storing latest {{ value }} transactions only.",
+    "Buy": "Buy",
+    "Sell": "Sell",
+    "ClearData": "Successfully Cleared Data."
   },
   "QuestionChoice": {
     "Short": "Short Answer",

@@ -72,7 +72,29 @@
     "IdMinusOne": "Id is -1. Signaler un bug s'il te plaît.",
     "IdMinusOneDesc": "Id veux au moins de 0."
   },
-  
+  "kelly": {
+    "Name": "Investissement",
+    "UpdAmt1OOB": "Bug: upd_amt_1_validators rowNo OOB. Signaler un bug s'il te plaît.",
+    "CalcRowTotExceed": "Bug: calc_row_total rowNo peut au moins de longueur le 'array'.",
+    "KellyCriterion": "Formule de Kelly",
+    "Kelly%": "Fraction du budget",
+    "WinProb": "Prob. de gain",
+    "WLRatio": "Cote nette reçue",
+    "BrierScore": "Score de Brier",
+    "Coin": "Pièce de monnaie",
+    "BuySell": "Acheter/Vendre",
+    "Price": "Prix",
+    "Amt": "Quantité",
+    "SellPrice": "V. Prix",
+    "SellAmt": "V. Quantité",
+    "PredProb": "Prob. de Préd.",
+    "Total": "Totale",
+    "AddNewTrans": "Ajoute nouveau transaction",
+    "StoreLatest": "Sauvegarde {{ value }} dernier transactions seulement.",
+    "Buy": "Acheter",
+    "Sell": "Vendre",
+    "ClearData": "Succès effacées les données."
+  },
   "QuestionChoice": {
     "Short": "Réponse courte",
     "Long": "Paragraphe",

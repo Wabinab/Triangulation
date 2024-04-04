@@ -47,7 +47,7 @@ export class KellyProjComponent {
     private toastr: ToastrService, private translate: TranslateService
   ) {
     this.myForm = fb.group({
-      title: [{value: '', disabled: true}, [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
+      // title: [{value: '', disabled: true}, [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
       transactions: fb.array([])
     });
 
@@ -86,7 +86,6 @@ export class KellyProjComponent {
       };
       let answers = await this.http3.send(Routes.R, JSON.stringify(row2));
       let answers_json: any = this.http3.json_handler(answers);
-      console.log(answers_json);
       this.set_transactions(answers_json);
       this.loading = false;
     }).catch(err => { this.doErr(err); this.loading = false; });
@@ -96,8 +95,8 @@ export class KellyProjComponent {
     const data = answers_json.map((c: any) => {
       c.price = parseFloat(c.price);
       c.amt = parseFloat(c.amt);
-      c.price_1 = parseFloat(c.price_1);
-      c.amt_1 = parseFloat(c.amt_1);
+      c.price_1 = c.price_1 !== null ? parseFloat(c.price_1) : null;
+      c.amt_1 = c.amt_1 !== null ? parseFloat(c.amt_1) : null;
       c.pred_prob = parseFloat(c.pred_prob);
       return c;
     });
@@ -116,13 +115,17 @@ export class KellyProjComponent {
         pred_prob: [datum.pred_prob ?? 1, [Validators.min(0), Validators.max(1)]]
       }));
     });
+
+    // this.cd.detectChanges();
+    // console.log(this.calc_row_total(3));
   }
 
   // ======================================================================
   // Transactions
   min_threshold = 0.00001;
   min_amt = 0.00000001;  // smaller, because BTC is large value. 
-  max_transaction = 5;
+  max_transaction = 100;
+  param_latest = { value: this.max_transaction };  // also change at kelly.component! 
 
   add_transaction() {
     let t = this.myForm.get('transactions') as FormArray;
@@ -147,7 +150,11 @@ export class KellyProjComponent {
 
   upd_amt_1_validator(rowNo: number) {
     let min_val = [Validators.min(this.min_amt)];
-    if (rowNo >= this.transactions.length) { this.doErr("upd_amt_1_validators rowNo OOB."); return; }
+    if (rowNo >= this.transactions.length) { 
+      this.translate.get("kelly.UpdAmt1OOB").subscribe((res: any) => {
+        this.doErr(res);
+      }); return;
+    }
     let t = this.transactions[rowNo];
     let amt = t.get('amt')?.value;
     if (amt === null || amt <= this.min_amt) { t.get('amt_1')?.setValidators(min_val); return; }
@@ -201,7 +208,7 @@ export class KellyProjComponent {
 
   private get_transactions() {
     return this.myForm.get('transactions')!.value.map((c: any) => {
-      c.buy = c.buy === "true";
+      c.buy = (typeof c.buy === 'boolean' && c.buy) || c.buy === "true";
       // all requires string.
       c.price = c.price.toString();
       c.amt = c.amt.toString();
@@ -230,6 +237,29 @@ export class KellyProjComponent {
     this.bsModalRef.dismiss();
   }
 
+  clear_data() {
+    if (this.submitting || this.loading) return;
+    this.modalCancel = this.modalSvc.open(CancellationComponent);
+    this.modalCancel.componentInstance.back_path = "hide modal";
+    this.modalCancel.componentInstance.back_dismiss = true;
+    this.modalCancel.closed.subscribe((res: any) => {
+      this.submitting = true;
+      const row = {
+        filename: this.filename,
+        stage_index: this.curr_stage,
+        pipeline_index: this.id
+      };
+      this.http3.send(Routes.RDelKelly, JSON.stringify(row)).then((value: any) => {
+        this.http3.json_handler(value);
+        this.translate.get('kelly.ClearData').subscribe((res: string) => {
+          this.toastr.success(res);
+        });
+        this.submitting = false;
+        this.loadData();
+      }).catch(err => { this.doErr(err); this.submitting = false; })
+    });
+  }
+
   private is_dirty() {
     let dirty = false;
     Object.keys(this.myForm.controls).forEach(key => {
@@ -240,7 +270,7 @@ export class KellyProjComponent {
   }
 
   // =========================================================
-  get title() { return this.myForm.get('title')?.value; }
+  get title() { return this.items?.title ?? 'Untitled'; }
   get transactions() {
     const q = this.myForm.get('transactions') as FormArray;
     return q['controls'];
@@ -307,7 +337,11 @@ export class KellyProjComponent {
 
   calc_row_total(rowNo: number): number {
     let tr = this.myForm.get('transactions')!.value;
-    if (rowNo >= tr.length) { this.doErr("calc_row_total rowNo exceed t.length"); return 0; }
+    if (rowNo >= tr.length) { 
+      this.translate.get('kelly.CalcRowTotExceed').subscribe((res: string) => {
+        this.doErr(res);
+      }); return 0;
+    }
     let t = tr[rowNo];
     let buy = ((typeof t.buy == "boolean" && t.buy) || t.buy === "true") ? -1 : 1;  // buy -1, sell 1. 
     let value_1 = this.round_to(buy * t.price * t.amt);

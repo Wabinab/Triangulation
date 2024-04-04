@@ -287,6 +287,29 @@ export class RemindersProjComponent {
     this.bsModalRef.dismiss();
   }
 
+  clear_data() {
+    if (this.submitting || this.loading) return;
+    this.modalCancel = this.modalSvc.open(CancellationComponent);
+    this.modalCancel.componentInstance.back_path = "hide modal";
+    this.modalCancel.componentInstance.back_dismiss = true;
+    this.modalCancel.closed.subscribe((res: any) => {
+      this.submitting = true;
+      const row = {
+        filename: this.filename,
+        stage_index: this.curr_stage,
+        pipeline_index: this.id
+      };
+      this.http3.send(Routes.RDel, JSON.stringify(row)).then((value: any) => {
+        this.http3.json_handler(value);
+        this.translate.get('kelly.ClearData').subscribe((res: string) => {
+          this.toastr.success(res);
+        });
+        this.submitting = false;
+        this.get_pipeline_item_by_id();
+      }).catch(err => { this.doErr(err); this.submitting = false; })
+    });
+  }
+
   private is_dirty() {
     let dirty = false;
     Object.keys(this.myForm.controls).forEach(key => {

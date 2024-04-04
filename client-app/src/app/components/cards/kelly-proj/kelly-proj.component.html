@@ -7,25 +7,25 @@
     <!-- Kelly Criterion and Brier Score -->
     <div class="row">
       <div class="col-sm-6">
-        <h4 class="text-center">Kelly's Criterion</h4>
+        <h4 class="text-center">{{ 'kelly.KellyCriterion' | translate }}</h4>
         <div class="input-group mb-3">
-          <span class="input-group-text">Kelly %</span>
+          <span class="input-group-text">{{ 'kelly.Kelly%' | translate }}</span>
           <input type="number" class="form-control" [value]="calc_kelly_perc()" disabled />
         </div>
         <div class="input-group mb-3">
-          <span class="input-group-text">Winning Prob.</span>
+          <span class="input-group-text">{{ 'kelly.WinProb' | translate }}</span>
           <input type="number" class="form-control" [value]="calc_winning_prob()" disabled />
         </div>
         <div class="input-group mb-3">
-          <span class="input-group-text">Win/Loss Ratio</span>
+          <span class="input-group-text">{{ 'kelly.WLRatio' | translate }}</span>
           <input type="number" class="form-control" [value]="calc_winloss_ratio()" disabled />
         </div>
       </div>
 
       <div class="col-sm-6">
-        <h4 class="text-center">Brier Score</h4>
+        <h4 class="text-center">{{ 'kelly.BrierScore' | translate }}</h4>
         <div class="input-group mb-3">
-          <span class="input-group-text">Brier Score</span>
+          <span class="input-group-text">{{ 'kelly.BrierScore' | translate }}</span>
           <input type="number" class="form-control" [value]="calc_brier_score()" disabled />
         </div>
       </div>
@@ -37,28 +37,27 @@
           <tr>
             <!-- Below for X -->
             <th scope="col"></th>  
-            <th scope="col">Coin<span class="text-danger">*</span></th>
-            <th scope="col">Buy/Sell<span class="text-danger">*</span></th>
-            <th scope="col">Price<span class="text-danger">*</span></th>
-            <th scope="col">Amt<span class="text-danger">*</span></th>
+            <th scope="col">{{ 'kelly.Coin' | translate }}<span class="text-danger">*</span></th>
+            <th scope="col">{{ 'kelly.BuySell' | translate }}<span class="text-danger">*</span></th>
+            <th scope="col">{{ 'kelly.Price' | translate }}<span class="text-danger">*</span></th>
+            <th scope="col">{{ 'kelly.Amt' | translate }}<span class="text-danger">*</span></th>
 
             <!-- For Buy/Sell only -->
-            <!-- <th scope="col">Sell only</th> -->
-            <th scope="col">Selling Price</th>
-            <th scope="col">Selling Amt</th>
+            <th scope="col">{{ 'kelly.SellPrice' | translate }}</th>
+            <th scope="col">{{ 'kelly.SellAmt' | translate }}</th>
 
             <!-- For Brier score -->
-            <th scope="col">Prediction Prob.</th>
+            <th scope="col">{{ 'kelly.PredProb' | translate }}</th>
             
-            <th scope="col">Total</th>
+            <th scope="col">{{ 'kelly.Total' | translate }}</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td colspan="6"><button class="btn btn-primary" type="button" (click)="add_transaction()">
-              <fa-icon [icon]="faAdd"></fa-icon> Add New Transaction
+              <fa-icon [icon]="faAdd"></fa-icon> {{ 'kelly.AddNewTrans' | translate }}
             </button></td>
-            <td colspan="3"><span>(Only stores latest 100 transactions.)</span></td>
+            <td colspan="3"><span>({{ 'kelly.StoreLatest' | translate:param_latest }})</span></td>
           </tr>
           <ng-container *ngFor="let t of transactions; let i=index;" [formGroupName]="i">
             <tr>
@@ -73,8 +72,8 @@
               </td>
               <td>
                 <select name="buy" formControlName="buy" class="form-select">
-                  <option value="false">Sell</option>
-                  <option value="true">Buy</option>
+                  <option value="false">{{ 'kelly.Sell' | translate }}</option>
+                  <option value="true">{{ 'kelly.Buy' | translate }}</option>
                 </select>
               </td>
               <td>
@@ -127,8 +126,6 @@
 
 <!-- DEBUG -->
 <pre>
-  {{ loading | json }}
-  {{ submitting | json }}
-  {{ this.myForm.invalid | json }}
-  {{ myForm.value | json }}
+  <!-- {{ calc_row_total(3) | json }} -->
+  <!-- {{ myForm.value | json }} -->
 </pre>
