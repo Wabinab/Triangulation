@@ -153,6 +153,7 @@ pub(crate) fn edit_project(data_path: PathBuf, msg: Bytes) -> Result<Option<Stri
 }
 
 /// This is the unsafe saving of 'version' only. 
+/// REPEAT: Save "version" ONLY!!! It's not saving the whole project!!!
 /// Data loss at one's discretion. 
 pub(crate) fn edit_version_unsafe(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
   let submit: SubmitProjVer = serde_json::from_slice(&msg).unwrap();
@@ -179,11 +180,27 @@ pub(crate) fn edit_version_unsafe(data_path: PathBuf, msg: Bytes) -> Result<Opti
   Ok(Some(edited_serde.unwrap().to_string()))
 }
 
+pub(crate) fn delete_project(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
+  let submit: SubmitGetProject = serde_json::from_slice(&msg).unwrap();
+  let mut filepath = modify_datapath(data_path);
+  filepath.push(submit.filename.clone());
+  let ret = fs::remove_file(filepath.as_path());
+  if ret.is_err() { error!("delete_project failed to remove file."); return Err(ret.unwrap_err().to_string()); }
+  Ok(Some(json!({
+    "msg": format!("Successfully delete project with filename: {}", submit.filename)
+  }).to_string()))
+}
+
+pub(crate) fn clone_project(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
+  let submit: SubmitGetProject = serde_json::from_slice(&msg).unwrap();
+  let data = clone::clone_project(data_path, submit.filename);
+  if data.is_err() { error!("project_controller clone_project err."); return Err(data.unwrap_err()); }
+  Ok(Some(data.unwrap().to_string()))
+}
+
 // ================================================
 fn modify_datapath(data_path: PathBuf) -> PathBuf {
-  let mut data_path = data_path;
-  data_path.push("project");
-  data_path
+  file::modify_datapath(data_path, "project")
 }
 
 fn get_data(data_path: PathBuf, filename: String) -> Result<Value, String> {

@@ -97,9 +97,7 @@ fn choose_ty(data_path: PathBuf, msg: Bytes, ty: usize, crud: CRUD) -> Result<Op
 }
 
 fn modify_datapath(data_path: PathBuf) -> PathBuf {
-  let mut data_path = data_path;
-  data_path.push("template");
-  data_path
+  file::modify_datapath(data_path, "template")
 }
 
 fn get_data(data_path: PathBuf, filename: String) -> Result<Value, String> {

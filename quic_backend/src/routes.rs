@@ -8,6 +8,8 @@ pub(crate) fn routes_handler(msg: Bytes, path: String, data_path: PathBuf) -> Re
         "/template/nlist" => template_controller::get_template_nlist(data_path, msg),
         "/template/new" => template_controller::new_template(data_path, msg),
         "/template/edit" => template_controller::edit_template(data_path, msg),
+        "/template/delete" => template_controller::delete_template(data_path, msg),
+        "/template/clone" => template_controller::clone_template(data_path, msg),
         "/template/version/newest" => template_controller::get_template_version(data_path, msg),
         "/templates" => template_controller::get_templates(data_path, msg),
         "/templates/nameonly" => template_controller::get_templates_nameonly(data_path),
@@ -26,6 +28,8 @@ pub(crate) fn routes_handler(msg: Bytes, path: String, data_path: PathBuf) -> Re
         "/project" => project_controller::get_project(data_path, msg),
         "/project/new" => project_controller::new_project(data_path, msg),
         "/project/edit" => project_controller::edit_project(data_path, msg),
+        "/project/delete" => project_controller::delete_project(data_path, msg),
+        "/project/clone" => project_controller::clone_project(data_path, msg),
         "/project/edit/unsafe_ver" => project_controller::edit_version_unsafe(data_path, msg),
         "/projects" => project_controller::get_projects(data_path, msg),
 

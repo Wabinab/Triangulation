@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 /// derive filename given name and uuid. 
 pub(crate) fn gen_filename(name: String, uuid: String, version: Option<usize>) -> String {
   let mut filename: String = name.chars()
@@ -36,6 +38,13 @@ pub(crate) fn add_ver_json_zl(filename: String, version: usize) -> String {
   stripped.push_str(version.to_string().as_str());
   stripped.push_str(".json.zl");
   return stripped;
+}
+
+/// Modify datapath. 
+pub(crate) fn modify_datapath(data_path: PathBuf, path: &'static str) -> PathBuf {
+  let mut data_path = data_path;
+  data_path.push(path);
+  data_path
 }
 
 // pub(crate) fn read_file(root: &Path, path: String) -> Vec<u8> {
@@ -91,3 +100,4 @@ pub(crate) fn add_ver_json_zl(filename: String, version: usize) -> String {
 //   }
 //   File::create(&real_path)
 // }
+

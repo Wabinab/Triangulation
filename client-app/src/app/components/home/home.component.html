@@ -49,9 +49,25 @@
               <div class="card-body">
                 <p class="card-text">{{ item.description }}</p>
               </div>
-              <div class="card-footer" *ngIf="item.t_name">
+              <ul class="list-group list-group-flush" *ngIf="item.t_name">
+                <li class="list-group-item">{{ 'home.TemplateName' | translate }}: {{ item.t_name }}</li>
+                <li class="list-group-item">{{ 'home.Version' | translate }}: {{ item.t_ver + 1 }}</li>
+              </ul>
+              <!-- <div class="card-footer" *ngIf="item.t_name">
                 <span>{{ 'home.TemplateName' | translate }}: {{ item.t_name }}</span><br>
                 <span>{{ 'home.Version' | translate }}: {{ item.t_ver + 1 }}</span>
+              </div> -->
+              <div class="row row-cols-2 g-0">
+                <div class="card-footer col text-center border-end" 
+                [ngClass]="item.t_name ? 'border-top-0' : ''"
+                hover-class="text-bg-secondary | null">
+                  {{ 'clone' | translate }}
+                </div>
+                <div class="card-footer col text-center delete-footer" 
+                [ngClass]="item.t_name ? 'border-top-0' : ''"
+                hover-class="text-bg-danger | null">
+                  {{ 'delete' | translate }}
+                </div>
               </div>
             </div>
           </div>

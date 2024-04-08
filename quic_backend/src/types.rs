@@ -15,3 +15,9 @@ pub enum CRUD {
   Update = 1,
   Delete = 2
 }
+
+#[derive(Debug)]
+pub enum CloneType {
+  Template = 0,
+  Project = 1
+}

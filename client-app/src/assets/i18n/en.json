@@ -14,7 +14,7 @@
     "allProject": "All Projects",
     "allTemplate": "All Templates",
     "Filters": "Filters",
-    "TemplateName": "Template Name",
+    "TemplateName": "Template",
     "Version": "Version"
   },
   "newProj": {
@@ -123,6 +123,8 @@
     "maxLength": "Max {{ value }} char.",
     "InvalidForm": "There's an error with the form. Please fix before submission."
   },
+  "clone": "Clone",
+  "delete": "Delete",
   "cancel": "Cancel",
   "yes": "Yes",
   "no": "No",

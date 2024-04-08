@@ -11,6 +11,7 @@ export class HoverClassDirective {
   private class_hover: string;
   private class_normal: string;
   private child_also: boolean;  // this will also apply same class to DIRECT children (only one level below).
+  // Except for ul. 
   constructor(public elementRef: ElementRef) {
     setTimeout(() => {
       const classes = this.hoverClass.split("|");
@@ -28,6 +29,12 @@ export class HoverClassDirective {
       Array.from(this.elementRef.nativeElement.children).forEach((el: any) => {
         el.classList.remove(this.class_normal);
         el.classList.add(this.class_hover);
+        if (el.matches('ul')) {
+          Array.from(el.children).forEach((li: any) => {
+            li.classList.remove(this.class_normal);
+            li.classList.add(this.class_hover);
+          })
+        }
       });
     }
   }
@@ -39,6 +46,12 @@ export class HoverClassDirective {
       Array.from(this.elementRef.nativeElement.children).forEach((el: any) => {
         el.classList.remove(this.class_hover);
         el.classList.add(this.class_normal);
+        if (el.matches('ul')) {
+          Array.from(el.children).forEach((li: any) => {
+            li.classList.remove(this.class_hover);
+            li.classList.add(this.class_normal);
+          })
+        }
       });
     }
   }

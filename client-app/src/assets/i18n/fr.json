@@ -14,7 +14,7 @@
     "allProject": "Tous les Projets",
     "allTemplate": "Tous les Modèle",
     "Filters": "Filtres",
-    "TemplateName": "Nom Modèle",
+    "TemplateName": "Modèle",
     "Version": "Version"
   },
   "newProj": {
@@ -123,6 +123,8 @@
     "maxLength": "{{ value }} caractère au plus",
     "InvalidForm": "Il y a une erreur avec le formulaire. Veuillez la corriger avant de l'envoyer."
   },
+  "clone": "Cloner",
+  "delete": "Supprimer",
   "cancel": "Annuler",
   "yes": "Oui",
   "no": "Non",
