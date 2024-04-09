@@ -229,9 +229,7 @@ export class RemindersProjComponent {
   // ===========================================================
   autoSave() {
     if (this.submitting || this.loading || this.myForm.invalid) return;
-    this.translate.get('proj.Autosave', {}).subscribe((res: string) => {
-      this.toastr.info(res, '', { timeOut: 1000 });
-    });
+    this.toastr.info(this.translate.instant('proj.Autosave'), '', { timeOut: 1000 });
     this.submitting = true;
     const row = {
       filename: this.filename,
@@ -307,9 +305,7 @@ export class RemindersProjComponent {
       };
       this.http3.send(Routes.RDel, JSON.stringify(row)).then((value: any) => {
         this.http3.json_handler(value);
-        this.translate.get('kelly.ClearData').subscribe((res: string) => {
-          this.toastr.success(res);
-        });
+        this.toastr.success(this.translate.instant('kelly.ClearData'));
         this.submitting = false;
         this.reset_form();
       }).catch(err => { this.doErr(err); this.submitting = false; })
@@ -360,7 +356,8 @@ export class RemindersProjComponent {
 
   doErr(err: any) {
     console.error(err);
-    this.toastr.error(err);
+    if (typeof(err) === 'string') this.toastr.error(this.translate.instant(err || ''));
+    else this.toastr.error(err);
   }
 
   // This doesn't work here, because we have multiple charcount. 
@@ -369,9 +366,7 @@ export class RemindersProjComponent {
     const len = length ? length : event.target.value.length;
     const charcount = this.desc_limit - len;
     const translate_word = charcount >= 0 ? 'newTempl.charRemain' : 'newTempl.charOver';
-    this.translate.get(translate_word, {}).subscribe((res: string) => {
-      this.charcount = `${Math.abs(charcount)} ${res}`;
-    });
+    this.charcount = `${Math.abs(charcount)} ${this.translate.instant(translate_word)}`;
   }
 
   // ===========================================================

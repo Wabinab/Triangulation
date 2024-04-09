@@ -2,7 +2,7 @@ use uuid::Uuid;
 
 use crate::{messages::{FILENAME_NO_NULL, UUID_NO_NULL}, *};
 
-use self::{compressor::{compress_and_save, retrieve_decompress, retrieve_decompress_fullpath}, file::gen_filename, filelist_dto::SubmitFileList, project_dto::{to_basic_project, to_nlist_proj, ProjVerTrait, ProjectTrait, SubmitGetProject, SubmitProjVer, SubmitProject}, template_dto::to_nlist_temp, versioning::{get_savepath, get_verpath, upd_ver_proj}};
+use self::{compressor::{compress_and_save, retrieve_decompress, retrieve_decompress_fullpath}, file::gen_filename, filelist_dto::SubmitFileList, project_dto::{to_basic_project, to_nlist_proj, ProjVerTrait, ProjectTrait, SubmitCloneProj, SubmitGetProject, SubmitProjVer, SubmitProject}, template_dto::to_nlist_temp, versioning::{get_savepath, get_verpath, upd_ver_proj}};
 
 // ===========================================
 // GET
@@ -181,19 +181,21 @@ pub(crate) fn edit_version_unsafe(data_path: PathBuf, msg: Bytes) -> Result<Opti
 }
 
 pub(crate) fn delete_project(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
-  let submit: SubmitGetProject = serde_json::from_slice(&msg).unwrap();
+  let submit: SubmitCloneProj = serde_json::from_slice(&msg).unwrap();
+  let filename = gen_filename(PROJECT_NAME.to_owned(), submit.uuid, None);
   let mut filepath = modify_datapath(data_path);
-  filepath.push(submit.filename.clone());
+  filepath.push(filename.clone());
   let ret = fs::remove_file(filepath.as_path());
   if ret.is_err() { error!("delete_project failed to remove file."); return Err(ret.unwrap_err().to_string()); }
   Ok(Some(json!({
-    "msg": format!("Successfully delete project with filename: {}", submit.filename)
+    "msg": format!("Successfully delete project with filename: {}", filename)
   }).to_string()))
 }
 
 pub(crate) fn clone_project(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
-  let submit: SubmitGetProject = serde_json::from_slice(&msg).unwrap();
-  let data = clone::clone_project(data_path, submit.filename);
+  let submit: SubmitCloneProj = serde_json::from_slice(&msg).unwrap();
+  let filename = gen_filename(PROJECT_NAME.to_owned(), submit.uuid, None);
+  let data = clone::clone_project(data_path, filename);
   if data.is_err() { error!("project_controller clone_project err."); return Err(data.unwrap_err()); }
   Ok(Some(data.unwrap().to_string()))
 }

@@ -82,6 +82,12 @@ pub(crate) struct SubmitGetProject {
 }
 
 // =========================================
+#[derive(Serialize, Deserialize, Debug)]
+pub(crate) struct SubmitCloneProj {
+  pub(crate) uuid: String
+}
+
+// =========================================
 pub(crate) fn to_nlist_proj(old_serde: Value) -> ProjectNList {
   serde_json::from_value(old_serde).unwrap()
 }

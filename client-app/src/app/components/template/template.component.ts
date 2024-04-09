@@ -1,5 +1,5 @@
 import { AfterViewChecked, AfterViewInit, Component, ElementRef, HostListener, ViewChild, inject } from '@angular/core';
-import { faBell, faMoneyBillWheat, faPencil, faPlus, faSave, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import { faBell, faListCheck, faMoneyBillWheat, faPencil, faPlus, faSave, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { SharedModule } from '../../shared/shared.module';
 import { SharedFormsModule } from '../../shared/shared-forms.module';
 import { Http3Service } from '../../services/http3.service';
@@ -17,6 +17,8 @@ import { HoverClassDirective } from '../../directives/hover-class.directive';
 import { Routes } from '../../models/routes';
 import { Tooltip } from 'bootstrap';
 import { KellyComponent } from '../cards/kelly/kelly.component';
+import { CardTypes } from '../../models/card-types';
+import { ChecklistComponent } from '../cards/checklist/checklist.component';
 
 @Component({
   selector: 'app-template',
@@ -33,6 +35,7 @@ export class TemplateComponent implements AfterViewInit {
   faEdit = faPencil;
   faRemove = faTrashAlt;
   faInvestment = faMoneyBillWheat;
+  faChecklist = faListCheck;
 
   stages: any[] = [];
   filename = this.route.snapshot.queryParamMap.get('filename');
@@ -58,9 +61,7 @@ export class TemplateComponent implements AfterViewInit {
 
   async load(curr_stage: number = 0) {
     if (!this.filename) { 
-      this.translate.get("proj.UndFilename", {}).subscribe((res: any) => {
-        this.doErr(res);
-      });
+      this.doErr("proj.UndFilename");
       this.loading = false; 
       return;
     }
@@ -235,50 +236,53 @@ export class TemplateComponent implements AfterViewInit {
   private modalSvc = inject(NgbModal);
 
   openTemplate(id: number, ty: number) {
-    if (ty == 0) { this.openReminders(id); return; }
-    if (ty == 1) { this.openKelly(id); return; }
+    if (ty == CardTypes.Reminders) { this.openReminders(id); return; }
+    if (ty == CardTypes.Kelly) { this.openKelly(id); return; }
+    if (ty == CardTypes.Checklist) { this.openChecklist(id); return; }
   }
 
   modalReminder: any;
-  openReminders(id: number) {
-    this.modalReminder = this.modalSvc.open(RemindersComponent, {
-      backdrop: 'static',
-      fullscreen: 'sm',
-      size: 'xl'
-    });
-    // this.modalReminder.componentInstance = {id: 0};  // this doesn't work. 
+  openModal(id: number, component: any, options: any) {
+    this.modalReminder = this.modalSvc.open(component, options);
     this.modalReminder.componentInstance.id = id;  // because slist won't return all items later on. 
     this.modalReminder.componentInstance.curr_stage = this.curr_stage;
     this.modalReminder.componentInstance.filename = this.filename;
     this.modalReminder.closed.subscribe(async (_: any) => {
       await this.load(this.curr_stage);
-      // console.log("Curr Stage: "+this.curr_stage);
     });
-    // this.modalReminder.dismissed.subscribe((res: any) => {
-    //   console.log("dismissed");
-    // });
   }
 
+  openReminders(id: number) {
+    this.openModal(id, RemindersComponent, {
+      backdrop: 'static',
+      fullscreen: 'sm',
+      size: 'xl'
+    });
+  }
   new_reminder() {
     this.openReminders(this.pipeline.length);
   }
 
   openKelly(id: number) {
-    this.modalReminder = this.modalSvc.open(KellyComponent, {
+    this.openModal(id, KellyComponent, {
       backdrop: 'static',
       fullscreen: 'lg',
       size: 'xl'
     });
-    this.modalReminder.componentInstance.id = id;
-    this.modalReminder.componentInstance.curr_stage = this.curr_stage;
-    this.modalReminder.componentInstance.filename = this.filename;
-    this.modalReminder.closed.subscribe(async (_: any) => {
-      await this.load(this.curr_stage);
-    });
   }
-
   new_kelly() {
     this.openKelly(this.pipeline.length);
+  }
+
+  openChecklist(id: number) {
+    this.openModal(id, ChecklistComponent, {
+      backdrop: 'static',
+      fullscreen: 'lg', 
+      size: 'xl'
+    });
+  }
+  new_checklist() {
+    this.openChecklist(this.pipeline.length);
   }
 
   modalCancel: any;
@@ -291,12 +295,13 @@ export class TemplateComponent implements AfterViewInit {
     this.modalCancel.closed.subscribe(async (_: any) => {
       const i = this.curr_stage;
       if (i > -1) {
-        await this.save();
         var stage = this.stages.splice(i, 1)[0];
         this._internal_sel_stage(i - 1);
-        this.translate.get("templ.RemoveStage", {name: stage.name}).subscribe((res: any) => {
-          this.toastr.success(res);
-        }); 
+        this.toastr.success(this.translate.instant("templ.RemoveStage", {name: stage.name}));
+        // this.translate.get("templ.RemoveStage", {name: stage.name}).subscribe((res: any) => {
+        //   this.toastr.success(res);
+        // }); 
+        await this.save();
       }
     });
   }
@@ -320,10 +325,12 @@ export class TemplateComponent implements AfterViewInit {
         this.http3.send(Routes.PiDel0, JSON.stringify(body)).then(res => {
           console.log(this.http3.json_handler(res));
           var question = this.pipeline.splice(i, 1)[0];
-          this.translate.get("templ.RemoveQs", {i: i+1, title: question.title})
-          .subscribe((res: any) => {
-            this.toastr.success(res);
-          }); 
+          this.toastr.success(this.translate.instant("templ.RemoveQs", 
+            {i: i+1, title: question.title}));
+          // this.translate.get("templ.RemoveQs", {i: i+1, title: question.title})
+          // .subscribe((res: any) => {
+          //   this.toastr.success(res);
+          // }); 
           this.saving = false;
         }).catch(err => { this.doErr(err); this.saving = false; });
       }
@@ -379,7 +386,12 @@ export class TemplateComponent implements AfterViewInit {
 
   doErr(err: any) {
     console.error(err);
-    this.toastr.error(err);
+    if (typeof(err) === 'string') this.toastr.error(this.translate.instant(err || ''));
+    else this.toastr.error(err);
+  }
+
+  disable_modals() {
+    return { 'disable-modals': this.stages.length == 0 };
   }
 
   // test_get() {

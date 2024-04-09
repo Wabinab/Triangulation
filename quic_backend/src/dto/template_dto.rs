@@ -44,6 +44,11 @@ pub(crate) struct SubmitGetTemplate {
   pub(crate) filename: String
 }
 
+// ========================================
+#[derive(Serialize, Deserialize, Debug)]
+pub(crate) struct SubmitCloneTemp {
+  pub(crate) uuid: String
+}
 
 // ========================================
 pub(crate) fn to_nlist_temp(old_serde: Value) -> TemplateNList {

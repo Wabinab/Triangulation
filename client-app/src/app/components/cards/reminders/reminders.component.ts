@@ -86,21 +86,19 @@ export class RemindersComponent {
     if (this.items.err && this.items.err == "backend.OOBPipeline") {
       this.is_new = true;
       this.add_new_question();
-      this.loading = false;
-      return;
+      this.loading = false; return;
     }
-    if (this.items.err && this.items.err.length > 0) { this.doErr(this.items.err); this.loading = false; return; }
+    if (this.items.err && this.items.err.length > 0) { 
+      this.doErr(this.items.err);
+      this.loading = false; return; 
+    }
     await this.loadData();
   }
 
   async loadData() {
     this.is_new = false;
     if (this.myForm.get('t')!.value != this.items.ty) { 
-      this.translate.get("reminder.MismatchCard", {}).subscribe((res: any) => {
-        this.doErr(res);
-      });
-      // this.doErr("There's a mismatch between card types. Please report bug.");
-      return;
+      this.doErr("reminder.MismatchCard"); return;
     }
 
     this.myForm.get('title')?.setValue(this.items.title);
@@ -123,9 +121,7 @@ export class RemindersComponent {
 
   autoSave() {
     if (this.submitting || this.loading || !this.myForm.valid) return;
-    this.translate.get('proj.Autosave', {}).subscribe((res: string) => {
-      this.toastr.info(res, '', { timeOut: 1000 });
-    });
+    this.toastr.info(this.translate.instant('proj.Autosave'), '', { timeOut: 1000 });
     this.submitting = true;
     const row = {
       filename: this.filename,
@@ -157,9 +153,7 @@ export class RemindersComponent {
   // ==============================================================================
   onSubmit() {
     if (this.submitting || this.loading || this.myForm.invalid) {
-      if (this.myForm.invalid) {this.translate.get("err.InvalidForm", {})
-      .subscribe((res: any) => { this.doErr(res); }); }
-      return;
+      if (this.myForm.invalid) this.doErr("err.InvalidForm"); return;
     }
     this.submitting = true;
     const row = {
@@ -369,6 +363,7 @@ export class RemindersComponent {
 
   doErr(err: any) {
     console.error(err);
-    this.toastr.error(err);
+    if (typeof(err) === 'string') this.toastr.error(this.translate.instant(err || ''));
+    else this.toastr.error(err);
   }
 }

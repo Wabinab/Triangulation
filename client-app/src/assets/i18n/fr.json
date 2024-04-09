@@ -60,7 +60,8 @@
   "tooltip": {
     "RubbishBin": "Supprimer cette l'étape",
     "Save": "Sauvegarde",
-    "Investment": "Investissement"
+    "Investment": "Investissement",
+    "Checklist": "Liste de contrôle"
   },
   "reminder": {
     "title": "Titre",
@@ -95,6 +96,9 @@
     "Sell": "Vendre",
     "ClearData?": "Effacées tous les données",
     "ClearData": "Succès effacées les données."
+  },
+  "checklist": {
+    "Name": "Liste de contrôle"
   },
   "QuestionChoice": {
     "Short": "Réponse courte",

@@ -26,6 +26,11 @@ pub(crate) fn clone_project(data_path: PathBuf, filename: String) -> Result<Valu
 
 
 fn clone(data_path: PathBuf, filename: String, clone_type: CloneType) -> Result<Value, String> {
+  let t_or_p_path = match clone_type {
+    CloneType::Template => "template",
+    CloneType::Project => "project"
+  };
+  let data_path = modify_datapath(data_path, t_or_p_path);
   let data =  retrieve_decompress(data_path.clone(), filename);
   if data.is_err() { error!("clone_template retrieve_decompress"); return Err(data.unwrap_err()); }
 
@@ -40,11 +45,6 @@ fn clone(data_path: PathBuf, filename: String, clone_type: CloneType) -> Result<
   };
   let new_filename = gen_filename(t_or_p_name, uuid.clone(), None);
 
-  let t_or_p_path = match clone_type {
-    CloneType::Template => "template",
-    CloneType::Project => "project"
-  };
-  let data_path = modify_datapath(data_path, t_or_p_path);
   let ret = compress_and_save(
     new_data.to_string(), data_path, new_filename.clone());
   if ret.is_err() { error!("clone_template ret"); return Err(ret.unwrap_err()); }

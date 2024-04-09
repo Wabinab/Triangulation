@@ -1,0 +1,116 @@
+<!-- Checklist are both predefined and can be defined again in projects.
+Basically, predefined stuffs cannot be edited in projects.
+Then, we have 2 groups of items.  -->
+
+<div class="modal-header">
+  <h3>{{ (is_new ? "reminder.isNew" : "reminder.isEdit") | translate}} 
+    {{ 'checklist.Name' | translate }} ({{ 'reminder.Item' | translate }} {{ id + 1 }})
+  </h3><br>
+</div>
+
+<div class="modal-body">
+  <form [formGroup]="myForm" (ngSubmit)="onSubmit()">
+    <div class="form-floating">
+      <input type="text" class="form-control" formControlName="title" id="title" 
+      placeholder="{{ 'reminder.title' | translate }}" />
+      <label for="name">{{ 'reminder.title' | translate}}</label>
+    </div>
+    <app-error [form]="myForm" control="title"></app-error>
+    <div class="pb-3"></div>
+
+    <!-- Compulsory checklist: defined in template -->
+    <h4 class="text-center">Compulsory Items</h4>
+    <div class="row" formArrayName="checklist">
+      <table class="table">
+        <thead>
+          <tr>
+            <!-- Below for X -->
+            <th scope="col" class="col-2 col-md-1"></th>
+            <!-- Below for ID -->
+            <th scope="col" class="col-2 col-md-1"></th>
+            <th scope="col">Title</th>
+            <!-- The columns we can tune later. -->
+            <th scope="col" class="col-2 col-md-1">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let c of checklists; let i=index;" [formGroupName]="i">
+            <tr>
+              <td>
+                <button type="button" class="btn btn-outline-danger" (click)="remove_item(i)">
+                  <fa-icon [icon]="faCross"></fa-icon>
+                </button>
+              </td>
+              <td>{{ i + 1 }}</td>
+              <td>
+                <input type="text" formControlName="title" class="form-control"
+                (keyup.enter)="add_and_focus(i+1)" id="title_{{ i }}">
+                <app-error [form]="c" control="title"></app-error>
+              </td>
+              <td class="text-center">
+                <input type="checkbox" class="btn-check" autocomplete="off" disabled>
+                <label class="btn btn-outline-primary">
+                  <fa-icon [icon]="faTick"></fa-icon>
+                </label>
+                <!-- <input type="checkbox" class="btn-check" id="check_{{ i }}" autocomplete="off">
+                <label class="btn btn-outline-primary" for="check_{{ i }}">
+                  <fa-icon [icon]="faTick"></fa-icon>
+                </label> -->
+              </td>
+            </tr>
+          </ng-container>
+          <tr>
+            <td colspan="99">
+              <button class="btn btn-outline-secondary" type="button" 
+              (click)="add_to_list()">
+                <fa-icon [icon]="faAdd"></fa-icon> Add Item
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pb-3"></div>
+
+    <!-- Extra checklist: defined in projects. -->
+    <h4 class="text-center">Extra Items</h4>
+    <div class="row">
+      <table class="table">
+        <thead>
+          <tr>
+            <!-- Below for X -->
+            <th scope="col" class="col-2 col-md-1"></th>
+            <!-- Below for ID -->
+            <th scope="col" class="col-2 col-md-1"></th>
+            <th scope="col">Title</th>
+            <!-- The columns we can tune later. -->
+            <th scope="col" class="col-2 col-md-1">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="99" class="text-center">
+            If you forget anything, add here during editing projects.
+          </td></tr>
+        </tbody>
+      </table>
+    </div>
+  </form>
+</div>
+
+<div class="modal-footer">
+  <div class="d-flex gap-2">
+    <button class="btn btn-secondary" (click)="cancel()">
+      <fa-icon [icon]="faCross"></fa-icon>
+      <span class="caption"></span>
+    </button>
+    <button class="btn btn-primary" (click)="onSubmit()">
+      <fa-icon [icon]="faSave"></fa-icon>
+      <span class="caption"></span>
+    </button>
+  </div>
+</div>
+
+<!-- DEBUG -->
+<pre>
+  <!-- {{ myForm.value | json }} -->
+</pre>

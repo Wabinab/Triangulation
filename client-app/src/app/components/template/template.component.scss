@@ -1,3 +1,8 @@
 .card-hover:hover {
   cursor: pointer;
 }
+
+.disable-modals {
+  pointer-events: none;
+  opacity: 0.3 !important;
+}

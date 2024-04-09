@@ -283,7 +283,8 @@ export class KellyProjComponent {
 
   doErr(err: any) {
     console.error(err);
-    this.toastr.error(err);
+    if (typeof(err) === 'string') this.toastr.error(this.translate.instant(err || ''));
+    else this.toastr.error(err);
   }
 
   round_to(value: number, dp: number = 5) {

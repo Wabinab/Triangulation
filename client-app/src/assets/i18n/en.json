@@ -60,7 +60,8 @@
   "tooltip": {
     "RubbishBin": "Delete Current Stage",
     "Save": "Save",
-    "Investment": "Investment"
+    "Investment": "Investment",
+    "Checklist": "Checklist"
   },
   "reminder": {
     "title": "Title",
@@ -95,6 +96,9 @@
     "Sell": "Sell",
     "ClearData?": "Clear Existing Data",
     "ClearData": "Successfully Cleared Data."
+  },
+  "checklist": {
+    "Name": "Checklist"
   },
   "QuestionChoice": {
     "Short": "Short Answer",

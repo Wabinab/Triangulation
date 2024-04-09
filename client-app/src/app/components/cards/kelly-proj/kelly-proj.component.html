@@ -62,7 +62,8 @@
           <ng-container *ngFor="let t of transactions; let i=index;" [formGroupName]="i">
             <tr>
               <td>
-                <button type="button" class="btn btn-outline-danger" (click)="remove_transaction(i)">
+                <button type="button" class="btn btn-outline-danger" 
+                (click)="remove_transaction(i)">
                   <fa-icon [icon]="faCross"></fa-icon>
                 </button>
               </td>

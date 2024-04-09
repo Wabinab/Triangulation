@@ -42,14 +42,14 @@
       <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 row-cols-xxl-4 g-3 card-group">
         @for (item of items | paginate: page; track item.uuid) {
           <div class="col">
-            <div class="card card-hover" hover-class="border-primary | null | true" (click)="redirect_to(item.uuid)">
-              <div class="card-header">
+            <div class="card card-hover" hover-class="border-primary | null | true">
+              <div class="card-header" (click)="redirect_to(item.uuid)">
                 {{ item.name }}
               </div>
-              <div class="card-body">
+              <div class="card-body" (click)="redirect_to(item.uuid)">
                 <p class="card-text">{{ item.description }}</p>
               </div>
-              <ul class="list-group list-group-flush" *ngIf="item.t_name">
+              <ul class="list-group list-group-flush" *ngIf="item.t_name" (click)="redirect_to(item.uuid)">
                 <li class="list-group-item">{{ 'home.TemplateName' | translate }}: {{ item.t_name }}</li>
                 <li class="list-group-item">{{ 'home.Version' | translate }}: {{ item.t_ver + 1 }}</li>
               </ul>
@@ -60,12 +60,14 @@
               <div class="row row-cols-2 g-0">
                 <div class="card-footer col text-center border-end" 
                 [ngClass]="item.t_name ? 'border-top-0' : ''"
-                hover-class="text-bg-secondary | null">
+                hover-class="text-bg-secondary | null"
+                (click)="clone_item(item.uuid)">
                   {{ 'clone' | translate }}
                 </div>
                 <div class="card-footer col text-center delete-footer" 
                 [ngClass]="item.t_name ? 'border-top-0' : ''"
-                hover-class="text-bg-danger | null">
+                hover-class="text-bg-danger | null"
+                (click)="delete_item(item.uuid)">
                   {{ 'delete' | translate }}
                 </div>
               </div>

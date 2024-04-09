@@ -48,11 +48,8 @@ export class ProjectComponent {
 
   async load(curr_stage: number = 0) {
     if (!this.filename) { 
-      this.translate.get("proj.UndFilename", {}).subscribe((res: any) => {
-        this.doErr(res);
-      });
-      this.loading = false; 
-      return; 
+      this.doErr("proj.UndFilename");
+      this.loading = false; return; 
     }
     const row = { filename: this.filename };
 
@@ -222,9 +219,7 @@ export class ProjectComponent {
     });
     this.modalCancel.dismissed.subscribe(async (_: any) => {
       this.is_edit_ver = false;
-      this.translate.get("proj.VerChangeCancel").subscribe((res: any) => {
-        this.toastr.warning(res);
-      });
+      this.toastr.warning(this.translate.instant("proj.VerChangeCancel"));
     });
   }
 
@@ -295,6 +290,7 @@ export class ProjectComponent {
   doErr(err: any) {
     console.log(this.saving);
     console.error(err);
-    this.toastr.error(err);
+    if (typeof(err) === 'string') this.toastr.error(this.translate.instant(err || ''));
+    else this.toastr.error(err);
   }
 }

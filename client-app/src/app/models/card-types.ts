@@ -1,3 +1,5 @@
 export enum CardTypes {
-  Reminders
+  Reminders, 
+  Kelly, 
+  Checklist
 }

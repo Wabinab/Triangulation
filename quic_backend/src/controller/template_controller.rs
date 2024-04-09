@@ -3,7 +3,7 @@ use std::fs;
 
 use crate::{messages::FILENAME_NO_NULL, *};
 
-use self::{compressor::{compress_and_save, retrieve_decompress, retrieve_decompress_fullpath}, file::gen_filename, filelist_dto::SubmitFileList, stage_dto::{StageTrait, SubmitStage}, template_dto::{to_basic_template, to_nameonly, to_nlist_temp, SubmitGetTemplate, SubmitTemplate, SubmitTemplateVer, TemplateTrait, TemplateVerTrait}, versioning::{get_verpath, upd_ver_temp}
+use self::{compressor::{compress_and_save, retrieve_decompress, retrieve_decompress_fullpath}, file::gen_filename, filelist_dto::SubmitFileList, stage_dto::{StageTrait, SubmitStage}, template_dto::{to_basic_template, to_nameonly, to_nlist_temp, SubmitCloneTemp, SubmitGetTemplate, SubmitTemplate, SubmitTemplateVer, TemplateTrait, TemplateVerTrait}, versioning::{get_verpath, upd_ver_temp}
 };
 
 // =================================================
@@ -141,19 +141,21 @@ pub(crate) fn edit_template(data_path: PathBuf, msg: Bytes) -> Result<Option<Str
 }
 
 pub(crate) fn delete_template(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
-  let submit: SubmitGetTemplate = serde_json::from_slice(&msg).unwrap();
+  let submit: SubmitCloneTemp = serde_json::from_slice(&msg).unwrap();
+  let filename = gen_filename(TEMPLATE_NAME.to_owned(), submit.uuid, None);
   let mut filepath = modify_datapath(data_path);
-  filepath.push(submit.filename.clone());
+  filepath.push(filename.clone());
   let ret = fs::remove_file(filepath.as_path());
   if ret.is_err() { error!("delete_template failed to remove file."); return Err(ret.unwrap_err().to_string()); }
   Ok(Some(json!({
-    "msg": format!("Successfully delete template with filename: {}", submit.filename)
+    "msg": format!("Successfully delete template with filename: {}", filename)
   }).to_string()))
 }
 
 pub(crate) fn clone_template(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
-  let submit: SubmitGetTemplate = serde_json::from_slice(&msg).unwrap();
-  let data = clone::clone_template(data_path, submit.filename);
+  let submit: SubmitCloneTemp = serde_json::from_slice(&msg).unwrap();
+  let filename = gen_filename(TEMPLATE_NAME.to_owned(), submit.uuid, None);
+  let data = clone::clone_template(data_path, filename);
   if data.is_err() { error!("template_controller clone_template err."); return Err(data.unwrap_err()); }
   Ok(Some(data.unwrap().to_string()))
 }

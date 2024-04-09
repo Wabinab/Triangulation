@@ -11,9 +11,10 @@ fn gen_testfile() -> String {
   return filename;
 }
 
-fn get_filepath(filename: String) -> PathBuf {
+fn get_filepath(filename: String, directory: String) -> PathBuf {
   // let filename = gen_testfile();
   let mut filepath = get_datapath();
+  filepath.push(directory);
   filepath.push(filename);
   filepath
 }
@@ -59,8 +60,9 @@ fn get_project_serde() -> Value {
 // ==================================================
 #[test]
 fn test_clone_template_works_as_expected() {
+  let directory = "template";
   let filename = gen_testfile();
-  let filepath = get_filepath(filename.clone());
+  let filepath = get_filepath(filename.clone(), directory.to_owned());
   let data = get_template_serde();
 
   let ret = compress_and_save_fullpath(data.clone().to_string(), filepath.clone());
@@ -70,7 +72,7 @@ fn test_clone_template_works_as_expected() {
   
   let retval = clone_template(get_datapath(), filename.clone());
   assert!(retval.is_ok());
-  let mut filepath2 = modify_datapath(get_datapath(), "template");
+  let mut filepath2 = modify_datapath(get_datapath(), directory);
   filepath2.push(retval.unwrap()["filename"].as_str().unwrap());
   let ret3 = retrieve_decompress_fullpath(filepath2.clone());
   assert!(ret3.is_ok());
@@ -89,8 +91,9 @@ fn test_clone_template_works_as_expected() {
 
 #[test]
 fn test_clone_project_works_as_expected() {
+  let directory = "project";
   let filename = gen_testfile();
-  let filepath = get_filepath(filename.clone());
+  let filepath = get_filepath(filename.clone(), directory.to_owned());
   let data = get_project_serde();
 
   let ret = compress_and_save_fullpath(data.clone().to_string(), filepath.clone());
@@ -100,7 +103,7 @@ fn test_clone_project_works_as_expected() {
 
   let retval = clone_project(get_datapath(), filename.clone());
   assert!(retval.is_ok());
-  let mut filepath2 = modify_datapath(get_datapath(), "project");
+  let mut filepath2 = modify_datapath(get_datapath(), directory);
   filepath2.push(retval.unwrap()["filename"].as_str().unwrap());
   let ret3 = retrieve_decompress_fullpath(filepath2.clone());
   assert!(ret3.is_ok());

@@ -107,7 +107,8 @@ export class NewProjModalComponent {
     this.loading = false;
     this.submitting = false;
     console.error(err);
-    this.toastr.error(err);
+    if (typeof(err) === 'string') this.toastr.error(this.translate.instant(err || ''));
+    else this.toastr.error(err);
     // Waiting for errSvc. 
   }
 
@@ -115,9 +116,7 @@ export class NewProjModalComponent {
   textCounter(event: any) {
     const charcount = this.desc_limit - event.target.value.length;
     const translate_word = charcount >= 0 ? 'newTempl.charRemain' : 'newTempl.charOver';
-    this.translate.get(translate_word, {}).subscribe((res: string) => {
-      this.charcount = `${Math.abs(charcount)} ${res}`;
-    });
+    this.charcount = `${Math.abs(charcount)} ${this.translate.instant(translate_word)}`;
   }
 
   // ==================================================

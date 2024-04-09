@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { SharedModule } from '../../shared/shared.module';
 import { ToastrService } from 'ngx-toastr';
 import { faRoad, faRoute } from '@fortawesome/free-solid-svg-icons';
@@ -13,6 +13,8 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import { HoverClassDirective } from '../../directives/hover-class.directive';
 import { TranslateService } from '@ngx-translate/core';
 import { Routes } from '../../models/routes';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { CancellationComponent } from '../cancellation/cancellation.component';
 
 @Component({
   selector: 'app-home',
@@ -27,6 +29,7 @@ export class HomeComponent {
   faTempl = faRoute;
   deferProjClicked = signal(false);
   deferTemplClicked = signal(false);
+  private modalSvc = inject(NgbModal);
 
   curr_view: HomeView = HomeView.Home;  // home, new (proj/temp) views.
   // curr_filter: string = 'proj';
@@ -148,6 +151,42 @@ export class HomeComponent {
   doErr(err: any) {
     this.loading = false;
     console.error(err);
-    this.toastr.error(err);
+    if (typeof(err) === 'string') this.toastr.error(this.translate.instant(err || ''));
+    else this.toastr.error(err);
+  }
+
+  // ======================================================
+  clone_item(uuid: string) {
+    this.loading = true;
+    const route = this.curr_filter === HomeFilter.Template ? Routes.TClone : Routes.PClone;
+    const row = { uuid: uuid };
+    this.http3.send(route, JSON.stringify(row)).then((_res: any) => {
+      let res = this.http3.json_handler(_res);
+      // this.get_projects();  // no need refresh, since we're gonna redirect page. 
+      this.loading = false;
+
+      const type_name = this.curr_filter == HomeFilter.Template ? 'template': 'project'
+      this.router.navigate([`/${type_name}`], {queryParams: {
+        filename: res.filename
+      }});
+    }).catch((err: any) => { this.doErr(err); this.loading = false; })
+  }
+
+  modalDelete: any;
+  delete_item(uuid: string) {
+    if (this.loading) return;
+    this.modalDelete = this.modalSvc.open(CancellationComponent);
+    this.modalDelete.componentInstance.back_path = "hide modal";  // no need redirect.
+    this.modalDelete.componentInstance.back_dismiss = true;
+    this.modalDelete.closed.subscribe((res: any) => {
+      this.loading = true;
+      const route = this.curr_filter === HomeFilter.Template ? Routes.TDel : Routes.PDel;
+      const row = { uuid: uuid };
+      this.http3.send(route, JSON.stringify(row)).then((_res: any) => {
+        let res = this.http3.json_handler(_res);
+        this.get_template_or_project();  // we refresh since we're not redirecting.
+        this.loading = false;
+      }).catch((err: any) => { this.doErr(err); this.loading = false; })
+    });
   }
 }

@@ -30,7 +30,8 @@
           <span class="caption"></span>
         </a></li>
         <li class="nav-item"><a class="nav-link" role="button" (click)="remove_stage()"
-        data-bs-toggle="tooltip" [attr.data-bs-title]="'tooltip.RubbishBin' | translate">
+        data-bs-toggle="tooltip" [attr.data-bs-title]="'tooltip.RubbishBin' | translate"
+        [ngClass]="disable_modals()">
           <fa-icon [icon]="faRemove" size="xl"></fa-icon>
         </a></li>
         <div class="vl"></div>
@@ -38,14 +39,23 @@
         <!-- Different types -->
         <!-- Reminder (a header, and a single question of 'how') -->
         <li class="nav-item"><a class="nav-link" role="button" (click)="new_reminder()"
-        data-bs-toggle="tooltip" [attr.data-bs-title]="'reminder.Name' | translate">
+        data-bs-toggle="tooltip" [attr.data-bs-title]="'reminder.Name' | translate"
+        [ngClass]="disable_modals()">
           <fa-icon [icon]="faReminder" size="xl"></fa-icon>
           <span class="caption"></span>
         </a></li>
         <!-- Kelly Criterion -->
         <li class="nav-item"><a class="nav-link" role="button" (click)="new_kelly()"
-        data-bs-toggle="tooltip" [attr.data-bs-title]="'tooltip.Investment' | translate">
+        data-bs-toggle="tooltip" [attr.data-bs-title]="'tooltip.Investment' | translate"
+        [ngClass]="disable_modals()">
           <fa-icon [icon]="faInvestment" size="xl"></fa-icon>
+          <span class="caption"></span>
+        </a></li>
+        <!-- Checklist -->
+        <li class="nav-item"><a class="nav-link" role="button" (click)="new_checklist()"
+        data-bs-toggle="tooltip" [attr.data-bs-title]="'tooltip.Checklist' | translate"
+        [ngClass]="disable_modals()">
+          <fa-icon [icon]="faChecklist" size="xl"></fa-icon>
           <span class="caption"></span>
         </a></li>
       </ul>
@@ -116,7 +126,7 @@
 <!-- <button (click)="delete_all_stages()">Delete all stages</button> -->
 <pre>
   <!-- {{ template | json }} -->
-  <!-- {{ curr_edit_stage }} -->
+  <!-- {{ stages | json }} -->
   <!-- {{ pipeline | json }} -->
 </pre>
 
