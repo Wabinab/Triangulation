@@ -15,7 +15,10 @@ export enum Routes {
   PiDel0  = "/pipeline/0/delete",
   PiNew1  = "/pipeline/1/new",
   PiEdit1 = "/pipeline/1/edit",
-  PiDel1  = "/pipeline/1/del",
+  PiDel1  = "/pipeline/0/delete",  // same as 0. 
+  PiNew2  = "/pipeline/2/new",
+  PiEdit2 = "/pipeline/2/edit",
+  PiDel2  = "/pipeline/0/delete",  // same as 0.
 
   P      = "/project",
   PNew   = "/project/new",

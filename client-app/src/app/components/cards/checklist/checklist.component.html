@@ -44,7 +44,7 @@ Then, we have 2 groups of items.  -->
               <td>{{ i + 1 }}</td>
               <td>
                 <input type="text" formControlName="title" class="form-control"
-                (keyup.enter)="add_and_focus(i+1)" id="title_{{ i }}">
+                (keyup.enter)="add_and_focus(i+1, $event.target)" id="title_{{ i }}">
                 <app-error [form]="c" control="title"></app-error>
               </td>
               <td class="text-center">
@@ -62,7 +62,7 @@ Then, we have 2 groups of items.  -->
           <tr>
             <td colspan="99">
               <button class="btn btn-outline-secondary" type="button" 
-              (click)="add_to_list()">
+              (click)="add_and_focus()">
                 <fa-icon [icon]="faAdd"></fa-icon> Add Item
               </button>
             </td>
@@ -113,4 +113,5 @@ Then, we have 2 groups of items.  -->
 <!-- DEBUG -->
 <pre>
   <!-- {{ myForm.value | json }} -->
+  {{ items | json }}
 </pre>

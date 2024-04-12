@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, inject } from '@angular/core';
 import { Http3Service } from '../../../services/http3.service';
 import { SharedModule } from '../../../shared/shared.module';
 import { SharedFormsModule } from '../../../shared/shared-forms.module';
@@ -55,7 +55,8 @@ export class RemindersComponent {
   subscription: Subscription;
 
   constructor(private http3: Http3Service, private fb: FormBuilder, 
-    private translate: TranslateService, private toastr: ToastrService
+    private translate: TranslateService, private toastr: ToastrService,
+    private cd: ChangeDetectorRef
   ) {
     this.myForm = this.fb.group({
       t: [CardTypes.Reminders, [Validators.required]],
@@ -151,10 +152,22 @@ export class RemindersComponent {
   // }
 
   // ==============================================================================
+  // fakeSubmit() {
+  //   const row = {
+  //     filename: this.filename,
+  //     stage_index: this.curr_stage,
+  //     reminder_index: this.id,
+  //     title: this.myForm.get('title')?.value,
+  //     question: this.filter_row()
+  //   }
+  //   console.log(row);
+  // }
+
   onSubmit() {
-    if (this.submitting || this.loading || this.myForm.invalid) {
-      if (this.myForm.invalid) this.doErr("err.InvalidForm"); return;
-    }
+    // if (this.submitting || this.loading || this.myForm.invalid) {
+    //   if (this.myForm.invalid) this.doErr("err.InvalidForm"); return;
+    // }
+    if (this.submitting || this.loading) return; // always invalid for unknown reason.
     this.submitting = true;
     const row = {
       filename: this.filename,
@@ -163,6 +176,7 @@ export class RemindersComponent {
       title: this.myForm.get('title')?.value,
       question: this.filter_row()
     }
+    if (row.question === 'error') { this.submitting = false; return; } 
 
     this.http3.send(this.is_new ? Routes.PiNew0 : Routes.PiEdit0, JSON.stringify(row))
     .then((res: any) => {
@@ -213,14 +227,22 @@ export class RemindersComponent {
   filter_row() {
     let qs = this.myForm.get('questions') as FormArray;
     let retval: any[] = [];
-    qs.value.forEach((q: any) => {
+    let error = false;
+    qs.value.forEach((q: any, i: number) => {
+      let invalid_controls: any = new Set(this.findInvalidControls(i));
       if (['2', '3'].includes(q.q_type)) {
+        let set: any = new Set(['question', 'q_type', 'rows']);
+        let intersection = invalid_controls.intersection(set);
+        if (intersection.size > 0) { this.filter_row_err(i, intersection); error = true }
         retval.push({
           q: q.question,
           t: q.q_type,
           r: q.rows.map((c: any) => c.option)
         });
       } else if (q.q_type == "4") {
+        let set: any = new Set(['question', 'q_type', 'min', 'max', 'min_name', 'max_name']);
+        let intersection = invalid_controls.intersection(set);
+        if (intersection.size > 0) { this.filter_row_err(i, intersection); error = true }
         retval.push({
           q: q.question,
           t: q.q_type,
@@ -230,6 +252,9 @@ export class RemindersComponent {
           max_name: q.max_name
         })
       } else if (['5', '6'].includes(q.q_type)) {
+        let set: any = new Set(['question', 'q_type', 'rows', 'cols']);
+        let intersection = invalid_controls.intersection(set);
+        if (intersection.size > 0) { this.filter_row_err(i, intersection); error = true }
         retval.push({
           q: q.question,
           t: q.q_type,
@@ -237,16 +262,27 @@ export class RemindersComponent {
           c: q.cols.map((c: any) => c.option)
         })
       } else {
+        let set: any = new Set(['question', 'q_type']);
+        let intersection = invalid_controls.intersection(set);
+        if (intersection.size > 0) { this.filter_row_err(i, intersection); error = true }
         retval.push({
           q: q.question,
           t: q.q_type
         })
       }
     });
-    return retval;
+    return error ? 'error' : retval;
+  }
+
+  private filter_row_err(i: number, set: any) {
+    this.doErr("error.filter", {
+      i: i + 1, value: JSON.stringify([...set])
+    });
   }
 
   // ===========================================
+  readonly name_validators = [Validators.required, Validators.minLength(1), Validators.maxLength(50)];
+
   add_new_question(data: any = {}) {
     let qs = this.myForm.get('questions') as FormArray;
     qs.push(this.fb.group({
@@ -258,8 +294,8 @@ export class RemindersComponent {
       // For rating only (q_type = 4)
       min: [data.min ?? 1, [Validators.required, Validators.min(0), Validators.max(1)]],
       max: [data.max ?? 5, [Validators.required, Validators.min(2), Validators.max(10)]],
-      min_name: [data.min_name ?? '', [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
-      max_name: [data.max_name ?? '', [Validators.required, Validators.minLength(1), Validators.maxLength(50)]]
+      min_name: [data.min_name ?? '', this.name_validators],
+      max_name: [data.max_name ?? '', this.name_validators]
     }));
     if (!data.r) { this.add_rowcol(qs.length - 1, 0, 'rows'); }
     if (!data.c) this.add_rowcol(qs.length - 1, 0, 'cols');
@@ -283,6 +319,22 @@ export class RemindersComponent {
     const q = this.get_q('questions', i);
     if (typeof value == 'object') return value.includes(q.get('q_type')!.value);
     return q.get('q_type')!.value == value;
+  }
+
+  on_qtype_change(i: number) {
+    // const q = this.get_q('questions', i);
+    // if (this.is_qtype(i, '4')) {
+    //   let validator = this.name_validators.concat(Validators.required);
+    //   q.get('min_name')?.setValidators(validator);
+    //   q.get('max_name')?.setValidators(validator);
+    // } else {
+    //   q.get('min_name')?.setValidators(this.name_validators);
+    //   q.get('max_name')?.setValidators(this.name_validators);
+    //   q.get('min_name')?.updateValueAndValidity();
+    //   q.get('max_name')?.updateValueAndValidity();
+    // }
+
+    // q.updateValueAndValidity();
   }
 
   // ===============================
@@ -361,9 +413,61 @@ export class RemindersComponent {
     return qs.at(i);
   }
 
-  doErr(err: any) {
+  doErr(err: any, t_opt: any = {}) {
     console.error(err);
-    if (typeof(err) === 'string') this.toastr.error(this.translate.instant(err || ''));
+    if (typeof(err) === 'string') this.toastr.error(this.translate.instant(err || '', t_opt));
     else this.toastr.error(err);
   }
+
+  public findInvalidControls(i: number): any[] {
+    const invalid: any[] = [];
+    const mid_man: any = this.get_q('questions', i);
+    const controls = mid_man.controls;
+    for (const name in controls) {
+      if (controls[name].invalid) invalid.push(name);
+    }
+    return invalid;
+  }
+
+  // public findInvalidControls() {
+  //   const invalid = [];
+  //   const controls = this.myForm.controls;
+  //   for (const name in controls) {
+  //       if (controls[name].invalid) {
+  //           invalid.push(name);
+  //       }
+  //   }
+  //   return invalid;
+  // }
+
+  // get errors() {
+  //   const myerrors: any = {};
+  //   Object.keys(this.myForm.controls).forEach(key => {
+  //     // Get errors of every form control
+  //     const form = this.myForm.get(key)!;
+  //     if (form.errors != null && (form.dirty || form.touched)) { 
+  //       myerrors[key] = form.errors; 
+  //     }
+  //   });
+
+  //   // For master details
+  //   let dtls = this.myForm.get('questions') as FormArray;
+  //   dtls.controls.forEach(formgroup => {
+  //     // is a form group; we already know. 
+  //     const elem = formgroup as FormGroup;
+  //     Object.keys(elem.controls).forEach((key) => {
+  //       const field = elem.get(key)!;
+  //       if (field.errors != null) {
+  //         if (key != 'markup') {
+  //           myerrors[key] = field.errors;
+  //         } else {
+  //           // We change keyname cause repeated. 
+  //           myerrors['md_markup'] = field.errors;
+  //         }
+  //       }
+  //     });
+  //   });
+
+  //   return Object.keys(myerrors).length ? myerrors : null;
+  // }
 }

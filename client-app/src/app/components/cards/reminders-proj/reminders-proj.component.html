@@ -1,9 +1,29 @@
 <!-- <link rel="stylesheet" href="ng-material.css" /> -->
 <div class="modal-header">
-  <h3>{{ title }}</h3>
+  <h3>{{ title }} ({{ "cycle" | translate }} {{ cycle_id }})</h3>
 </div>
 
 <div class="modal-body">
+  <!-- Choose cycle -->
+  <ul class="nav nav-tabs">
+    <button class="btn btn-primary" (click)="add_cycle()">
+      <fa-icon [icon]="faAdd"></fa-icon>
+    </button>
+    <button class="btn btn-danger" (click)="remove_curr_cycle()">
+      <fa-icon [icon]="faTrash"></fa-icon> 
+    </button>
+    @for(c of cycles; track c; let i = $index) {
+      <a class="nav-link" [ngClass]="cycle_active(i)" (click)="set_cycle(i)" *ngIf="!is_edit_cycle(i)">
+        {{ c }}</a>
+      <div class="input-group mb-3" *ngIf="is_edit_cycle(i)">
+        <input type="text" class="form-control" [(ngModel)]="cycle_name" minlength="1" maxlength="50" 
+        (keydown.enter)="finish_edit_cycle_name()" id="cycle_name">
+        <button class="btn btn-primary" (click)="finish_edit_cycle_name()"><fa-icon [icon]="faSave"></fa-icon></button>
+      </div>
+    }
+  </ul>
+  <div class="pb-3"></div>
+
   <form [formGroup]="myForm" (ngSubmit)="onSubmit()">
     <ng-container formArrayName="questions">
       <ng-container *ngFor="let q of questions; let i=index; trackBy:trackByFn" [formGroupName]="i">
@@ -113,9 +133,12 @@
 
 <div class="modal-footer justify-content-between">
   <div class="float-start">
-    <div class="d-flex">
+    <div class="d-flex gap-2">
       <button type="button" (click)="clear_data()" class="btn btn-danger">
         {{ 'kelly.ClearData?' | translate }}
+      </button>
+      <button type="button" (click)="clear_cycles()" class="btn btn-danger">
+        {{ 'clear_cycle' | translate }}
       </button>
     </div>
   </div>
@@ -136,7 +159,8 @@
 <!-- DEBUG -->
 <pre>
   <!-- {{ items | json}} -->
-  {{ myForm.get("questions")!.value | json }}
+  <!-- {{ myForm.get("questions")!.value | json }} -->
   <!-- {{ all_dirty() | json }} -->
+  {{ cycle_id }}
 </pre>
 <!-- {{ bool_to_index(myForm.get("questions")!.value[3]["answer"]) | json }} -->

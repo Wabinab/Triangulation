@@ -136,7 +136,7 @@
                   </div>
                 </div>
               </ng-container>
-
+              <!-- {{ findInvalidControls(i) | json }} -->
             </div>
           </div>
         </div>
@@ -189,7 +189,10 @@ let-usenum="usenum" let-j="j" Template>
 <!-- {{ questions | json}} -->
 <!-- {{ AnswerTypes | keyvalue | json }} -->
 
-<!-- <button type="button" (click)="test_handler()">Test Log</button> -->
+<!-- <button type="button" (click)="fakeSubmit()">Test Fake Submit</button> -->
 <pre>
+  {{ myForm.valid }}
   <!-- {{ items | json }} -->
+  <!-- {{ findInvalidControls() | json }} -->
+  <!-- {{ errors | json }} -->
 </pre>

@@ -60,7 +60,7 @@ export class ChecklistComponent {
     this.items = JSON.parse(value ?? '{}');
     if (this.items.err && this.items.err == "backend.OOBPipeline") {
       this.is_new = true;
-      this.add_to_list();  // temporary. 
+      // this.add_to_list();  // temporary. 
       this.loading = false; return;
     }
     this.is_new = false;
@@ -69,21 +69,21 @@ export class ChecklistComponent {
       this.loading = false; return;
     }
     this.myForm.get('title')?.setValue(this.items.title);
-    this.set_checklist(this.items.checklist_1);
+    this.set_checklist(this.items.others);
     // this.loading = false;  // set inside set_checklist. 
   }
 
-  private set_checklist(checklist: string[]) {
+  private set_checklist(checklist: any) {
     let c = this.myForm.get('checklist') as FormArray;
 
-    checklist.forEach(d => {
+    if ([null, undefined].includes(checklist)) {this.loading = false; return; }
+    checklist.forEach((d: string) => {
       c.push(this.fb.group({
         title: [d ?? '', [Validators.required, Validators.minLength(1), Validators.maxLength(1_000)]]
       }));
     })
     this.loading = false;
   }
-
 
   // ===============================================
   onSubmit() {
@@ -100,7 +100,7 @@ export class ChecklistComponent {
     };
     console.warn(row);
 
-    this.http3.send(this.is_new ? 'tbd' : 'tbd', JSON.stringify(row))
+    this.http3.send(this.is_new ? Routes.PiNew2 : Routes.PiEdit2, JSON.stringify(row))
     .then((res: any) => {
       this.submitting = false;
       this.bsModalRef.close({ ty: this.http3.json_handler(res) });
@@ -109,6 +109,7 @@ export class ChecklistComponent {
 
   modalCancel: any;
   cancel() {
+    console.log(`Loading: ${this.loading}\nSubmitting: ${this.submitting}`);
     if (this.loading || this.submitting) return;
     if (this.is_dirty()) {
       this.modalCancel = this.modalSvc.open(CancellationComponent);
@@ -151,11 +152,15 @@ export class ChecklistComponent {
     c.push(this.fb.group({
       title: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(1_000)]]
     }));
+    return c.length;
   }
 
-  add_and_focus(i: number) {
-    this.add_to_list();
-    setTimeout(() => document.getElementById(`title_${i}`)!.focus(), 10);
+  add_and_focus(i: number | null = null, event: any = null) {
+    if (i !== null && (event.value.length === 0 || event.value === null)) return;
+    let length = this.add_to_list();
+    setTimeout(() => {
+      document.getElementById(`title_${i ?? length-1}`)!.focus();
+    }, 10);
   }
 
   remove_item(i: number) {

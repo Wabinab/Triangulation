@@ -132,6 +132,12 @@
   "cancel": "Annuler",
   "yes": "Oui",
   "no": "Non",
+  "cycle": "Cycle",
+  "clear_cycle": "Supprimer tout les Cycles",
+  "remove": {
+    "Current": "Supprimer cette"
+  },
+  "current": "cette",
   "cancellation": {
     "Save": "Sauvegarder les modifications?",
     "Sure": "Es-tu sûr?"
@@ -144,6 +150,11 @@
   "page": {
     "Previous": "Précédent",
     "Next": "Suivant"
+  },
+  "error": {
+    "filter": "Question {{ i }} est invalide, sur {{ value }}. Veuillez corriger avant de soumettre.",
+    "OneCycle": "Au moins une cycle.",
+    "CycleMaxReached": "Nombre maximum de cycles atteint. Clonez plutôt vers un nouveau projet."
   },
   "backend": {
     "UuidNoNull": "L'UUID du modèle ne peut pas être nul.",

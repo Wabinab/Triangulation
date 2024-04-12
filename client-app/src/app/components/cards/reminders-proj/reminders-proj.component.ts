@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, HostListener, Input, inject } from '@angular/core';
 import { SharedModule } from '../../../shared/shared.module';
 import { SharedFormsModule } from '../../../shared/shared-forms.module';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -17,7 +17,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { Subscription, interval } from 'rxjs';
 import { CancellationComponent } from '../../cancellation/cancellation.component';
 import { Routes } from '../../../models/routes';
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faTrashCan, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { faSave } from '@fortawesome/free-regular-svg-icons';
 // import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
 
@@ -34,8 +34,10 @@ export class RemindersProjComponent {
   bsModalRef = inject(NgbActiveModal);
   private modalSvc = inject(NgbModal);
 
+  faAdd = faPlus;
   faCross = faXmark;
   faSave = faSave;
+  faTrash = faTrashCan;
 
   @Input() id: number = -1;
   @Input() curr_stage: number = 0;
@@ -224,7 +226,71 @@ export class RemindersProjComponent {
   }
 
   // ===========================================================
-  // Load answers
+  // Cycle handler
+  curr_edit_cycle = false;
+  cycle_name = '';  // for edit template form. 
+  cycle_id = 0;
+  cycles = ["Cycle 0"];
+  max_cycle = 100;
+
+  set_cycle(id: number) {
+    this.cycle_id = id;
+  }
+
+  cycle_active(id: number) {
+    return { 'active': this.cycle_id == id };
+  }
+
+  add_cycle() {
+    if (this.cycles.length >= this.max_cycle) { this.doErr("error.CycleMaxReached"); return; }
+    this.cycle_id = this.cycles.length;
+    this.cycles.push(`Cycle ${this.cycles.length}`);
+    this.edit_cycle_name(true);  // Save after edit.
+  }
+
+  remove_curr_cycle() {
+    if (this.cycles.length == 1) { this.doErr("error.OneCycle"); return; }
+    this.cycles.splice(this.cycle_id, 1);
+    this.cycle_id = 0;
+    // Save
+  }
+
+  // Should ask for confirmation later on. 
+  clear_cycles() {
+    const first = this.cycles[0];
+    this.cycles = [first];
+    // Save
+  }
+
+  @HostListener("document:keydown.f2", ['$event'])
+  keyboard_events(event: KeyboardEvent) {
+    this.edit_cycle_name();
+  }
+
+  @HostListener("document:keydown.esc", ['$event'])
+  esc_events(event: KeyboardEvent) {
+    if (this.curr_edit_cycle) { event.preventDefault(); this.finish_edit_cycle_name(); }
+  }
+
+  edit_cycle_name(select = false) {
+    this.curr_edit_cycle = true;
+    this.cycle_name = this.cycles[this.cycle_id];
+    setTimeout(() => { 
+      document.getElementById('cycle_name')?.focus() 
+      if (select) (document.getElementById('cycle_name') as any)?.select();
+    }, 10);
+  }
+
+  finish_edit_cycle_name() {
+    this.curr_edit_cycle = false;
+    this.cycles[this.cycle_id] = this.cycle_name;
+    this.cycle_name = '';
+    // save.
+  }
+
+  is_edit_cycle(id: number) {
+    return this.curr_edit_cycle && this.cycle_id == id;
+  }
 
   // ===========================================================
   autoSave() {
@@ -235,6 +301,7 @@ export class RemindersProjComponent {
       filename: this.filename,
       stage_index: this.curr_stage,
       pipeline_index: this.id,
+      cycle_index: this.cycle_id,
       answer: this.get_answer()
     };
 
@@ -250,6 +317,7 @@ export class RemindersProjComponent {
       filename: this.filename,
       stage_index: this.curr_stage,
       pipeline_index: this.id,
+      cycle_index: this.cycle_id,
       answer: this.get_answer()
     };
 

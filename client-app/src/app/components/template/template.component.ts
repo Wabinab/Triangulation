@@ -19,6 +19,7 @@ import { Tooltip } from 'bootstrap';
 import { KellyComponent } from '../cards/kelly/kelly.component';
 import { CardTypes } from '../../models/card-types';
 import { ChecklistComponent } from '../cards/checklist/checklist.component';
+import { HelperService } from '../../services/helper.service';
 
 @Component({
   selector: 'app-template',
@@ -46,7 +47,8 @@ export class TemplateComponent implements AfterViewInit {
   @ViewChild('editStage') editStage: ElementRef;
 
   constructor(private http3: Http3Service, public translate: TranslateService,
-    private route: ActivatedRoute, private toastr: ToastrService
+    private route: ActivatedRoute, private toastr: ToastrService,
+    public helperSvc: HelperService
   ) {
     this.loading = true;
     setTimeout(() => this.load(), 150);

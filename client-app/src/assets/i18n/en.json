@@ -132,6 +132,12 @@
   "cancel": "Cancel",
   "yes": "Yes",
   "no": "No",
+  "cycle": "Cycle",
+  "clear_cycle": "Clear Cycles",
+  "remove": {
+    "Current": "Remove Current"
+  },
+  "current": "Current",
   "cancellation": {
     "Save": "Save Changes?",
     "Sure": "Are You Sure?"
@@ -144,6 +150,11 @@
   "page": {
     "Previous": "Previous",
     "Next": "Next"
+  },
+  "error": {
+    "filter": "Question {{ i }} is invalid, on {{ value }}. Please fix before submit.",
+    "OneCycle": "Must have at least one cycle.",
+    "CycleMaxReached": "Max no. of cycle reached. Clone to a new project instead."
   },
   "backend": {
     "UuidNoNull": "Template UUID Cannot Be Null.",

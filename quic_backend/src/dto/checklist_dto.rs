@@ -1,4 +1,4 @@
-use crate::{messages::{OOB_PIPELINE_IDX, OOB_STAGE_IDX, PIPELINE_IDX_CANNOT_NULL, TITLE_NONE}, *};
+use crate::{messages::{CHECKLIST_NONE, OOB_PIPELINE_IDX, OOB_STAGE_IDX, PIPELINE_IDX_CANNOT_NULL, TITLE_NONE}, *};
 
 use self::reminder_dto::ReminderTrait;
 
@@ -11,9 +11,11 @@ pub(crate) struct SubmitChecklist {
   pub(crate) checklist: Option<Vec<String>>  // share between compulsory and extra.
 }
 
+// Note: ty is always CHECKLIST_TYPE, so we don't check but force value equal. 
 impl ReminderTrait for SubmitChecklist {
   fn new_reminder(&self, old_serde: Value) -> Result<Value, String> {
     if self.title.is_none() { error!("checklist_dto title is none."); return Err(TITLE_NONE.to_owned()); }
+    if self.checklist.is_none() { error!("checklist_dto checklist is none."); return Err(CHECKLIST_NONE.to_owned()); }
     let mut new_serde = old_serde.clone();
 
     let stages = new_serde["stages"][self.stage_index].clone();
@@ -23,7 +25,7 @@ impl ReminderTrait for SubmitChecklist {
     let data = json!({
       "ty": CHECKLIST_TYPE,
       "title": self.title.clone().unwrap(),
-      "others": []
+      "others": self.checklist.clone().unwrap()
     });
     pipelines.push(data);
 
@@ -33,6 +35,7 @@ impl ReminderTrait for SubmitChecklist {
 
   fn edit_reminder(&self, old_serde: Value) -> Result<Value, String> {
     if self.title.is_none() { error!("checklist_dto title is none."); return Err(TITLE_NONE.to_owned()); }
+    if self.checklist.is_none() { error!("checklist_dto checklist is none."); return Err(CHECKLIST_NONE.to_owned()); }
     if self.pipeline_index.is_none() { error!("checklist_dto edit pipeline_index is null."); return Err(PIPELINE_IDX_CANNOT_NULL.to_owned()); }
     let mut new_serde = old_serde.clone();
 
@@ -44,7 +47,7 @@ impl ReminderTrait for SubmitChecklist {
     let data = json!({
       "ty": CHECKLIST_TYPE,
       "title": self.title.clone().unwrap(),
-      "others": pipeline["others"].clone()
+      "others": self.checklist.clone().unwrap()
     });
 
     new_serde["stages"][self.stage_index]["pipeline"][self.pipeline_index.unwrap()] = data;

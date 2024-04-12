@@ -23,3 +23,11 @@ pub(crate) const UPD_VER_PROJ_FILE: &'static str = "backend.UVPFile";
 pub(crate) const TITLE_NONE: &'static str = "backend.TitleNone";
 pub(crate) const QUESTION_NONE: &'static str = "backend.QuestionNone";
 pub(crate) const TRANSACTION_NONE: &'static str = "backend.TransactionNone";
+
+pub(crate) const CHECKLIST_NONE: &'static str = "Checklist cannot be null";
+pub(crate) const CYCLE_IDX_CANNOT_NULL: &'static str = "Cycle Index cannot be null";
+pub(crate) const OOB_CYCLE_IDX: &'static str = "OOB Cycle Index";
+pub(crate) const ANS_CNAME_NONE: &'static str = "Either Answer or Cycle Name must be not null.";
+pub(crate) const CYCLE_NAME_NULL: &'static str = "Cycle Name cannot be null.";
+pub(crate) const NOT_IMPLEMENTED: &'static str = "Function Not Implemented.";
+pub(crate) const CYCLE_AT_LEAST_ONE: &'static str = "Must have at least 1 cycle.";

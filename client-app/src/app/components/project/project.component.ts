@@ -17,6 +17,8 @@ import { RemindersProjComponent } from '../cards/reminders-proj/reminders-proj.c
 import { Routes } from '../../models/routes';
 import { KellyComponent } from '../cards/kelly/kelly.component';
 import { KellyProjComponent } from '../cards/kelly-proj/kelly-proj.component';
+import { TemplateComponent } from '../template/template.component';
+import { HelperService } from '../../services/helper.service';
 
 @Component({
   selector: 'app-project',
@@ -40,7 +42,8 @@ export class ProjectComponent {
   newest_version = 1;
 
   constructor(private http3: Http3Service, public translate: TranslateService,
-    private route: ActivatedRoute, private fb: FormBuilder, private toastr: ToastrService
+    private route: ActivatedRoute, private fb: FormBuilder, 
+    private toastr: ToastrService, public helperSvc: HelperService
   ) {
     this.loading = true;
     setTimeout(() => this.load(), 150);
@@ -260,6 +263,13 @@ export class ProjectComponent {
       await this.load(this.curr_stage)
     });
   }
+
+  // get_icon_by_ty(ty: number) {
+  //   if (ty == CardTypes.Reminders) return this.faReminder;
+  //   if (ty == CardTypes.Kelly) return this.faInvestment;
+  //   if (ty == CardTypes.Checklist) return this.faChecklist;
+  //   return null
+  // }
 
   // ====================================================
   // To be moved to a service. 

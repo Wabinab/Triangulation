@@ -2,7 +2,7 @@
 // Anything new will "shift" out position 0's and throw it away. 
 use crate::{messages::{PIPELINE_IDX_CANNOT_NULL, OOB_PIPELINE_IDX, OOB_STAGE_IDX, TITLE_NONE, TRANSACTION_NONE}, *};
 
-use self::{reminder_dto::ReminderTrait, response_dto::ResponseTrait};
+use self::{messages::NOT_IMPLEMENTED, reminder_dto::ReminderTrait, response_dto::ResponseTrait};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub(crate) struct SubmitKelly {
@@ -85,7 +85,16 @@ impl ReminderTrait for SubmitKelly {
   }
 }
 
+// ===========================================================
 impl ResponseTrait for SubmitKelly {
+  fn add_new_cycle(&self, old_serde: Value) -> Result<Value, String> {
+    return Err(NOT_IMPLEMENTED.to_owned());
+  }
+
+  fn delete_cycle(&self, old_serde: Value) -> Result<Value, String> {
+    return Err(NOT_IMPLEMENTED.to_owned())
+  }
+
   fn edit_response(&self, old_serde: Value) -> Result<Value, String> {
     if self.pipeline_index.is_none() { error!("kelly_dto edit-response kelly_idx is null."); return Err(PIPELINE_IDX_CANNOT_NULL.to_owned()); }
     if self.transactions.is_none() { error!("kelly_dto edit-response transactions is none."); return Err(TRANSACTION_NONE.to_owned()); }

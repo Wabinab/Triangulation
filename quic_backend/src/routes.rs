@@ -23,7 +23,9 @@ pub(crate) fn routes_handler(msg: Bytes, path: String, data_path: PathBuf) -> Re
         "/pipeline/1/new" => pipeline_controller::new_pipeline(data_path, msg, 1),
         "/pipeline/1/edit" => pipeline_controller::edit_pipeline(data_path, msg, 1),
         // NOTE: using /pipeline/0/delete is the same for all. Can deprecate it if possible later. 
-        "/pipeline/1/delete" => pipeline_controller::delete_pipeline(data_path, msg, 1),
+        // "/pipeline/1/delete" => pipeline_controller::delete_pipeline(data_path, msg, 1),
+        "/pipeline/2/new" => pipeline_controller::new_pipeline(data_path, msg, 2),
+        "/pipeline/2/edit" => pipeline_controller::edit_pipeline(data_path, msg, 2),
 
         "/project" => project_controller::get_project(data_path, msg),
         "/project/new" => project_controller::new_project(data_path, msg),
