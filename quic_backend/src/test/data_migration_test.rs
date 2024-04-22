@@ -91,11 +91,11 @@ fn get_templ_serde() -> Value {
 fn test_less_data_pipeline_level() {
   let c = r#"[
     [
-      ["not empty", 0],
-      ["blah"]
+      [{"name": "0", "data": ["not empty", 0]}],
+      [{"name": "0", "data": ["blah"]}]
     ],
     [
-      ["something"]
+      [{"name": "0", "data": ["something"]}]
     ]
   ]"#;
   let d: Value = serde_json::from_str(&c).unwrap();
@@ -103,11 +103,11 @@ fn test_less_data_pipeline_level() {
 
   assert_eq!(submit, json!([
     [
-      ["not empty", 0, ""],
-      ["blah"]
+      [{"name": "0", "data": ["not empty", 0, ""]}],
+      [{"name": "0", "data": ["blah"]}]
     ],
     [
-      ["something"]
+      [{"name": "0", "data": ["something"]}]
     ]
   ]), "safe failed");
 
@@ -115,11 +115,11 @@ fn test_less_data_pipeline_level() {
   let submit = unsafe_migrate_data(get_templ_serde(), d).unwrap();
   assert_eq!(submit, json!([
     [
-      ["not empty", 0, ""],
-      ["blah"]
+      [{"name": "0", "data": ["not empty", 0, ""]}],
+      [{"name": "0", "data": ["blah"]}]
     ],
     [
-      ["something"]
+      [{"name": "0", "data": ["something"]}]
     ]
   ]), "unsafe failed");
 }
@@ -128,11 +128,11 @@ fn test_less_data_pipeline_level() {
 fn test_more_data_pipeline_level() {
   let c = r#"[
     [
-      ["not empty", 0, 3, "this cause oob"],
-      ["blah"]
+      [{"name": "0", "data": ["not empty", 0, 3, "this cause oob"]}],
+      [{"name": "0", "data": ["blah"]}]
     ],
     [
-      ["something"]
+      [{"name": "0", "data": ["something"]}]
     ]
   ]"#;
   let d: Value = serde_json::from_str(&c).unwrap();
@@ -142,11 +142,11 @@ fn test_more_data_pipeline_level() {
   let submit = unsafe_migrate_data(get_templ_serde(), d).unwrap();
   assert_eq!(submit, json!([
     [
-      ["not empty", 0, 3],
-      ["blah"]
+      [{"name": "0", "data": ["not empty", 0, 3]}],
+      [{"name": "0", "data": ["blah"]}]
     ],
     [
-      ["something"]
+      [{"name": "0", "data": ["something"]}]
     ]
   ]), "unsafe failed");
 }
@@ -155,11 +155,11 @@ fn test_more_data_pipeline_level() {
 fn test_more_data_pipeline_level_empty() {
   let c = r#"[
     [
-      ["not empty", 0, 3, ""],
-      ["blah"]
+      [{"name": "0", "data": ["not empty", 0, 3, ""]}],
+      [{"name": "0", "data": ["blah"]}]
     ],
     [
-      ["something"]
+      [{"name": "0", "data": ["something"]}]
     ]
   ]"#;
   let d: Value = serde_json::from_str(&c).unwrap();
@@ -167,22 +167,22 @@ fn test_more_data_pipeline_level_empty() {
 
   assert_eq!(submit, json!([
     [
-      ["not empty", 0, 3],
-      ["blah"]
+      [{"name": "0", "data": ["not empty", 0, 3]}],
+      [{"name": "0", "data": ["blah"]}]
     ],
     [
-      ["something"]
+      [{"name": "0", "data": ["something"]}]
     ]
   ]), "safe failed");
 
   let submit = unsafe_migrate_data(get_templ_serde(), d).unwrap();
   assert_eq!(submit, json!([
     [
-      ["not empty", 0, 3],
-      ["blah"]
+      [{"name": "0", "data": ["not empty", 0, 3]}],
+      [{"name": "0", "data": ["blah"]}]
     ],
     [
-      ["something"]
+      [{"name": "0", "data": ["something"]}]
     ]
   ]), "unsafe failed");
 }
@@ -191,10 +191,10 @@ fn test_more_data_pipeline_level_empty() {
 fn test_less_data_question_level() {
   let c = r#"[
     [
-      ["not empty", 0, 3]
+      [{"name": "0", "data": ["not empty", 0, 3]}]
     ],
     [
-      ["something"]
+      [{"name": "0", "data": ["something"]}]
     ]
   ]"#;
   let d: Value = serde_json::from_str(&c).unwrap();
@@ -202,22 +202,22 @@ fn test_less_data_question_level() {
 
   assert_eq!(submit, json!([
     [
-      ["not empty", 0, 3],
-      [""]
+      [{"name": "0", "data": ["not empty", 0, 3]}],
+      [{"name": "0", "data": [""]}]
     ],
     [
-      ["something"]
+      [{"name": "0", "data": ["something"]}]
     ]
   ]), "safe failed");
 
   let submit = unsafe_migrate_data(get_templ_serde(), d).unwrap();
   assert_eq!(submit, json!([
     [
-      ["not empty", 0, 3],
-      [""]
+      [{"name": "0", "data": ["not empty", 0, 3]}],
+      [{"name": "0", "data": [""]}]
     ],
     [
-      ["something"]
+      [{"name": "0", "data": ["something"]}]
     ]
   ]), "unsafe failed");
 }
@@ -226,12 +226,12 @@ fn test_less_data_question_level() {
 fn test_more_data_question_level() {
   let c = r#"[
     [
-      ["not empty", 0, 3],
-      ["blah"],
-      ["this is extra"]
+      [{"name": "0", "data": ["not empty", 0, 3]}],
+      [{"name": "0", "data": ["blah"]}],
+      [{"name": "0", "data": ["this is extra"]}]
     ],
     [
-      ["something"]
+      [{"name": "0", "data": ["something"]}]
     ]
   ]"#;
   let d: Value = serde_json::from_str(&c).unwrap();
@@ -241,11 +241,11 @@ fn test_more_data_question_level() {
   let submit = unsafe_migrate_data(get_templ_serde(), d).unwrap();
   assert_eq!(submit, json!([
     [
-      ["not empty", 0, 3],
-      ["blah"]
+      [{"name": "0", "data": ["not empty", 0, 3]}],
+      [{"name": "0", "data": ["blah"]}]
     ],
     [
-      ["something"]
+      [{"name": "0", "data": ["something"]}]
     ]
   ]), "unsafe failed");
 }
@@ -254,12 +254,12 @@ fn test_more_data_question_level() {
 fn test_more_data_question_level_empty() {
   let c = r#"[
     [
-      ["not empty", 0, 3],
-      ["blah"],
-      [""]
+      [{"name": "0", "data": ["not empty", 0, 3]}],
+      [{"name": "0", "data": ["blah"]}],
+      [{"name": "0", "data": [""]}]
     ],
     [
-      ["something"]
+      [{"name": "0", "data": ["something"]}]
     ]
   ]"#;
   let d: Value = serde_json::from_str(&c).unwrap();
@@ -267,22 +267,22 @@ fn test_more_data_question_level_empty() {
   
   assert_eq!(submit, json!([
     [
-      ["not empty", 0, 3],
-      ["blah"]
+      [{"name": "0", "data": ["not empty", 0, 3]}],
+      [{"name": "0", "data": ["blah"]}]
     ],
     [
-      ["something"]
+      [{"name": "0", "data": ["something"]}]
     ]
   ]), "safe failed");
 
   let submit = unsafe_migrate_data(get_templ_serde(), d).unwrap();
   assert_eq!(submit, json!([
     [
-      ["not empty", 0, 3],
-      ["blah"]
+      [{"name": "0", "data": ["not empty", 0, 3]}],
+      [{"name": "0", "data": ["blah"]}],
     ],
     [
-      ["something"]
+      [{"name": "0", "data": ["something"]}]
     ]
   ]), "unsafe failed");
 }
@@ -291,8 +291,8 @@ fn test_more_data_question_level_empty() {
 fn test_less_data_stage_level() {
   let c = r#"[
     [
-      ["not empty", 0, 3],
-      ["blah"]
+      [{"name": "0", "data": ["not empty", 0, 3]}],
+      [{"name": "0", "data": ["blah"]}]
     ]
   ]"#;
   let d: Value = serde_json::from_str(&c).unwrap();
@@ -300,22 +300,22 @@ fn test_less_data_stage_level() {
 
   assert_eq!(submit, json!([
     [
-      ["not empty", 0, 3],
-      ["blah"]
+      [{"name": "0", "data": ["not empty", 0, 3]}],
+      [{"name": "0", "data": ["blah"]}],
     ],
     [
-      [""]
+      [{"name": "0", "data": [""]}]
     ]
   ]), "safe failed");
 
   let submit = unsafe_migrate_data(get_templ_serde(), d).unwrap();
   assert_eq!(submit, json!([
     [
-      ["not empty", 0, 3],
-      ["blah"]
+      [{"name": "0", "data": ["not empty", 0, 3]}],
+      [{"name": "0", "data": ["blah"]}],
     ],
     [
-      [""]
+      [{"name": "0", "data": [""]}]
     ]
   ]), "unsafe failed");
 }
@@ -324,15 +324,15 @@ fn test_less_data_stage_level() {
 fn test_more_data_stage_level() {
   let c = r#"[
     [
-      ["not empty", 0, 3],
-      ["blah"],
-      [""]
+      [{"name": "0", "data": ["not empty", 0, 3]}],
+      [{"name": "0", "data": ["blah"]}],
+      [{"name": "0", "data": [""]}]
     ],
     [
-      ["something"]
+      [{"name": "0", "data": ["something"]}]
     ],
     [
-      ["new pipeline causes error"]
+      [{"name": "0", "data": ["new pipeline causes error"]}]
     ]
   ]"#;
   let d: Value = serde_json::from_str(&c).unwrap();
@@ -342,11 +342,11 @@ fn test_more_data_stage_level() {
   let submit = unsafe_migrate_data(get_templ_serde(), d).unwrap();
   assert_eq!(submit, json!([
     [
-      ["not empty", 0, 3],
-      ["blah"]
+      [{"name": "0", "data": ["not empty", 0, 3]}],
+      [{"name": "0", "data": ["blah"]}],
     ],
     [
-      ["something"]
+      [{"name": "0", "data": ["something"]}]
     ]
   ]), "unsafe failed");
 }
@@ -355,15 +355,15 @@ fn test_more_data_stage_level() {
 fn test_more_data_stage_level_empty() {
   let c = r#"[
     [
-      ["not empty", 0, 3],
-      ["blah"],
-      [""]
+      [{"name": "0", "data": ["not empty", 0, 3]}],
+      [{"name": "0", "data": ["blah"]}],
+      [{"name": "0", "data": [""]}]
     ],
     [
-      ["something"]
+      [{"name": "0", "data": ["something"]}]
     ],
     [
-      [""]
+      [{"name": "0", "data": [""]}]
     ]
   ]"#;
   let d: Value = serde_json::from_str(&c).unwrap();
@@ -371,22 +371,22 @@ fn test_more_data_stage_level_empty() {
 
   assert_eq!(submit, json!([
     [
-      ["not empty", 0, 3],
-      ["blah"]
+      [{"name": "0", "data": ["not empty", 0, 3]}],
+      [{"name": "0", "data": ["blah"]}],
     ],
     [
-      ["something"]
+      [{"name": "0", "data": ["something"]}]
     ]
   ]), "safe failed");
 
   let submit = unsafe_migrate_data(get_templ_serde(), d).unwrap();
   assert_eq!(submit, json!([
     [
-      ["not empty", 0, 3],
-      ["blah"]
+      [{"name": "0", "data": ["not empty", 0, 3]}],
+      [{"name": "0", "data": ["blah"]}],
     ],
     [
-      ["something"]
+      [{"name": "0", "data": ["something"]}]
     ]
   ]), "unsafe failed");
 }

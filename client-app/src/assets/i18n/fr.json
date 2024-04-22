@@ -128,12 +128,14 @@
     "InvalidForm": "Il y a une erreur avec le formulaire. Veuillez la corriger avant de l'envoyer."
   },
   "clone": "Cloner",
-  "delete": "Supprimer",
+  "delete": "Supprimer {{ value }}",
   "cancel": "Annuler",
+  "save": "Enrégistrer Succes {{ value }}",
   "yes": "Oui",
   "no": "Non",
   "cycle": "Cycle",
   "clear_cycle": "Supprimer tout les Cycles",
+  "clear_cycle_success": "Supprimer tout les Cycles Succes {{ value }}",
   "remove": {
     "Current": "Supprimer cette"
   },

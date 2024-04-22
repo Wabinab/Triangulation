@@ -87,11 +87,19 @@ impl ReminderTrait for SubmitKelly {
 
 // ===========================================================
 impl ResponseTrait for SubmitKelly {
-  fn add_new_cycle(&self, old_serde: Value) -> Result<Value, String> {
+  fn add_new_cycle(&self, _old_serde: Value) -> Result<Value, String> {
     return Err(NOT_IMPLEMENTED.to_owned());
   }
 
-  fn delete_cycle(&self, old_serde: Value) -> Result<Value, String> {
+  fn edit_cycle(&self, _old_serde: Value) -> Result<Value, String> {
+    return Err(NOT_IMPLEMENTED.to_owned());
+  }
+
+  fn delete_cycle(&self, _old_serde: Value) -> Result<Value, String> {
+    return Err(NOT_IMPLEMENTED.to_owned())
+  }
+
+  fn clear_cycle(&self, old_serde: Value) -> Result<Value, String> {
     return Err(NOT_IMPLEMENTED.to_owned())
   }
 

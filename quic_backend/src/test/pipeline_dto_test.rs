@@ -1,6 +1,6 @@
 use serde_json::Value;
 
-use crate::{messages::{OOB_PIPELINE_IDX, OOB_STAGE_IDX}, pipeline_dto::{gen_empty_pipeline, PipelineTrait, SubmitPipeline}};
+use crate::{messages::{OOB_CYCLE_IDX, OOB_PIPELINE_IDX, OOB_STAGE_IDX}, pipeline_dto::{gen_empty_pipeline, PipelineTrait, SubmitPipeline}};
 
 fn get_old_serde() -> Value {
   let c = r#"{
@@ -71,8 +71,14 @@ fn get_specific_pipeline() -> Value {
   // Second stage have nothing, so empty. 
   let _ = r#"[
     [
-      [0, 4, [1, 0]],
-      ["Here are some answers from the paragraph"]
+      [{
+        "name": "0",
+        "data": [0, 4, [1, 0]]
+      }],
+      [{
+        "name": "0",
+        "data": ["Here are some answers from the paragraph"]
+      }]
     ], 
     []
   ]"#;
@@ -80,8 +86,14 @@ fn get_specific_pipeline() -> Value {
   // But that's not what we want, what we want is this: 
   let c = r#"[
     [
-      ["", "", ""],
-      [""]
+      [{
+        "name": "0",
+        "data": ["", "", ""]
+      }],
+      [{
+        "name": "0",
+        "data": [""]
+      }]
     ],
     []
   ]"#;
@@ -97,15 +109,15 @@ fn get_old_serde_proj() -> Value {
     "t_ver": 2,
     "pipelines": [
       [
-        [
-          "",
-          "",
-          ""
-        ],
-        [
+        [{"name": "0", "data": [
+          "", "", ""
+        ]}],
+        [{"name": "0", "data": [
           "mid response"
-        ],
-        [
+        ]}, {
+          "name": "0", "data": ["mid response 2"]
+        }],
+        [{"name": "0", "data": [
           "short response",
           "long response",
           1,
@@ -114,7 +126,7 @@ fn get_old_serde_proj() -> Value {
           [3, 4, 0],
           [[1, 2], [2]],
           "2024-03-20T11:23"
-        ]
+        ]}]
       ]
     ]
   }"#;
@@ -180,7 +192,8 @@ fn test_response_valid() {
   let d = r#"{
     "filename": "...",
     "stage_index": 0,
-    "pipeline_index": 1
+    "pipeline_index": 1,
+    "cycle_index": 0
   }"#;
   let submit: SubmitPipeline = serde_json::from_str(&d).unwrap();
 
@@ -190,12 +203,28 @@ fn test_response_valid() {
 }
 
 #[test]
+fn test_response_valid_without_cycle() {
+  let old_serde = get_old_serde_proj();
+  let d = r#"{
+    "filename": "...",
+    "stage_index": 0,
+    "pipeline_index": 1
+  }"#;
+  let submit: SubmitPipeline = serde_json::from_str(&d).unwrap();
+
+  let edited_serde = submit.get_response(old_serde).unwrap();
+  assert_eq!(edited_serde.as_array().unwrap().len(), 2);
+  assert_eq!(edited_serde[1]["data"][0], "mid response 2");
+}
+
+#[test]
 fn test_response_invalid_stage_index() {
   let old_serde = get_old_serde_proj();
   let d = r#"{
     "filename": "...",
     "stage_index": 500,
-    "pipeline_index": 1
+    "pipeline_index": 1,
+    "cycle_index": 0
   }"#;
   let submit: SubmitPipeline = serde_json::from_str(&d).unwrap();
   
@@ -209,10 +238,27 @@ fn test_response_invalid_pipeline_index() {
   let d = r#"{
     "filename": "...",
     "stage_index": 0,
-    "pipeline_index": 500
+    "pipeline_index": 500,
+    "cycle_index": 0
   }"#;
   let submit: SubmitPipeline = serde_json::from_str(&d).unwrap();
   
   let edited_serde = submit.get_response(old_serde);
   assert!(edited_serde.is_err_and(|x| x == OOB_PIPELINE_IDX.to_owned()));
 }
+
+#[test]
+fn test_response_invalid_cycle_index() {
+  let old_serde = get_old_serde_proj();
+  let d = r#"{
+    "filename": "...",
+    "stage_index": 0,
+    "pipeline_index": 1,
+    "cycle_index": 500
+  }"#;
+  let submit: SubmitPipeline = serde_json::from_str(&d).unwrap();
+
+  let edited_serde = submit.get_response(old_serde);
+  assert!(edited_serde.is_err_and(|x| x == OOB_CYCLE_IDX.to_owned()));
+}
+

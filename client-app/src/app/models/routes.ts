@@ -28,11 +28,16 @@ export enum Routes {
   PClone = "/project/clone",
   Ps     = "/projects",
 
-  R     = "/response",
-  REdit = "/response/edit",
-  RDel  = "/response/delete",
+  R      = "/response",
+  REdit  = "/response/edit",
+  RDel   = "/response/delete",
   REditKelly = "/response/edit/kelly",
   RDelKelly = "/response/delete/kelly",
+
+  CNew   = "/cycle/new",
+  CEdit  = "/cycle/edit",
+  CDel   = "/cycle/delete",
+  CClear = "/cycle/clear",
 
   GenFilename = "/gen_filename"
 }

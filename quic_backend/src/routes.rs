@@ -41,6 +41,11 @@ pub(crate) fn routes_handler(msg: Bytes, path: String, data_path: PathBuf) -> Re
         "/response/edit/kelly" => response_controller::edit_response(data_path, msg, Some("kelly".to_owned())),
         "/response/delete/kelly" => response_controller::delete_response(data_path, msg, Some("kelly".to_owned())),
 
+        "/cycle/new" => cycle_controller::modify_cycle(data_path, msg, CRUD::Create),
+        "/cycle/edit" => cycle_controller::modify_cycle(data_path, msg, CRUD::Update),
+        "/cycle/delete" => cycle_controller::modify_cycle(data_path, msg, CRUD::Delete),
+        "/cycle/clear" => cycle_controller::clear_cycle(data_path, msg),
+
         // Miscellaneous functions
         "/gen_filename" => misc_controller::get_filename(msg),
         _ => Err("Cannot find route.".to_owned())

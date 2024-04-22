@@ -20,6 +20,7 @@ fn get_old_serde() -> Value {
   serde_json::from_str(&c).unwrap()
 }
 
+// Kelly DTO doesn't have "name" and "data". 
 fn get_old_proj_serde() -> Value {
   let c = r#"{
     "name": "First Kelly Project",

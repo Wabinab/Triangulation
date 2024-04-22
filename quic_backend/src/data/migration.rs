@@ -14,10 +14,12 @@ pub(crate) fn migrate_data(new_templ_serde: Value, pipelines: Value) -> Result<V
   for (i, el_i) in pipelines.as_array().unwrap().iter().enumerate() {
     for (j, el_j) in el_i.as_array().unwrap().iter().enumerate() {
       for (k, el_k) in el_j.as_array().unwrap().iter().enumerate() {
-        let ooi = templ[i][j][k].clone();
-        if !ooi.is_null() { templ[i][j][k] = el_k.clone(); }
-        else if ooi.is_null() && el_k == &empty { continue; }
-        else { error!("migrate_data"); return Err(OOB_MIGRATE.to_owned()); }
+        for (m, el_m) in el_k["data"].as_array().unwrap().iter().enumerate() {
+          let ooi = templ[i][j][k]["data"][m].clone();
+          if !ooi.is_null() { templ[i][j][k]["data"][m] = el_m.clone(); }
+          else if ooi.is_null() && el_m == &empty { continue; }
+          else { error!("migrate_data"); return Err(OOB_MIGRATE.to_owned()); }
+        }
       }
     }
   }
@@ -34,7 +36,9 @@ pub(crate) fn unsafe_migrate_data(new_templ_serde: Value, pipelines: Value) -> R
   for (i, el_i) in pipelines.as_array().unwrap().iter().enumerate() {
     for (j, el_j) in el_i.as_array().unwrap().iter().enumerate() {
       for (k, el_k) in el_j.as_array().unwrap().iter().enumerate() {
-        if !templ[i][j][k].is_null() { templ[i][j][k] = el_k.clone(); }
+        for (m, el_m) in el_k["data"].as_array().unwrap().iter().enumerate() {
+          if !templ[i][j][k]["data"][m].is_null() { templ[i][j][k]["data"][m] = el_m.clone(); }
+        }
       }
     }
   }

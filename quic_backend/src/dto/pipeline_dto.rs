@@ -1,4 +1,4 @@
-use crate::*;
+use crate::{messages::OOB_CYCLE_IDX, *};
 
 use self::{file::gen_filename, messages::{OOB_PIPELINE_IDX, OOB_STAGE_IDX}};
 
@@ -6,7 +6,8 @@ use self::{file::gen_filename, messages::{OOB_PIPELINE_IDX, OOB_STAGE_IDX}};
 pub(crate) struct SubmitPipeline {
   pub(crate) filename: String,
   pub(crate) stage_index: usize,
-  pub(crate) pipeline_index: usize
+  pub(crate) pipeline_index: usize,
+  pub(crate) cycle_index: Option<usize>
 }
 
 pub(crate) trait PipelineTrait {
@@ -30,7 +31,14 @@ impl PipelineTrait for SubmitPipeline {
     let stages = old_serde["pipelines"][self.stage_index].clone();
     if stages.is_null() { error!("pipeline_dto get_response stages"); return Err(OOB_STAGE_IDX.to_owned()); }
     let response = stages[self.pipeline_index].clone();
-    if response.is_null() { error!("pipeline_dto get_response response"); return Err(OOB_PIPELINE_IDX.to_owned())}; 
+    if response.is_null() { error!("pipeline_dto get_response response"); return Err(OOB_PIPELINE_IDX.to_owned()); } 
+
+    if self.cycle_index.is_some() {
+      let resp2 = response[self.cycle_index.unwrap()]["data"].clone();
+      if resp2.is_null() { error!("pipeline_dto get_response cycle not null but resp2 null."); return Err(OOB_CYCLE_IDX.to_owned()); }
+      return Ok(resp2);
+    }
+
     Ok(response)
   }
 }
@@ -80,7 +88,12 @@ pub(crate) fn gen_empty_pipeline(data: Value) -> Value {
     let mut l1_script: Vec<Value> = Vec::new();
     let pipelines = stages[i]["pipeline"].as_array().unwrap();
     for j in 0..pipelines.len() {
-      l1_script.push(json!(vec![""; pipelines[j]["others"].as_array().unwrap().len()]));
+      let mut l2_script: Vec<Value> = Vec::new();
+      l2_script.push(json!({
+        "name": "0",
+        "data": vec![""; pipelines[j]["others"].as_array().unwrap().len()]
+      }));
+      l1_script.push(json!(l2_script));
     }
     script.push(json!(l1_script));
   }

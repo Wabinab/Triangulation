@@ -128,12 +128,14 @@
     "InvalidForm": "There's an error with the form. Please fix before submission."
   },
   "clone": "Clone",
-  "delete": "Delete",
+  "delete": "Delete {{ value }}",
   "cancel": "Cancel",
+  "save": "Successfully Save {{ value }}",
   "yes": "Yes",
   "no": "No",
   "cycle": "Cycle",
   "clear_cycle": "Clear Cycles",
+  "clear_cycle_success": "Successfully clear cycle {{ value }}",
   "remove": {
     "Current": "Remove Current"
   },

@@ -11,11 +11,11 @@ fn get_old_serde() -> Value {
     "t_ver": 0,
     "pipelines": [
       [
-        ["answer 1", "answer 2", 3, ["grid answer 4.1", "grid answer 4.2"]],
-        ["pipeline 2 answers here"]
+        [{"name": "0", "data": ["answer 1", "answer 2", 3, ["grid answer 4.1", "grid answer 4.2"]]}],
+        [{"name": "0", "data": ["pipeline 2 answers here"]}]
       ],
       [
-        ["stages 2 answers here"]
+        [{"name": "0", "data": ["stages 2 answers here"]}]
       ]
     ]
   }"#;

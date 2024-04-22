@@ -1,6 +1,6 @@
 use serde_json::{json, Value};
 
-use crate::{messages::{ANSWER_NULL, ANS_CNAME_NONE, CYCLE_AT_LEAST_ONE, CYCLE_IDX_CANNOT_NULL, CYCLE_NAME_NULL, LEN_PIPELINE_NOT_MATCH, OOB_CYCLE_IDX, OOB_PIPELINE_IDX, OOB_STAGE_IDX}, response_dto::{ResponseTrait, SubmitResponse}};
+use crate::{messages::{ANS_CNAME_NONE, CYCLE_AT_LEAST_ONE, CYCLE_IDX_CANNOT_NULL, CYCLE_NAME_NULL, LEN_PIPELINE_NOT_MATCH, OOB_CYCLE_IDX, OOB_PIPELINE_IDX, OOB_STAGE_IDX}, response_dto::{ResponseTrait, SubmitResponse}};
 
 fn get_old_serde() -> Value {
   let c = r#" {
@@ -356,6 +356,21 @@ fn test_add_cycle_cycle_name_null() {
 }
 
 #[test]
+fn test_add_cycle_cycle_name_empty_string() {
+  let old_serde = get_old_serde();
+  let d = r#"{
+    "filename": "...",
+    "stage_index": 0,
+    "pipeline_index": 1,
+    "cycle_name": ""
+  }"#;
+  let submit: SubmitResponse = serde_json::from_str(&d).unwrap();
+
+  let edited_serde = submit.add_new_cycle(old_serde);
+  assert!(edited_serde.is_err_and(|x| x == CYCLE_NAME_NULL.to_owned()));
+}
+
+#[test]
 fn test_add_cycle_stages_oob() {
   let old_serde = get_old_serde();
   let d = r#"{
@@ -387,6 +402,104 @@ fn test_add_cycle_pipeline_oob() {
 
 // Pipeline 0 is difficult to test; because we never want that happens. 
 // We'll see that later when we have delete_cycle. 
+
+#[test]
+fn test_edit_cycle_ok() {
+  let old_serde = get_old_serde();
+  let d = r#"{
+    "filename": "...",
+    "stage_index": 0,
+    "pipeline_index": 1,
+    "cycle_index": 0,
+    "cycle_name": "Edited Cycle Name"
+  }"#;
+  let submit: SubmitResponse = serde_json::from_str(&d).unwrap();
+
+  let edited_serde = submit.edit_cycle(old_serde.clone()).unwrap();
+  let ooi = edited_serde["pipelines"][0][1][0].clone();
+  let old_ooi = old_serde["pipelines"][0][1][0].clone();
+  assert_ne!(ooi["name"], old_ooi["name"]);
+  assert_eq!(ooi["name"], "Edited Cycle Name");
+}
+
+#[test]
+fn test_edit_cycle_name_null() {
+  let old_serde = get_old_serde();
+  let d = r#"{
+    "filename": "...",
+    "stage_index": 0,
+    "pipeline_index": 1,
+    "cycle_index": 0
+  }"#;
+  let submit: SubmitResponse = serde_json::from_str(&d).unwrap();
+
+  let edited_serde = submit.edit_cycle(old_serde);
+  assert!(edited_serde.is_err_and(|x| x == CYCLE_NAME_NULL.to_owned()));
+}
+
+#[test]
+fn test_edit_cycle_name_empty_string() {
+  let old_serde = get_old_serde();
+  let d = r#"{
+    "filename": "...",
+    "stage_index": 0,
+    "pipeline_index": 1,
+    "cycle_index": 0,
+    "cycle_name": ""
+  }"#;
+  let submit: SubmitResponse = serde_json::from_str(&d).unwrap();
+
+  let edited_serde = submit.edit_cycle(old_serde);
+  assert!(edited_serde.is_err_and(|x| x == CYCLE_NAME_NULL.to_owned()));
+}
+
+#[test]
+fn test_edit_cycle_stages_oob() {
+  let old_serde = get_old_serde();
+  let d = r#"{
+    "filename": "...",
+    "stage_index": 500,
+    "pipeline_index": 1,
+    "cycle_index": 0,
+    "cycle_name": "Edited Cycle Name"
+  }"#;
+  let submit: SubmitResponse = serde_json::from_str(&d).unwrap();
+
+  let edited_serde = submit.edit_cycle(old_serde);
+  assert!(edited_serde.is_err_and(|x| x == OOB_STAGE_IDX.to_owned()));
+}
+
+#[test]
+fn test_edit_cycle_pipeline_oob() {
+  let old_serde = get_old_serde();
+  let d = r#"{
+    "filename": "...",
+    "stage_index": 0,
+    "pipeline_index": 500,
+    "cycle_index": 0,
+    "cycle_name": "Edited Cycle Name"
+  }"#;
+  let submit: SubmitResponse = serde_json::from_str(&d).unwrap();
+
+  let edited_serde = submit.edit_cycle(old_serde);
+  assert!(edited_serde.is_err_and(|x| x == OOB_PIPELINE_IDX.to_owned()));
+}
+
+#[test]
+fn test_edit_cycle_cycle_oob() {
+  let old_serde = get_old_serde();
+  let d = r#"{
+    "filename": "...",
+    "stage_index": 0,
+    "pipeline_index": 1,
+    "cycle_index": 500,
+    "cycle_name": "Edited Cycle Name"
+  }"#;
+  let submit: SubmitResponse = serde_json::from_str(&d).unwrap();
+
+  let edited_serde = submit.edit_cycle(old_serde);
+  assert!(edited_serde.is_err_and(|x| x == OOB_CYCLE_IDX.to_owned()));
+}
 
 #[test]
 fn test_delete_cycle_valid() {
@@ -480,4 +593,51 @@ fn test_delete_cycle_cycle_index_oob() {
 
   let edited_serde = submit.delete_cycle(old_serde.clone());
   assert!(edited_serde.is_err_and(|x| x == OOB_CYCLE_IDX.to_owned()));
+}
+
+#[test]
+fn test_clear_cycle_ok() {
+  let old_serde = get_old_serde();
+  let d = r#"{
+    "filename": "...",
+    "stage_index": 0,
+    "pipeline_index": 1
+  }"#;
+  let submit: SubmitResponse = serde_json::from_str(&d).unwrap();
+
+  let edited_serde = submit.clear_cycle(old_serde.clone()).unwrap();
+  let ooi = edited_serde["pipelines"][0][1].clone();
+  let old_ooi = old_serde["pipelines"][0][1].clone();
+  assert_eq!(ooi.as_array().unwrap().len(), 1);
+  assert_ne!(old_ooi.as_array().unwrap().len(), 1);
+  assert_ne!(ooi[0]["data"], old_ooi[0]["data"]);
+  assert_eq!(ooi[0]["data"], json!([""]));
+}
+
+#[test]
+fn test_clear_cycle_stages_oob() {
+  let old_serde = get_old_serde();
+  let d = r#"{
+    "filename": "...",
+    "stage_index": 500,
+    "pipeline_index": 1
+  }"#;
+  let submit: SubmitResponse = serde_json::from_str(&d).unwrap();
+
+  let edited_serde = submit.clear_cycle(old_serde);
+  assert!(edited_serde.is_err_and(|x| x == OOB_STAGE_IDX.to_owned()));
+}
+
+#[test]
+fn test_clear_cycle_pipeline_oob() {
+  let old_serde = get_old_serde();
+  let d = r#"{
+    "filename": "...",
+    "stage_index": 0,
+    "pipeline_index": 500
+  }"#;
+  let submit: SubmitResponse = serde_json::from_str(&d).unwrap();
+
+  let edited_serde = submit.clear_cycle(old_serde);
+  assert!(edited_serde.is_err_and(|x| x == OOB_PIPELINE_IDX.to_owned()));
 }

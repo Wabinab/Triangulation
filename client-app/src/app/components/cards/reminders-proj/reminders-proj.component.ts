@@ -99,16 +99,34 @@ export class RemindersProjComponent {
       let row2 = {
         filename: this.filename,
         stage_index: this.curr_stage,
-        pipeline_index: this.id
+        pipeline_index: this.id,
+        // cycle_index: this.cycle_id
       };
-
+  
       let answers = await this.http3.send(Routes.R, JSON.stringify(row2));
       let answers_json: any = this.http3.json_handler(answers);
+      this.fill_cycle(answers_json.map((c: any) => c.name));
       // Replace all '' with null, so it's easier to handle. 
       // Henceforth, answers SHOULD NEVER BE EMPTY STRING!!! 
-      this.loadData(answers_json.map((c: any) => c === '' ? null : c));
+      this.loadData(answers_json[this.cycle_id]["data"].map((c: any) => c === '' ? null : c));
       // this.loading = false;  // call in loadData(). 
     }).catch(err => { this.doErr(err); this.loading = false; });
+  }
+
+  async get_response() {
+    let row2 = {
+      filename: this.filename,
+      stage_index: this.curr_stage,
+      pipeline_index: this.id,
+      cycle_index: this.cycle_id
+    };
+
+    this.http3.send(Routes.R, JSON.stringify(row2)).then(async (answers: any) => {
+      let answers_json: any = this.http3.json_handler(answers);
+      answers_json.forEach((a: any, i: number) => {
+        this.fill_answers(a, i);
+      });
+    });
   }
 
   loadData(answers_json: any[]) {
@@ -230,11 +248,13 @@ export class RemindersProjComponent {
   curr_edit_cycle = false;
   cycle_name = '';  // for edit template form. 
   cycle_id = 0;
-  cycles = ["Cycle 0"];
+  cycles = ["0"];
   max_cycle = 100;
+  is_new_cycle = false
 
   set_cycle(id: number) {
     this.cycle_id = id;
+    this.get_response();
   }
 
   cycle_active(id: number) {
@@ -245,13 +265,29 @@ export class RemindersProjComponent {
     if (this.cycles.length >= this.max_cycle) { this.doErr("error.CycleMaxReached"); return; }
     this.cycle_id = this.cycles.length;
     this.cycles.push(`Cycle ${this.cycles.length}`);
-    this.edit_cycle_name(true);  // Save after edit.
+
+    this.is_new_cycle = true;
+    this.edit_cycle_name(true);  // Save after edit
   }
 
   remove_curr_cycle() {
     if (this.cycles.length == 1) { this.doErr("error.OneCycle"); return; }
-    this.cycles.splice(this.cycle_id, 1);
-    this.cycle_id = 0;
+
+    let row2 = {
+      filename: this.filename,
+      stage_index: this.curr_stage,
+      pipeline_index: this.id,
+      cycle_index: this.cycle_id
+    };
+    this.submitting = true;
+    this.http3.send(Routes.CDel, JSON.stringify(row2)).then((value: any) => {
+      let _ = this.http3.json_handler(value);
+      let name_arr = this.cycles.splice(this.cycle_id, 1);
+      this.toastr.success(this.translate.instant("delete", {value: name_arr.pop()}))
+      this.cycle_id = 0;
+      this.submitting = false;
+      this.get_response();
+    }).catch((err: any) => { this.doErr(err); this.submitting = false; })
     // Save
   }
 
@@ -260,6 +296,24 @@ export class RemindersProjComponent {
     const first = this.cycles[0];
     this.cycles = [first];
     // Save
+    let row2 = {
+      filename: this.filename,
+      stage_index: this.curr_stage,
+      pipeline_index: this.id
+    };
+    this.submitting = true;
+    this.http3.send(Routes.CClear, JSON.stringify(row2)).then((value: any) => {
+      let _ = this.http3.json_handler(value);
+      this.toastr.success(this.translate.instant("clear_cycle_success"));
+      this.cycle_id = 0;
+      this.submitting = false;
+      this.get_response();
+    }).catch((err: any) => { this.doErr(err); this.submitting = false; });
+  }
+
+  fill_cycle(json: any) {
+    console.warn(json);
+    this.cycles = json.map((c: string) => c == '' ? 'NoName' : c);
   }
 
   @HostListener("document:keydown.f2", ['$event'])
@@ -284,8 +338,25 @@ export class RemindersProjComponent {
   finish_edit_cycle_name() {
     this.curr_edit_cycle = false;
     this.cycles[this.cycle_id] = this.cycle_name;
-    this.cycle_name = '';
+
+    let row2 = {
+      filename: this.filename,
+      stage_index: this.curr_stage,
+      pipeline_index: this.id,
+      cycle_index: this.cycle_id,
+      cycle_name: this.cycle_name
+    };
+    
     // save.
+    this.submitting = true;
+    this.http3.send(this.is_new_cycle ? Routes.CNew : Routes.CEdit, JSON.stringify(row2)).then((value: any) => {
+      this.cycle_name = '';
+      let resp = this.http3.json_handler(value);
+      this.toastr.success(this.translate.instant("save", {value: row2.cycle_name}));
+      this.submitting = false;
+      this.is_new_cycle = false;
+      this.get_response();
+    }).catch((err: any) => { this.doErr(err); this.submitting = false; });
   }
 
   is_edit_cycle(id: number) {
