@@ -1,6 +1,6 @@
 use serde_json::{json, Value};
 
-use crate::{messages::{ANS_CNAME_NONE, CYCLE_AT_LEAST_ONE, CYCLE_IDX_CANNOT_NULL, CYCLE_NAME_NULL, LEN_PIPELINE_NOT_MATCH, OOB_CYCLE_IDX, OOB_PIPELINE_IDX, OOB_STAGE_IDX}, response_dto::{ResponseTrait, SubmitResponse}};
+use crate::{messages::{ANS_NONE, CYCLE_AT_LEAST_ONE, CYCLE_IDX_CANNOT_NULL, CYCLE_NAME_NULL, LEN_PIPELINE_NOT_MATCH, OOB_CYCLE_IDX, OOB_PIPELINE_IDX, OOB_STAGE_IDX}, response_dto::{ResponseTrait, SubmitResponse}};
 
 fn get_old_serde() -> Value {
   let c = r#" {
@@ -217,7 +217,7 @@ fn test_edit_answer_and_cycle_name_both_none() {
   let submit: SubmitResponse = serde_json::from_str(&d).unwrap();
 
   let edited_serde = submit.edit_response(old_serde);
-  assert!(edited_serde.is_err_and(|x| x == ANS_CNAME_NONE.to_owned()));
+  assert!(edited_serde.is_err_and(|x| x == ANS_NONE.to_owned()));
 }
 
 #[test]
@@ -227,7 +227,7 @@ fn test_edit_cycle_index_none() {
     "filename": "...",
     "stage_index": 0,
     "pipeline_index": 0,
-    "cycle_name": "whatever this means"
+    "answer": ["this is the finisher"]
   }"#;
   let submit: SubmitResponse = serde_json::from_str(&d).unwrap();
 
@@ -252,7 +252,8 @@ fn test_edit_cycle_1_valid() {
   let ooi = edited_serde["pipelines"][0][1][1].clone();
   let old_ooi = old_serde["pipelines"][0][1][1].clone();
   assert_ne!(ooi["data"], old_ooi["data"]);
-  assert_ne!(ooi["name"], old_ooi["name"]);
+  // assert_ne!(ooi["name"], old_ooi["name"]);
+  // Name shouldn't change anymore. 
 }
 
 #[test]

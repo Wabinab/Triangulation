@@ -1,0 +1,143 @@
+<div class="modal-header">
+  <h3>{{ title }} ({{ "cycle." | translate }} {{ cycle_id }})</h3>
+</div>
+
+<div class="modal-body">
+  <!-- Choose cycle -->
+  <ul class="nav nav-tabs">
+    <button class="btn btn-primary" (click)="add_cycle()">
+      <fa-icon [icon]="faAdd"></fa-icon>
+    </button>
+    <button class="btn btn-danger" (click)="remove_curr_cycle()">
+      <fa-icon [icon]="faTrash"></fa-icon> 
+    </button>
+    @for(c of cycles; track c; let i = $index) {
+      <a class="nav-link" [ngClass]="cycle_active(i)" (click)="set_cycle(i)" *ngIf="!is_edit_cycle(i)">
+        {{ c }}</a>
+      <div class="input-group mb-3" *ngIf="is_edit_cycle(i)">
+        <input type="text" class="form-control" [(ngModel)]="cycle_name" minlength="1" maxlength="50" 
+        (keydown.enter)="finish_edit_cycle_name()" id="cycle_name">
+        <button class="btn btn-primary" (click)="finish_edit_cycle_name()"><fa-icon [icon]="faSave"></fa-icon></button>
+      </div>
+    }
+  </ul>
+  <div class="pb-3"></div>
+
+  <form [formGroup]="myForm">
+    <!-- Compulsory checklist: defined in template -->
+    <h4 class="text-center">Compulsory Items</h4>
+    <div class="row">
+      <table class="table">
+        <thead>
+          <tr>
+            <!-- Below for X -->
+            <!-- <th scope="col" class="col-2 col-md-1"></th> -->
+            <!-- Below for ID -->
+            <th scope="col" class="col-2 col-md-1"></th>
+            <th scope="col">Title</th>
+            <!-- The columns we can tune later. -->
+            <th scope="col" class="col-2 col-md-1">Status</th>
+          </tr>
+        </thead>
+        <tbody formArrayName="checklist">
+          <ng-container *ngFor="let c of checklists; let i=index;" [formGroupName]="i">
+            <tr>
+              <td>{{ i + 1 }}</td>
+              <td>
+                {{ c.get('title')?.value }}
+              </td>
+              <td class="text-center">
+                <input type="checkbox" class="btn-check" id="check_{{ i }}" 
+                formControlName="check" autocomplete="off">
+                <label class="btn btn-outline-primary" for="check_{{ i }}">
+                  <fa-icon [icon]="faTick"></fa-icon>
+                </label>
+              </td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+    </div>
+    <div class="pb-3"></div>
+
+    <!-- Extra checklist: defined in projects. -->
+    <h4 class="text-center">Extra Items</h4>
+    <div class="row">
+      <table class="table">
+        <thead>
+          <tr>
+            <!-- Below for X -->
+            <th scope="col" class="col-2 col-md-1"></th>
+            <!-- Below for ID -->
+            <th scope="col" class="col-2 col-md-1"></th>
+            <th scope="col">Title</th>
+            <!-- The columns we can tune later. -->
+            <th scope="col" class="col-2 col-md-1">Status</th>
+          </tr>
+        </thead>
+        <tbody formArrayName="extra_checklist">
+          <ng-container *ngFor="let c of extra_checklists; let i=index;" [formGroupName]="i">
+            <tr>
+              <td>
+                <button type="button" class="btn btn-outline-danger" (click)="remove_item(i)">
+                  <fa-icon [icon]="faCross"></fa-icon>
+                </button>
+              </td>
+              <td>{{ i + 1 }}</td>
+              <td>
+                <input type="text" formControlName="title" class="form-control" 
+                (keydown.enter)="$event.preventDefault()"
+                (keyup.enter)="add_and_focus(i+1, $event.target)" id="ex_title_{{ i }}">
+                <app-error [form]="c" control="title"></app-error>
+              </td>
+              <td class="text-center">
+                <input type="checkbox" class="btn-check" id="ex_check_{{ i }}" 
+                formControlName="check" autocomplete="off">
+                <label class="btn btn-outline-primary" for="ex_check_{{ i }}">
+                  <fa-icon [icon]="faTick"></fa-icon>
+                </label>
+              </td>
+            </tr>
+          </ng-container>
+          <tr>
+            <td colspan="99">
+              <button class="btn btn-outline-secondary" type="button" 
+              (click)="add_and_focus()">
+                <fa-icon [icon]="faAdd"></fa-icon> Add Item
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </form>
+</div>
+
+
+<div class="modal-footer justify-content-between">
+  <div class="float-start">
+    <div class="d-flex gap-2">
+      <button type="button" (click)="clear_data()" class="btn btn-danger">
+        {{ 'kelly.ClearData?' | translate }}
+      </button>
+      <button type="button" (click)="clear_cycles()" class="btn btn-danger">
+        {{ 'cycle.Clear' | translate }}
+      </button>
+    </div>
+  </div>
+  <div class="d-flex gap-2">
+    <button class="btn btn-secondary" (click)="cancel()">
+      <fa-icon [icon]="faCross"></fa-icon>
+      <span class="caption"></span>
+    </button>
+    <button class="btn btn-primary" (click)="onSubmit()">
+      <fa-icon [icon]="faSave"></fa-icon>
+      <span class="caption"></span>
+    </button>
+  </div>
+</div>
+
+<pre>
+  <!-- {{ myForm.getRawValue() | json }} -->
+  {{ items | json }}
+</pre>

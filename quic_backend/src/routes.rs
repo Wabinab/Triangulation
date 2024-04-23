@@ -36,15 +36,17 @@ pub(crate) fn routes_handler(msg: Bytes, path: String, data_path: PathBuf) -> Re
         "/projects" => project_controller::get_projects(data_path, msg),
 
         "/response" => response_controller::get_response(data_path, msg),
-        "/response/edit" => response_controller::edit_response(data_path, msg, None),
-        "/response/delete" => response_controller::delete_response(data_path, msg, None),
-        "/response/edit/kelly" => response_controller::edit_response(data_path, msg, Some("kelly".to_owned())),
-        "/response/delete/kelly" => response_controller::delete_response(data_path, msg, Some("kelly".to_owned())),
+        "/response/edit" => response_controller::edit_response(data_path, msg, CardTypes::Reminder),
+        "/response/delete" => response_controller::delete_response(data_path, msg, CardTypes::Reminder),
+        "/response/edit/kelly" => response_controller::edit_response(data_path, msg, CardTypes::Kelly),
+        "/response/delete/kelly" => response_controller::delete_response(data_path, msg, CardTypes::Kelly),
+        "/response/edit/checklist" => response_controller::edit_response(data_path, msg, CardTypes::Checklist),
+        "/response/delete/checklist" => response_controller::delete_response(data_path, msg, CardTypes::Checklist),
 
         "/cycle/new" => cycle_controller::modify_cycle(data_path, msg, CRUD::Create),
         "/cycle/edit" => cycle_controller::modify_cycle(data_path, msg, CRUD::Update),
         "/cycle/delete" => cycle_controller::modify_cycle(data_path, msg, CRUD::Delete),
-        "/cycle/clear" => cycle_controller::clear_cycle(data_path, msg),
+        "/cycle/clear" => cycle_controller::modify_cycle(data_path, msg, CRUD::Clear),
 
         // Miscellaneous functions
         "/gen_filename" => misc_controller::get_filename(msg),

@@ -110,6 +110,7 @@
     "GridMultipleChoice": "Grille à choix multiples",
     "GridCheckbox": "Grille de cases à cocher",
     "Datetime": "Date et Heure",
+    "None": "Pas le réponse",
 
     "Question": "Question",
     "Option": "Option",
@@ -128,14 +129,17 @@
     "InvalidForm": "Il y a une erreur avec le formulaire. Veuillez la corriger avant de l'envoyer."
   },
   "clone": "Cloner",
-  "delete": "Supprimer {{ value }}",
+  "delete": "Supprimer",
   "cancel": "Annuler",
   "save": "Enrégistrer Succes {{ value }}",
   "yes": "Oui",
   "no": "Non",
-  "cycle": "Cycle",
-  "clear_cycle": "Supprimer tout les Cycles",
-  "clear_cycle_success": "Supprimer tout les Cycles Succes {{ value }}",
+  "cycle": {
+    "": "Cycle",
+    "Clear": "Supprimer tout les Cycles",
+    "ClearSuccess": "Supprimer tout les Cycles Succes {{ value }}",
+    "Remove": "Supprimer Cycle {{ value }}"
+  },
   "remove": {
     "Current": "Supprimer cette"
   },

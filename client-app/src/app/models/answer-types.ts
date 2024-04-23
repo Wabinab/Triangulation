@@ -7,6 +7,7 @@ export enum AnswerTypes {
   RateScale = "4",
   GridMultipleChoice = "5",
   GridCheckbox = "6",
-  Datetime = "7"
+  Datetime = "7",
+  None = "8"  // a.k.a. no answer required, just a text to read. 
 };
 

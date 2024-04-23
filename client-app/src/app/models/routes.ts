@@ -32,7 +32,9 @@ export enum Routes {
   REdit  = "/response/edit",
   RDel   = "/response/delete",
   REditKelly = "/response/edit/kelly",
-  RDelKelly = "/response/delete/kelly",
+  RDelKelly  = "/response/delete/kelly",
+  REditCL = "/response/edit/checklist",
+  RDelCL  = "/response/delete/checklist",
 
   CNew   = "/cycle/new",
   CEdit  = "/cycle/edit",

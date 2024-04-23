@@ -54,10 +54,10 @@
         </thead>
         <tbody>
           <tr>
-            <td colspan="6"><button class="btn btn-primary" type="button" (click)="add_transaction()">
+            <td colspan="4"><button class="btn btn-primary" type="button" (click)="add_transaction()">
               <fa-icon [icon]="faAdd"></fa-icon> {{ 'kelly.AddNewTrans' | translate }}
             </button></td>
-            <td colspan="3"><span>({{ 'kelly.StoreLatest' | translate:param_latest }})</span></td>
+            <td colspan="5"><span>({{ 'kelly.StoreLatest' | translate:param_latest }})</span></td>
           </tr>
           <ng-container *ngFor="let t of transactions; let i=index;" [formGroupName]="i">
             <tr>

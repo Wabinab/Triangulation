@@ -172,7 +172,6 @@ export class KellyProjComponent {
 
   // ======================================================================
   autoSave() {
-    console.log(Date.now);
     if (this.submitting || this.loading || this.myForm.invalid) return;
     this.translate.get('proj.Autosave', {}).subscribe((res: string) => {
       this.toastr.info(res, '', { timeOut: 1000 });
@@ -227,7 +226,7 @@ export class KellyProjComponent {
       this.modalCancel = this.modalSvc.open(CancellationComponent);
       this.modalCancel.componentInstance.back_path = "hide modal";
       this.modalCancel.componentInstance.back_dismiss = true;
-      this.modalCancel.closed.subscribe((res: any) => {
+      this.modalCancel.closed.subscribe((_: any) => {
         this.onSubmit();
         this.bsModalRef.dismiss();
       });
@@ -242,7 +241,8 @@ export class KellyProjComponent {
     this.modalCancel = this.modalSvc.open(CancellationComponent);
     this.modalCancel.componentInstance.back_path = "hide modal";
     this.modalCancel.componentInstance.back_dismiss = true;
-    this.modalCancel.closed.subscribe((res: any) => {
+    this.modalCancel.componentInstance.title = 'cancellation.Sure';
+    this.modalCancel.closed.subscribe((_: any) => {
       this.submitting = true;
       const row = {
         filename: this.filename,

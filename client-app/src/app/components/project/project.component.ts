@@ -15,10 +15,12 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CancellationComponent } from '../cancellation/cancellation.component';
 import { RemindersProjComponent } from '../cards/reminders-proj/reminders-proj.component';
 import { Routes } from '../../models/routes';
-import { KellyComponent } from '../cards/kelly/kelly.component';
+// import { KellyComponent } from '../cards/kelly/kelly.component';
 import { KellyProjComponent } from '../cards/kelly-proj/kelly-proj.component';
-import { TemplateComponent } from '../template/template.component';
+// import { TemplateComponent } from '../template/template.component';
 import { HelperService } from '../../services/helper.service';
+import { CardTypes } from '../../models/card-types';
+import { ChecklistProjComponent } from '../cards/checklist-proj/checklist-proj.component';
 
 @Component({
   selector: 'app-project',
@@ -243,8 +245,9 @@ export class ProjectComponent {
   }
 
   openTemplate(id: number, ty: number) {
-    if (ty == 0) { this.openReminders(id, RemindersProjComponent); return; }
-    if (ty == 1) { this.openReminders(id, KellyProjComponent, "lg"); return; }
+    if (ty == CardTypes.Reminders) { this.openReminders(id, RemindersProjComponent); return; }
+    if (ty == CardTypes.Kelly) { this.openReminders(id, KellyProjComponent, "lg"); return; }
+    if (ty == CardTypes.Checklist) { this.openReminders(id, ChecklistProjComponent, "lg"); return; }
   }
 
   modalReminder: any;

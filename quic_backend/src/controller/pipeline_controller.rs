@@ -42,7 +42,8 @@ fn modify_reminder(data_path: PathBuf, msg: Bytes, crud: CRUD) -> Result<Option<
   let edited_serde = match crud {
     CRUD::Create => submit.new_reminder(old_serde.unwrap()),
     CRUD::Update => submit.edit_reminder(old_serde.unwrap()),
-    CRUD::Delete => submit.delete_reminder(old_serde.unwrap())
+    CRUD::Delete => submit.delete_reminder(old_serde.unwrap()),
+    _ => Err("modify_reminder Not Applicable".to_owned())
   };
   if edited_serde.is_err() { error!("modify_reminder edited_serde"); return Err(edited_serde.unwrap_err()); }
   let ret = compress_and_save(edited_serde.clone().unwrap().to_string(), 
@@ -68,7 +69,8 @@ fn modify_kelly(data_path: PathBuf, msg: Bytes, crud: CRUD) -> Result<Option<Str
   let edited_serde = match crud {
     CRUD::Create => submit.new_reminder(old_serde.unwrap()),
     CRUD::Update => submit.edit_reminder(old_serde.unwrap()),
-    CRUD::Delete => submit.delete_reminder(old_serde.unwrap())
+    CRUD::Delete => submit.delete_reminder(old_serde.unwrap()),
+    _ => Err("modify_kelly Not Applicable".to_owned())
   };
   if edited_serde.is_err() { error!("modify_kelly edited_serde"); return Err(edited_serde.unwrap_err()); }
   let ret = compress_and_save(edited_serde.clone().unwrap().to_string(), 
@@ -93,7 +95,8 @@ fn modify_checklist(data_path: PathBuf, msg: Bytes, crud: CRUD) -> Result<Option
   let edited_serde = match crud {
     CRUD::Create => submit.new_reminder(old_serde.unwrap()),
     CRUD::Update => submit.edit_reminder(old_serde.unwrap()),
-    CRUD::Delete => submit.delete_reminder(old_serde.unwrap())
+    CRUD::Delete => submit.delete_reminder(old_serde.unwrap()),
+    _ => Err("modify_checklist Not Applicable".to_owned())
   };
   if edited_serde.is_err() { error!("modify_checklist edited_serde"); return Err(edited_serde.unwrap_err()); }
   let ret = compress_and_save(edited_serde.clone().unwrap().to_string(), 

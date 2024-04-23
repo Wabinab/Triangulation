@@ -20,11 +20,16 @@
           <div class="card-body row">
             <div class="col-1 col-lg-1"><span class="text-center">{{ i + 1 }}</span></div>
             <div class="col-11 col-lg-8">
-              <input type="text" class="form-control" formControlName="question" placeholder="{{ 'QuestionChoice.Question' | translate }}">
+              <input type="text" *ngIf="!is_qtype(i, '8')" class="form-control" 
+                formControlName="question" placeholder="{{ 'QuestionChoice.Question' | translate }}" >
+              <textarea *ngIf="is_qtype(i, '8')" cols="30" rows="10" class="form-control"
+                formControlName="question" (keyup)="textCounter($event, i)"
+                placeholder="{{ 'QuestionChoice.Announcement' | translate }}"></textarea>
+              <div class="form-text" *ngIf="is_qtype(i, '8')">{{ charcount[i] }}</div>
               <app-error [form]="q" control="question"></app-error>
             </div>
             <div class="col-lg-3">
-              <select name="q_type" id="q_type" class="form-select" formControlName="q_type">
+              <select name="q_type" id="q_type" class="form-select" formControlName="q_type" (change)="on_qtype_change(i)">
                 <option *ngFor="let t of AnswerTypes | keyvalue: originalOrder" [value]="t.value">{{ 'QuestionChoice.' + t.key | translate }}</option>
               </select>
             </div>

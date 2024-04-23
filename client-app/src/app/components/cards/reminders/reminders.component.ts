@@ -281,12 +281,16 @@ export class RemindersComponent {
   }
 
   // ===========================================
+  desc_limit = 10_000;
   readonly name_validators = [Validators.required, Validators.minLength(1), Validators.maxLength(50)];
+  q_validators_1 = [Validators.required, Validators.minLength(7), Validators.maxLength(255)];
+  q_validators_2 = [Validators.required, Validators.maxLength(this.desc_limit)];
 
   add_new_question(data: any = {}) {
     let qs = this.myForm.get('questions') as FormArray;
+    let q_val = (data && data.t && data.t.toString() == '8') ? this.q_validators_2 : this.q_validators_1;
     qs.push(this.fb.group({
-      question: [data.q ?? '', [Validators.required, Validators.minLength(7), Validators.maxLength(255)]],
+      question: [data.q ?? '', q_val],
       q_type: [data.t ?? AnswerTypes.Long, [Validators.required]],
       rows: this.fb.array([]),
       cols: this.fb.array([]),
@@ -322,6 +326,10 @@ export class RemindersComponent {
   }
 
   on_qtype_change(i: number) {
+    const q = this.get_q('questions', i);
+    if (this.is_qtype(i, '8')) q.get('question')?.setValidators(this.q_validators_2);
+    else q.get('question')?.setValidators(this.q_validators_1);
+
     // const q = this.get_q('questions', i);
     // if (this.is_qtype(i, '4')) {
     //   let validator = this.name_validators.concat(Validators.required);
@@ -334,7 +342,14 @@ export class RemindersComponent {
     //   q.get('max_name')?.updateValueAndValidity();
     // }
 
-    // q.updateValueAndValidity();
+    q.updateValueAndValidity();
+  }
+
+  charcount: custom_option = {};
+  textCounter(event: any, i: number) {
+    const charcount = this.desc_limit - event.target.value.length;
+    const translate_word = charcount >= 0 ? 'newTempl.charRemain' : 'newTempl.charOver';
+    this.charcount[i.toString()] = `${Math.abs(charcount)} ${this.translate.instant(translate_word)}`;
   }
 
   // ===============================
@@ -470,4 +485,8 @@ export class RemindersComponent {
 
   //   return Object.keys(myerrors).length ? myerrors : null;
   // }
+}
+
+type custom_option = {
+  [key: string]: string
 }

@@ -1,7 +1,7 @@
 /// Contains the answers to the questions. 
 /// Team up with "project_dto".
 
-use crate::{messages::{ANS_CNAME_NONE, CYCLE_AT_LEAST_ONE, CYCLE_IDX_CANNOT_NULL, CYCLE_NAME_NULL, LEN_PIPELINE_NOT_MATCH, OOB_CYCLE_IDX, OOB_PIPELINE_IDX, OOB_STAGE_IDX}, *};
+use crate::{messages::{ANS_NONE, CYCLE_AT_LEAST_ONE, CYCLE_IDX_CANNOT_NULL, CYCLE_NAME_NULL, LEN_PIPELINE_NOT_MATCH, OOB_CYCLE_IDX, OOB_PIPELINE_IDX, OOB_STAGE_IDX}, *};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub(crate) struct SubmitResponse {
@@ -128,9 +128,8 @@ impl ResponseTrait for SubmitResponse {
   /// Second, we also don't check for its type correct or not. 
   /// So that's another fragility introduced. 
   fn edit_response(&self, old_serde: Value) -> Result<Value, String> {
-    // if self.answer.is_none() { error!("response_dto edit answer null"); return Err(ANSWER_NULL.to_owned()); }
-    if self.answer.is_none() && self.cycle_name.is_none() {
-      error!("response_dto answer cycle_name both none"); return Err(ANS_CNAME_NONE.to_owned()); }
+    if self.answer.is_none() {
+      error!("response_dto answer none"); return Err(ANS_NONE.to_owned()); }
     if self.cycle_index.is_none() { error!("response_dto edit cycle index null"); return Err(CYCLE_IDX_CANNOT_NULL.to_owned()); }
     let mut new_serde = old_serde.clone();
 
@@ -142,23 +141,13 @@ impl ResponseTrait for SubmitResponse {
     let cycles = pipeline[self.cycle_index.unwrap()].clone();
     if cycles.is_null() {
       error!("response_dto edit cycle"); return Err(OOB_CYCLE_IDX.to_owned()); }
-
-    if self.cycle_name.is_some() {
-      new_serde["pipelines"][self.stage_index][self.pipeline_index]
-        [self.cycle_index.unwrap()]["name"] = json!(self.cycle_name.clone().unwrap());
+    if cycles["data"].as_array().unwrap().len() != self.answer.as_ref().unwrap().as_array().unwrap().len() {
+      error!("response_dto edit length"); 
+      return Err(LEN_PIPELINE_NOT_MATCH.to_owned());
     }
+    new_serde["pipelines"][self.stage_index][self.pipeline_index]
+      [self.cycle_index.unwrap()]["data"] = self.answer.clone().unwrap();
 
-    if self.answer.is_some() {
-      // Alternatively, check template pipeline length match answer. 
-      // This ensures no change in length; that's why we first assign empty string
-      // to answers. 
-      if cycles["data"].as_array().unwrap().len() != self.answer.as_ref().unwrap().as_array().unwrap().len() {
-        error!("response_dto edit length"); 
-        return Err(LEN_PIPELINE_NOT_MATCH.to_owned());
-      }
-      new_serde["pipelines"][self.stage_index][self.pipeline_index]
-        [self.cycle_index.unwrap()]["data"] = self.answer.clone().unwrap();
-    }
     Ok(new_serde)
   }
 

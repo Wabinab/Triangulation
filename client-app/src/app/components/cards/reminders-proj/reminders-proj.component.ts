@@ -1,4 +1,4 @@
-import { Component, HostListener, Input, inject } from '@angular/core';
+import { Component, HostListener, Input, SecurityContext, ViewEncapsulation, inject } from '@angular/core';
 import { SharedModule } from '../../../shared/shared.module';
 import { SharedFormsModule } from '../../../shared/shared-forms.module';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -19,16 +19,20 @@ import { CancellationComponent } from '../../cancellation/cancellation.component
 import { Routes } from '../../../models/routes';
 import { faPlus, faTrashCan, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { faSave } from '@fortawesome/free-regular-svg-icons';
+import { MarkdownComponent, MarkdownService, provideMarkdown } from 'ngx-markdown';
 // import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
 
 @Component({
   selector: 'app-reminders-proj',
   standalone: true,
   imports: [SharedModule, SharedFormsModule, FontAwesomeModule, HumanPipe,
-    MatFormFieldModule, MatInputModule],
-  providers: [provideNativeDateAdapter()],
+    MatFormFieldModule, MatInputModule, MarkdownComponent],
+  providers: [provideNativeDateAdapter(), 
+    provideMarkdown({ sanitize: SecurityContext.STYLE })
+  ],
   templateUrl: './reminders-proj.component.html',
-  styleUrl: './reminders-proj.component.scss'
+  styleUrl: './reminders-proj.component.scss',
+  // encapsulation: ViewEncapsulation.None
 })
 export class RemindersProjComponent {
   bsModalRef = inject(NgbActiveModal);
@@ -58,7 +62,8 @@ export class RemindersProjComponent {
   subscription: Subscription;
 
   constructor(private http3: Http3Service, private fb: FormBuilder,
-    private toastr: ToastrService, private translate: TranslateService
+    private toastr: ToastrService, private translate: TranslateService,
+    private markdownSvc: MarkdownService
   ) {
     this.assign_initial_form();
     setTimeout(() => this.get_pipeline_item_by_id(), 100);
@@ -71,7 +76,6 @@ export class RemindersProjComponent {
 
   private assign_initial_form() {
     this.myForm = this.fb.group({
-      title: [{value: '', disabled: true}, [Validators.required, Validators.minLength(1), Validators.maxLength(50)]],
       questions: this.fb.array([]),  
     });
   }
@@ -121,16 +125,17 @@ export class RemindersProjComponent {
       cycle_index: this.cycle_id
     };
 
+    this.loading = true;
     this.http3.send(Routes.R, JSON.stringify(row2)).then(async (answers: any) => {
       let answers_json: any = this.http3.json_handler(answers);
       answers_json.forEach((a: any, i: number) => {
         this.fill_answers(a, i);
       });
-    });
+      this.loading = false;
+    }).catch((err: any) => { this.doErr(err); this.loading = false; });
   }
 
   loadData(answers_json: any[]) {
-    this.myForm.get('title')?.setValue(this.items.title);
     this.items.others.forEach((q: any) => {
       this.add_new_question(q);
     });
@@ -246,11 +251,11 @@ export class RemindersProjComponent {
   // ===========================================================
   // Cycle handler
   curr_edit_cycle = false;
+  is_new_cycle = false;
   cycle_name = '';  // for edit template form. 
   cycle_id = 0;
   cycles = ["0"];
   max_cycle = 100;
-  is_new_cycle = false
 
   set_cycle(id: number) {
     this.cycle_id = id;
@@ -265,7 +270,6 @@ export class RemindersProjComponent {
     if (this.cycles.length >= this.max_cycle) { this.doErr("error.CycleMaxReached"); return; }
     this.cycle_id = this.cycles.length;
     this.cycles.push(`Cycle ${this.cycles.length}`);
-
     this.is_new_cycle = true;
     this.edit_cycle_name(true);  // Save after edit
   }
@@ -283,36 +287,16 @@ export class RemindersProjComponent {
     this.http3.send(Routes.CDel, JSON.stringify(row2)).then((value: any) => {
       let _ = this.http3.json_handler(value);
       let name_arr = this.cycles.splice(this.cycle_id, 1);
-      this.toastr.success(this.translate.instant("delete", {value: name_arr.pop()}))
+      this.toastr.success(this.translate.instant("cycle.Remove", {value: name_arr.pop()}))
       this.cycle_id = 0;
       this.submitting = false;
       this.get_response();
     }).catch((err: any) => { this.doErr(err); this.submitting = false; })
-    // Save
   }
 
-  // Should ask for confirmation later on. 
-  clear_cycles() {
-    const first = this.cycles[0];
-    this.cycles = [first];
-    // Save
-    let row2 = {
-      filename: this.filename,
-      stage_index: this.curr_stage,
-      pipeline_index: this.id
-    };
-    this.submitting = true;
-    this.http3.send(Routes.CClear, JSON.stringify(row2)).then((value: any) => {
-      let _ = this.http3.json_handler(value);
-      this.toastr.success(this.translate.instant("clear_cycle_success"));
-      this.cycle_id = 0;
-      this.submitting = false;
-      this.get_response();
-    }).catch((err: any) => { this.doErr(err); this.submitting = false; });
-  }
+  // clear cycles in modal section. 
 
   fill_cycle(json: any) {
-    console.warn(json);
     this.cycles = json.map((c: string) => c == '' ? 'NoName' : c);
   }
 
@@ -377,7 +361,7 @@ export class RemindersProjComponent {
     };
 
     this.http3.send(Routes.REdit, JSON.stringify(row)).then((_: any) => {
-      this.submitting = false;
+      this.submitting = false;   // Autosave no check for error. 
     }).catch(err => { this.doErr(err); this.submitting = false; })
   }
 
@@ -419,7 +403,7 @@ export class RemindersProjComponent {
       this.modalCancel = this.modalSvc.open(CancellationComponent);
       this.modalCancel.componentInstance.back_path = "hide modal";
       this.modalCancel.componentInstance.back_dismiss = true;
-      this.modalCancel.closed.subscribe((res: any) => {
+      this.modalCancel.closed.subscribe((_: any) => {
         // yes, save (if valid)
         this.onSubmit();
         this.bsModalRef.dismiss();
@@ -435,12 +419,14 @@ export class RemindersProjComponent {
     this.modalCancel = this.modalSvc.open(CancellationComponent);
     this.modalCancel.componentInstance.back_path = "hide modal";
     this.modalCancel.componentInstance.back_dismiss = true;
+    this.modalCancel.componentInstance.title = 'cancellation.Sure';
     this.modalCancel.closed.subscribe((res: any) => {
       this.submitting = true;
       const row = {
         filename: this.filename,
         stage_index: this.curr_stage,
-        pipeline_index: this.id
+        pipeline_index: this.id,
+        cycle_index: this.cycle_id
       };
       this.http3.send(Routes.RDel, JSON.stringify(row)).then((value: any) => {
         this.http3.json_handler(value);
@@ -448,6 +434,31 @@ export class RemindersProjComponent {
         this.submitting = false;
         this.reset_form();
       }).catch(err => { this.doErr(err); this.submitting = false; })
+    });
+  }
+
+  clear_cycles() {
+    if (this.submitting || this.loading) return;
+    this.modalCancel = this.modalSvc.open(CancellationComponent);
+    this.modalCancel.componentInstance.back_path = "hide modal";
+    this.modalCancel.componentInstance.back_dismiss = true;
+    this.modalCancel.componentInstance.title = 'cancellation.Sure';
+    this.modalCancel.closed.subscribe((res: any) => {
+      const first = this.cycles[0];
+      this.cycles = [first];
+      let row2 = {
+        filename: this.filename,
+        stage_index: this.curr_stage,
+        pipeline_index: this.id
+      };
+      this.submitting = true;
+      this.http3.send(Routes.CClear, JSON.stringify(row2)).then((value: any) => {
+        let _ = this.http3.json_handler(value);
+        this.toastr.success(this.translate.instant("cycle.ClearSuccess", {value: ''}));
+        this.cycle_id = 0;
+        this.submitting = false;
+        this.get_response();
+      }).catch((err: any) => { this.doErr(err); this.submitting = false; });
     });
   }
 
@@ -480,10 +491,7 @@ export class RemindersProjComponent {
   // }
 
   // ===========================================================
-  get title() {
-    return this.myForm.get('title')?.value;
-  }
-
+  get title() { return this.items?.title ?? 'Untitled'; }
   get questions() {
     const q = this.myForm.get('questions') as FormArray;
     return q['controls'];
@@ -500,12 +508,13 @@ export class RemindersProjComponent {
   }
 
   // This doesn't work here, because we have multiple charcount. 
-  charcount: string = '';
-  textCounter(event: any, length: number | null = null) {
-    const len = length ? length : event.target.value.length;
+  charcount: custom_option = {};
+  textCounter(event: any, i: number) {
+    // const len = length ? length : event.target.value.length;
+    const len = event.target.value.length;
     const charcount = this.desc_limit - len;
     const translate_word = charcount >= 0 ? 'newTempl.charRemain' : 'newTempl.charOver';
-    this.charcount = `${Math.abs(charcount)} ${this.translate.instant(translate_word)}`;
+    this.charcount[i.toString()] = `${Math.abs(charcount)} ${this.translate.instant(translate_word)}`;
   }
 
   // ===========================================================
@@ -549,4 +558,9 @@ export class RemindersProjComponent {
     indices_arr.map(i => bool_arr[i] = true);
     return bool_arr;
   }
+}
+
+
+type custom_option = {
+  [key: string]: string
 }

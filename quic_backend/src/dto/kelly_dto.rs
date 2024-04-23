@@ -99,7 +99,7 @@ impl ResponseTrait for SubmitKelly {
     return Err(NOT_IMPLEMENTED.to_owned())
   }
 
-  fn clear_cycle(&self, old_serde: Value) -> Result<Value, String> {
+  fn clear_cycle(&self, _old_serde: Value) -> Result<Value, String> {
     return Err(NOT_IMPLEMENTED.to_owned())
   }
 

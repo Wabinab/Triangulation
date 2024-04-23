@@ -1,6 +1,6 @@
 <!-- <link rel="stylesheet" href="ng-material.css" /> -->
 <div class="modal-header">
-  <h3>{{ title }} ({{ "cycle" | translate }} {{ cycle_id }})</h3>
+  <h3>{{ title }} ({{ "cycle." | translate }} {{ cycle_id }})</h3>
 </div>
 
 <div class="modal-body">
@@ -30,7 +30,10 @@
         <div class="card">
           <div class="card-body row">
             <div class="col-1 col-lg-1"><span class="text-center">{{ i + 1 }}</span></div>
-            <div class="col-11 col-lg-11"><h5>{{ q.get('question')!.value }}</h5></div>
+            <div class="col-11 col-lg-11">
+              @if (q.get('q_type')!.value !== "8") { <h5>{{ q.get('question')!.value }}</h5> }
+              @else { <markdown [data]="q.get('question')!.value"></markdown> }
+            </div>
 
             <div class="col-1 col-lg-1"></div>
             <div class="col-11 col-lg-11">
@@ -42,8 +45,8 @@
               @if (q.get('q_type')!.value == "1") {
                 <textarea rows="3" class="form-control" formControlName="answer"
                 placeholder="{{ 'QuestionChoice.Long2' | translate}}"
-                (keyup)="textCounter($event)" ></textarea>
-                <div class="form-text">{{ charcount }}</div>
+                (keyup)="textCounter($event, i)" ></textarea>
+                <div class="form-text">{{ charcount[i] }}</div>
                 <app-error [form]="q" control="answer"></app-error>
               }
               @if (q.get('q_type')!.value == "2") {
@@ -138,7 +141,7 @@
         {{ 'kelly.ClearData?' | translate }}
       </button>
       <button type="button" (click)="clear_cycles()" class="btn btn-danger">
-        {{ 'clear_cycle' | translate }}
+        {{ 'cycle.Clear' | translate }}
       </button>
     </div>
   </div>
@@ -161,6 +164,6 @@
   <!-- {{ items | json}} -->
   <!-- {{ myForm.get("questions")!.value | json }} -->
   <!-- {{ all_dirty() | json }} -->
-  {{ cycle_id }}
+  <!-- {{ cycle_id }} -->
 </pre>
 <!-- {{ bool_to_index(myForm.get("questions")!.value[3]["answer"]) | json }} -->

@@ -110,6 +110,7 @@
     "GridMultipleChoice": "Multiple choice grid",
     "GridCheckbox": "Checkbox grid",
     "Datetime": "Date and Time",
+    "None": "No Answer",
     
     "Question": "Question",
     "Option": "Option",
@@ -128,14 +129,17 @@
     "InvalidForm": "There's an error with the form. Please fix before submission."
   },
   "clone": "Clone",
-  "delete": "Delete {{ value }}",
+  "delete": "Delete",
   "cancel": "Cancel",
   "save": "Successfully Save {{ value }}",
   "yes": "Yes",
   "no": "No",
-  "cycle": "Cycle",
-  "clear_cycle": "Clear Cycles",
-  "clear_cycle_success": "Successfully clear cycle {{ value }}",
+  "cycle": {
+    "": "Cycle",
+    "Clear": "Clear Cycles",
+    "ClearSuccess": "Successfully clear cycle {{ value }}",
+    "Remove": "Remove Cycle {{ value }}"
+  },
   "remove": {
     "Current": "Remove Current"
   },

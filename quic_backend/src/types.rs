@@ -14,7 +14,15 @@ pub const TEMPLATE_NAME: &'static str = "T";
 pub enum CRUD {
   Create = 0,
   Update = 1,
-  Delete = 2
+  Delete = 2,
+  Clear = 3
+}
+
+#[derive(Debug)]
+pub enum CardTypes {
+  Reminder = 0,
+  Kelly = 1,
+  Checklist = 2
 }
 
 #[derive(Debug)]
