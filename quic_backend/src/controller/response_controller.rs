@@ -11,14 +11,26 @@ pub(crate) fn delete_response(data_path: PathBuf, msg: Bytes, ty: CardTypes) -> 
   choose_ty(data_path, msg, ty, CRUD::Delete)
 }
 
-pub(crate) fn get_response(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
+pub(crate) fn get_response(data_path: PathBuf, msg: Bytes, card_type: CardTypes) -> Result<Option<String>, String> {
   let submit: SubmitPipeline = serde_json::from_slice(&msg).unwrap();
   let old_serde = get_data(data_path.clone(), submit.filename.clone());
   if old_serde.is_err() { error!("get_response old_serde"); return Err(old_serde.unwrap_err()); }
-  let response = submit.get_response(old_serde.unwrap());
+  let response = match card_type {
+    CardTypes::Checklist => submit.get_response_checklist(old_serde.unwrap()),
+    _ => submit.get_response(old_serde.unwrap())
+  };
   if response.is_err() { error!("get_response response"); return Err(response.unwrap_err()); }
   Ok(Some(response.unwrap().to_string()))
 }
+
+// pub(crate) fn get_response_checklist(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
+//   let submit: SubmitPipeline = serde_json::from_slice(&msg).unwrap();
+//   let old_serde = get_data(data_path.clone(), submit.filename.clone());
+//   if old_serde.is_err() { error!("get_response_checklist old_serde"); return Err(old_serde.unwrap_err()); }
+//   let response = submit.get_response_checklist(old_serde.unwrap());
+//   if response.is_err() { error!("get_response_checklist response"); return Err(response.unwrap_err()); }
+//   Ok(Some(response.unwrap().to_string()))
+// }
 
 // ===========================================
 fn modify_response(data_path: PathBuf, msg: Bytes, crud: CRUD) -> Result<Option<String>, String> {
@@ -38,7 +50,6 @@ fn modify_response(data_path: PathBuf, msg: Bytes, crud: CRUD) -> Result<Option<
   if ret.is_err() { error!("modify_response compress_and_save"); return Err(ret.unwrap_err()); }
 
   // Update versioning only done in new_project. 
-
   Ok(Some(edited_serde.unwrap().to_string()))
 }
 
@@ -59,7 +70,6 @@ fn modify_kelly_resp(data_path: PathBuf, msg: Bytes, crud: CRUD) -> Result<Optio
   if ret.is_err() { error!("modify_kelly_resp compress_and_save"); return Err(ret.unwrap_err()); }
 
   // Update versioning only done in new_project. 
-
   Ok(Some(edited_serde.unwrap().to_string()))
 }
 
@@ -80,7 +90,6 @@ fn modify_checklist_resp(data_path: PathBuf, msg: Bytes, crud: CRUD) -> Result<O
   if ret.is_err() { error!("modify_checklist_resp compress_and_save"); return Err(ret.unwrap_err()); }
 
   // Update versioning only done in new_project. 
-
   Ok(Some(edited_serde.unwrap().to_string()))
 }
 

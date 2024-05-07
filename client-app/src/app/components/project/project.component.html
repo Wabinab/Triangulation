@@ -62,8 +62,8 @@
 
 <ng-template #reminderTempl let-p let-i="i">
   <div class="col">
-    <div class="card card-hover border-primary">
-      <h5 class="card-header" hover-class="text-bg-primary | null" (click)="openTemplate(i, p.ty)">
+    <div class="card h-100 card-hover border-primary">
+      <h5 class="card-header h-100" hover-class="text-bg-primary | null" (click)="openTemplate(i, p.ty)">
         <fa-icon [icon]="helperSvc.get_icon_by_ty(p.ty)"></fa-icon> {{ p.title }}
       </h5>
     </div>

@@ -1,6 +1,6 @@
 use serde_json::{json, Value};
 
-use crate::{messages::{ANS_NONE, CYCLE_AT_LEAST_ONE, CYCLE_IDX_CANNOT_NULL, CYCLE_NAME_NULL, LEN_PIPELINE_NOT_MATCH, OOB_CYCLE_IDX, OOB_PIPELINE_IDX, OOB_STAGE_IDX}, response_dto::{ResponseTrait, SubmitResponse}};
+use crate::{messages::{ANS_NONE, CYCLE_AT_LEAST_ONE, CYCLE_IDX_CANNOT_NULL, CYCLE_NAME_NULL, LEN_PIPELINE_NOT_MATCH, OOB_CYCLE_IDX, OOB_PIPELINE_IDX, OOB_STAGE_IDX}, response_dto::{CycleTrait, ResponseTrait, SubmitResponse}};
 
 fn get_old_serde() -> Value {
   let c = r#" {
@@ -40,6 +40,13 @@ fn get_old_serde() -> Value {
               [[1, 2], [2]],
               "2024-03-20T11:23"
             ]
+          }
+        ],
+        [
+          {
+            "name": "0",
+            "data": [true, false],
+            "extra": [["Something extra"], [true]]
           }
         ]
       ]
@@ -641,4 +648,23 @@ fn test_clear_cycle_pipeline_oob() {
 
   let edited_serde = submit.clear_cycle(old_serde);
   assert!(edited_serde.is_err_and(|x| x == OOB_PIPELINE_IDX.to_owned()));
+}
+
+#[test]
+fn test_add_new_cycle_with_extra_clear_out() {
+  let old_serde = get_old_serde();
+  let d = r#"{
+    "filename": "...",
+    "stage_index": 0,
+    "pipeline_index": 3,
+    "cycle_name": "Cycle 2"
+  }"#;
+  let submit: SubmitResponse = serde_json::from_str(&d).unwrap();
+
+  let edited_serde = submit.add_new_cycle(old_serde.clone()).unwrap();
+  let ooi = edited_serde["pipelines"][0][3][1].clone();  // cycle index 1, since add. 
+  let old_ooi = old_serde["pipelines"][0][3][0].clone();  // cycle index 0. 
+  assert_eq!(ooi["data"], json!(["", ""]));
+  assert!(!old_ooi["extra"].is_null());
+  assert!(ooi["extra"].is_null());
 }

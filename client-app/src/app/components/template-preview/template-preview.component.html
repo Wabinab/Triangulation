@@ -1,0 +1,35 @@
+<div class="modal-header">
+ <h3>{{ template.name }}</h3>
+ <button type="button" class="btn-close" (click)="close()" aria-label="Close"></button>
+</div>
+
+<div class="modal-body">
+  <p class="text-center pb-3"><i>{{ template.description }}</i></p>
+
+  <div class="container row">
+    <div class="col-md-4 col-xl-3 col-xxl-2">
+      <h5>{{ 'templ.Stages' | translate }}</h5>
+      <ul class="navbar-nav">
+        <li class="nav-item nav-sidebar" [ngClass]="is_active_stage(i)" *ngFor="let s of stages; let i=index;">
+          <a class="nav-link" role="button" (click)="sel_stage(i)">{{ s.name }}</a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="col-md-8 col-xl-9 col-xxl-10">
+      <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 row-cols-xxl-4 g-3">
+        @for (p of pipeline; track p; let i = $index;) {
+          <div class="col">
+            <div class="card h-100 card-hover border-primary">
+              <div class="card-header h-100" hover-class="text-bg-primary | null">
+                <h5 (click)="openTemplate(i, p.ty)">
+                  <fa-icon [icon]="helperSvc.get_icon_by_ty(p.ty)"></fa-icon> {{ p.title }}
+                </h5>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

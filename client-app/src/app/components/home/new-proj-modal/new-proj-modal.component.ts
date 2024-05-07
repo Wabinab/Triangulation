@@ -45,8 +45,8 @@ export class NewProjModalComponent {
     let json_data = JSON.parse(data);
     this.templates = json_data.data;
     if (json_data.err.length > 0) { 
-      console.warn("json_data error starts below:");
-      console.error(json_data.err); 
+      // console.warn("json_data error starts below:");
+      // console.error(json_data.err); 
       this.translate.get(["newProj.checkF12", "newProj.F12errors"], {}).subscribe((res: any) => {
         this.toastr.error(res["newProj.F12errors"], res["newProj.checkF12"]);
       });
@@ -55,7 +55,8 @@ export class NewProjModalComponent {
   }
   
   async onSubmit() {
-    if (!this.myForm.valid || this.loading || this.submitting) return;
+    if (this.myForm.invalid) { this.doErr("err.InvalidForm"); return; }
+    if (this.submitting || this.loading) { this.wait(); return; }
     this.submitting = true;
     const row = {
       name: this.myForm.get('name')!.value,
@@ -76,17 +77,14 @@ export class NewProjModalComponent {
   cancel() {
     if (this.loading || this.submitting) return;
     if (this.is_dirty()) {
-      // Use cancellation modal which'll emit to parent component. 
       this.modalCancel = this.modalSvc.open(CancellationComponent);
       this.modalCancel.componentInstance.back_path = "hide modal";
       this.modalCancel.closed.subscribe((res: any) => {
-        // console.log(res);
         res["isClosed"] = true;  // from close not dismiss. 
         this.emitCallback.emit(res);
       });
       this.modalCancel.dismissed.subscribe((res: any) => {
         res["isClosed"] = false;
-        // this.emitCallback.emit(res);
       });
       return;
     }
@@ -109,7 +107,10 @@ export class NewProjModalComponent {
     console.error(err);
     if (typeof(err) === 'string') this.toastr.error(this.translate.instant(err || ''));
     else this.toastr.error(err);
-    // Waiting for errSvc. 
+  }
+
+  wait() {
+    this.toastr.info(this.translate.instant("wait"));
   }
 
   charcount: string = '';
@@ -123,33 +124,4 @@ export class NewProjModalComponent {
   // Fetch templates. 
 
   // Template example: {uuid: 'some_uuid', name: "Meh"}
-
-
-  
-  // ==================================================
-  // Debug
-
-  //  get errors() {
-  //   const myerrors: any = {};
-  //   Object.keys(this.myForm.controls).forEach(key => {
-  //     // Get errors of every form control
-  //     const form = this.myForm.get(key)!;
-  //     if (form.errors != null && (form.dirty || form.touched)) { 
-  //       myerrors[key] = form.errors; 
-  //     }
-  //   });
-
-  //   return Object.keys(myerrors).length ? myerrors : null;
-  // }
-
-  // public findInvalidControls() {
-  //   const invalid = [];
-  //   const controls = this.myForm.controls;
-  //   for (const name in controls) {
-  //       if (controls[name].invalid) {
-  //           invalid.push(controls[name].errors);
-  //       }
-  //   }
-  //   return invalid;
-  // }
 }

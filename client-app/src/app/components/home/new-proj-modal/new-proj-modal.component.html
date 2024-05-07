@@ -38,7 +38,7 @@
 				<div class="d-flex gap-1">
 					<span class="loader" *ngIf="loading">&nbsp;&nbsp;</span>
 					<button type="button" (click)="cancel()" class="btn btn-danger" [disabled]="loading || submitting">{{ 'cancel' | translate }}</button>
-					<button type="submit" class="btn btn-primary" [disabled]="!myForm.valid || loading || submitting">
+					<button type="submit" class="btn btn-primary" [disabled]="myForm.invalid || loading || submitting">
 						{{ 'newProj.letsGo' | translate }}
 					</button>
 				</div>

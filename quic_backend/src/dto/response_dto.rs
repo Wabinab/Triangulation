@@ -13,22 +13,18 @@ pub(crate) struct SubmitResponse {
   pub(crate) answer: Option<Value>
 }
 
-pub(crate) trait ResponseTrait {
-  // Add new cycle
-  fn add_new_cycle(&self, old_serde: Value) -> Result<Value, String>;
-  // Edit cycle
-  fn edit_cycle(&self, old_serde: Value) -> Result<Value, String>;
-  // Delete existing cycle
-  fn delete_cycle(&self, old_serde: Value) -> Result<Value, String>;
-  // Clear cycle
-  fn clear_cycle(&self, old_serde: Value) -> Result<Value, String>;
-  // Edit response.
-  fn edit_response(&self, old_serde: Value) -> Result<Value, String>;
-  /// If you want to clear it out. 
-  fn delete_response(&self, old_serde: Value) -> Result<Value, String>;
+pub(crate) trait CycleTrait {
+    // Add new cycle
+    fn add_new_cycle(&self, old_serde: Value) -> Result<Value, String>;
+    // Edit cycle
+    fn edit_cycle(&self, old_serde: Value) -> Result<Value, String>;
+    // Delete existing cycle
+    fn delete_cycle(&self, old_serde: Value) -> Result<Value, String>;
+    // Clear cycle
+    fn clear_cycle(&self, old_serde: Value) -> Result<Value, String>;
 }
 
-impl ResponseTrait for SubmitResponse {
+impl CycleTrait for SubmitResponse {
   fn add_new_cycle(&self, old_serde: Value) -> Result<Value, String> {
     if self.cycle_name.is_none() || self.cycle_name.as_ref().is_some_and(|x| x == &"".to_owned()) { 
       error!("response_dto add_new_cycle cycle_name null"); return Err(CYCLE_NAME_NULL.to_owned()); }
@@ -37,11 +33,11 @@ impl ResponseTrait for SubmitResponse {
     if new_serde["pipelines"][self.stage_index].is_null() {
       error!("response_dto add_cycle stages"); return Err(OOB_STAGE_IDX.to_owned()); }
     let pipeline = new_serde["pipelines"][self.stage_index][self.pipeline_index].clone();
-    if pipeline.is_null() {
-      error!("response_dto add_cycle pipeline"); return Err(OOB_PIPELINE_IDX.to_owned()); }
+    if pipeline.is_null() { error!("response_dto add_cycle pipeline"); 
+      return Err(OOB_PIPELINE_IDX.to_owned()); }
     let mut cycle = pipeline[0].clone();  // clone cycle 0 as template. 
-    if cycle.is_null() {
-      error!("response_dto add_cycle cycle BUG PLEASE FIX"); return Err(OOB_CYCLE_IDX.to_owned()); }
+    if cycle.is_null() { error!("response_dto add_cycle cycle BUG PLEASE FIX"); 
+      return Err(OOB_CYCLE_IDX.to_owned()); }
 
     cycle["name"] = json!(self.cycle_name.clone().unwrap());
     let mut c = cycle["data"].as_array().unwrap().clone();
@@ -49,6 +45,7 @@ impl ResponseTrait for SubmitResponse {
       .map(|_| json!(""))
       .collect();
     cycle["data"] = json!(c);
+    if !cycle["extra"].is_null() { cycle["extra"] = json!(null); }
 
     let mut pipeline_data = pipeline.as_array().unwrap().clone();
     pipeline_data.push(cycle);
@@ -65,11 +62,11 @@ impl ResponseTrait for SubmitResponse {
     if new_serde["pipelines"][self.stage_index].is_null() {
       error!("response_dto edit_cycle stages"); return Err(OOB_STAGE_IDX.to_owned()); }
     let pipeline = new_serde["pipelines"][self.stage_index][self.pipeline_index].clone();
-    if pipeline.is_null() {
-      error!("response_dto edit_cycle pipeline"); return Err(OOB_PIPELINE_IDX.to_owned()); }
+    if pipeline.is_null() { error!("response_dto edit_cycle pipeline"); 
+      return Err(OOB_PIPELINE_IDX.to_owned()); }
     let cycle = pipeline[self.cycle_index.unwrap()].clone();
-    if cycle.is_null() {
-      error!("response_dto edit_cycle cycle"); return Err(OOB_CYCLE_IDX.to_owned()); }
+    if cycle.is_null() { error!("response_dto edit_cycle cycle"); 
+      return Err(OOB_CYCLE_IDX.to_owned()); }
 
     new_serde["pipelines"][self.stage_index][self.pipeline_index]
       [self.cycle_index.unwrap()]["name"] = json!(self.cycle_name.clone().unwrap());
@@ -84,8 +81,8 @@ impl ResponseTrait for SubmitResponse {
     if new_serde["pipelines"][self.stage_index].is_null() {
       error!("response_dto delete_cycle stages"); return Err(OOB_STAGE_IDX.to_owned()); }
     let pipeline = new_serde["pipelines"][self.stage_index][self.pipeline_index].clone();
-    if pipeline.is_null() {
-      error!("response_dto delete_cycle pipeline"); return Err(OOB_PIPELINE_IDX.to_owned()); }
+    if pipeline.is_null() { error!("response_dto delete_cycle pipeline"); 
+      return Err(OOB_PIPELINE_IDX.to_owned()); }
     
     let mut pipelines = pipeline.as_array().unwrap().clone();
     if self.cycle_index.unwrap() >= pipelines.len() {
@@ -106,8 +103,8 @@ impl ResponseTrait for SubmitResponse {
     if new_serde["pipelines"][self.stage_index].is_null() {
       error!("response_dto clear_cycle stages"); return Err(OOB_STAGE_IDX.to_owned()); }
     let pipeline = new_serde["pipelines"][self.stage_index][self.pipeline_index].clone();
-    if pipeline.is_null() {
-      error!("response_dto clear_cycle pipeline"); return Err(OOB_PIPELINE_IDX.to_owned()); }
+    if pipeline.is_null() { error!("response_dto clear_cycle pipeline"); 
+      return Err(OOB_PIPELINE_IDX.to_owned()); }
     
     // let pipelines = pipeline.as_array().unwrap().clone();
     let mut new_pipeline: Vec<Value> = Vec::new();
@@ -122,29 +119,37 @@ impl ResponseTrait for SubmitResponse {
     new_serde["pipelines"][self.stage_index][self.pipeline_index] = json!(new_pipeline);
     Ok(new_serde)
   }
+}
 
+pub(crate) trait ResponseTrait {
+  // Edit response.
+  fn edit_response(&self, old_serde: Value) -> Result<Value, String>;
+  /// If you want to clear it out. 
+  fn delete_response(&self, old_serde: Value) -> Result<Value, String>;
+}
+
+impl ResponseTrait for SubmitResponse {
   /// Caveat with this? We don't check if answer match within range of the question. 
   /// So that's a fragility introduced. 
   /// Second, we also don't check for its type correct or not. 
   /// So that's another fragility introduced. 
   fn edit_response(&self, old_serde: Value) -> Result<Value, String> {
-    if self.answer.is_none() {
-      error!("response_dto answer none"); return Err(ANS_NONE.to_owned()); }
-    if self.cycle_index.is_none() { error!("response_dto edit cycle index null"); return Err(CYCLE_IDX_CANNOT_NULL.to_owned()); }
+    if self.answer.is_none() { error!("response_dto answer none"); 
+      return Err(ANS_NONE.to_owned()); }
+    if self.cycle_index.is_none() { error!("response_dto edit cycle index null"); 
+      return Err(CYCLE_IDX_CANNOT_NULL.to_owned()); }
     let mut new_serde = old_serde.clone();
 
     if new_serde["pipelines"][self.stage_index].is_null() { 
       error!("response_dto edit stages"); return Err(OOB_STAGE_IDX.to_owned()); }
     let pipeline = new_serde["pipelines"][self.stage_index][self.pipeline_index].clone();
-    if pipeline.is_null() {
-      error!("response_dto edit pipeline"); return Err(OOB_PIPELINE_IDX.to_owned()); }
+    if pipeline.is_null() { error!("response_dto edit pipeline"); 
+      return Err(OOB_PIPELINE_IDX.to_owned()); }
     let cycles = pipeline[self.cycle_index.unwrap()].clone();
-    if cycles.is_null() {
-      error!("response_dto edit cycle"); return Err(OOB_CYCLE_IDX.to_owned()); }
+    if cycles.is_null() { error!("response_dto edit cycle"); 
+      return Err(OOB_CYCLE_IDX.to_owned()); }
     if cycles["data"].as_array().unwrap().len() != self.answer.as_ref().unwrap().as_array().unwrap().len() {
-      error!("response_dto edit length"); 
-      return Err(LEN_PIPELINE_NOT_MATCH.to_owned());
-    }
+      error!("response_dto edit length"); return Err(LEN_PIPELINE_NOT_MATCH.to_owned()); }
     new_serde["pipelines"][self.stage_index][self.pipeline_index]
       [self.cycle_index.unwrap()]["data"] = self.answer.clone().unwrap();
 
@@ -152,17 +157,18 @@ impl ResponseTrait for SubmitResponse {
   }
 
   fn delete_response(&self, old_serde: Value) -> Result<Value, String> {
-    if self.cycle_index.is_none() { error!("response_dto edit cycle index null"); return Err(CYCLE_IDX_CANNOT_NULL.to_owned()); }
+    if self.cycle_index.is_none() { error!("response_dto edit cycle index null"); 
+      return Err(CYCLE_IDX_CANNOT_NULL.to_owned()); }
     let mut new_serde = old_serde.clone();
 
     if new_serde["pipelines"][self.stage_index].is_null() { 
       error!("response_dto delete stages"); return Err(OOB_STAGE_IDX.to_owned()); }
     let pipeline = new_serde["pipelines"][self.stage_index][self.pipeline_index].clone();
-    if pipeline.is_null() {
-      error!("response_dto delete pipeline"); return Err(OOB_PIPELINE_IDX.to_owned()); }
+    if pipeline.is_null() { error!("response_dto delete pipeline"); 
+      return Err(OOB_PIPELINE_IDX.to_owned()); }
     let cycles = pipeline[self.cycle_index.unwrap()].clone();
-    if cycles.is_null() {
-      error!("response_dto delete cycle"); return Err(OOB_CYCLE_IDX.to_owned()); }
+    if cycles.is_null() { error!("response_dto delete cycle"); 
+      return Err(OOB_CYCLE_IDX.to_owned()); }
     
     // Name shouldn't change even if delete response. 
     // new_serde["pipelines"][self.stage_index][self.pipeline_index]

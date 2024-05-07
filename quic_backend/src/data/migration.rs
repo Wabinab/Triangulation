@@ -8,7 +8,6 @@ use crate::{messages::OOB_MIGRATE, pipeline_dto::gen_empty_pipeline};
 
 pub(crate) fn migrate_data(new_templ_serde: Value, pipelines: Value) -> Result<Value, String> {
   let mut templ = gen_empty_pipeline(new_templ_serde);
-  // let pipelines = proj_serde["pipelines"].clone();
   let empty = json!("");
   
   for (i, el_i) in pipelines.as_array().unwrap().iter().enumerate() {

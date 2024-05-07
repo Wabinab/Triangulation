@@ -3,7 +3,8 @@
   <fa-icon [icon]="faEdit" (click)="edit_title()"></fa-icon>
 </h2>
 <div class="input-group mb-3" *ngIf="is_edit_title">
-  <input type="text" class="form-control" [(ngModel)]="title_name" minlength="1" maxlength="50" (keydown.enter)="finish_edit_title()" />
+  <input type="text" class="form-control" [(ngModel)]="title_name" minlength="1" 
+  maxlength="50" (keydown.enter)="finish_edit_title()" />
   <button class="btn btn-primary" (click)="finish_edit_title()"><fa-icon [icon]="faSave"></fa-icon></button>
 </div>
 
@@ -13,7 +14,8 @@
 </span>
 <div class="input-group mb-3" *ngIf="is_edit_desc">
   <!-- No use textarea here deliberately. -->
-  <input type="text" class="form-control" [(ngModel)]="desc_name" maxlength="255" (keydown.enter)="finish_edit_desc()" />
+  <input type="text" class="form-control" [(ngModel)]="desc_name" maxlength="255" 
+  (keydown.enter)="finish_edit_desc()" />
   <button class="btn btn-primary" (click)="finish_edit_desc()"><fa-icon [icon]="faSave"></fa-icon></button>
 </div>
 
@@ -67,7 +69,7 @@
 <div class="" *ngIf="saving">
   <div class="d-flex float-end">
     <mat-spinner diameter="25" color="green"></mat-spinner>&nbsp;
-    Saving
+    {{ "saving" | translate }}
   </div>
 </div>
 
@@ -107,8 +109,8 @@
 
 <ng-template #reminderTempl let-p let-i="i">
   <div class="col">
-    <div class="card card-hover border-primary" >
-      <h5 class="card-header" hover-class="text-bg-primary | null" (click)="openTemplate(i, p.ty)">
+    <div class="card h-100 card-hover border-primary p-0">
+      <h5 class="card-header h-100" hover-class="text-bg-primary | null" (click)="openTemplate(i, p.ty)">
         <fa-icon [icon]="helperSvc.get_icon_by_ty(p.ty)"></fa-icon> {{ p.title }}
       </h5>
       <!-- <div class="card-body">

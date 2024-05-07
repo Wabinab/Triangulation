@@ -17,15 +17,15 @@ pub(crate) fn routes_handler(msg: Bytes, path: String, data_path: PathBuf) -> Re
         // "/template/pipeline/reminder/save" => template_controller::save_reminder(data_path, msg),
         "/pipeline" => pipeline_controller::get_pipeline(data_path, msg),
         "/pipeline/proj" => pipeline_controller::get_pipeline_by_uuid_ver(data_path, msg),
-        "/pipeline/0/new" => pipeline_controller::new_pipeline(data_path, msg, 0),
-        "/pipeline/0/edit" => pipeline_controller::edit_pipeline(data_path, msg, 0),
-        "/pipeline/0/delete" => pipeline_controller::delete_pipeline(data_path, msg, 0),
-        "/pipeline/1/new" => pipeline_controller::new_pipeline(data_path, msg, 1),
-        "/pipeline/1/edit" => pipeline_controller::edit_pipeline(data_path, msg, 1),
+        "/pipeline/0/new" => pipeline_controller::new_pipeline(data_path, msg, CardTypes::Reminder),
+        "/pipeline/0/edit" => pipeline_controller::edit_pipeline(data_path, msg, CardTypes::Reminder),
+        "/pipeline/0/delete" => pipeline_controller::delete_pipeline(data_path, msg, CardTypes::Reminder),
+        "/pipeline/1/new" => pipeline_controller::new_pipeline(data_path, msg, CardTypes::Kelly),
+        "/pipeline/1/edit" => pipeline_controller::edit_pipeline(data_path, msg, CardTypes::Kelly),
         // NOTE: using /pipeline/0/delete is the same for all. Can deprecate it if possible later. 
-        // "/pipeline/1/delete" => pipeline_controller::delete_pipeline(data_path, msg, 1),
-        "/pipeline/2/new" => pipeline_controller::new_pipeline(data_path, msg, 2),
-        "/pipeline/2/edit" => pipeline_controller::edit_pipeline(data_path, msg, 2),
+        // "/pipeline/1/delete" => pipeline_controller::delete_pipeline(data_path, msg, CardTypes::Kelly),
+        "/pipeline/2/new" => pipeline_controller::new_pipeline(data_path, msg, CardTypes::Checklist),
+        "/pipeline/2/edit" => pipeline_controller::edit_pipeline(data_path, msg, CardTypes::Checklist),
 
         "/project" => project_controller::get_project(data_path, msg),
         "/project/new" => project_controller::new_project(data_path, msg),
@@ -35,7 +35,8 @@ pub(crate) fn routes_handler(msg: Bytes, path: String, data_path: PathBuf) -> Re
         "/project/edit/unsafe_ver" => project_controller::edit_version_unsafe(data_path, msg),
         "/projects" => project_controller::get_projects(data_path, msg),
 
-        "/response" => response_controller::get_response(data_path, msg),
+        "/response" => response_controller::get_response(data_path, msg, CardTypes::Reminder),
+        "/response/checklist" => response_controller::get_response(data_path, msg, CardTypes::Checklist),
         "/response/edit" => response_controller::edit_response(data_path, msg, CardTypes::Reminder),
         "/response/delete" => response_controller::delete_response(data_path, msg, CardTypes::Reminder),
         "/response/edit/kelly" => response_controller::edit_response(data_path, msg, CardTypes::Kelly),
@@ -48,8 +49,13 @@ pub(crate) fn routes_handler(msg: Bytes, path: String, data_path: PathBuf) -> Re
         "/cycle/delete" => cycle_controller::modify_cycle(data_path, msg, CRUD::Delete),
         "/cycle/clear" => cycle_controller::modify_cycle(data_path, msg, CRUD::Clear),
 
+        // If you use "/sample_templ", it won't work for unknown reason. 
+        "/sample/list" => sample_controller::get_downloaded_list(data_path),
+        "/sample/nlist" => sample_controller::get_sample_nlist(data_path, msg),
+        "/sample/pipeline" => sample_controller::get_sample_pipeline(data_path, msg),
+
         // Miscellaneous functions
         "/gen_filename" => misc_controller::get_filename(msg),
-        _ => Err("Cannot find route.".to_owned())
+        _ => Err("backend.NoRoute".to_owned())
     };
 }

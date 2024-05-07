@@ -1,15 +1,15 @@
 use crate::*;
 use self::{checklist_dto::SubmitChecklist, compressor::{compress_and_save, retrieve_decompress}, kelly_dto::SubmitKelly, pipeline_dto::{PipelineTrait, PipelineViaProjTrait, SubmitPipeline, SubmitPipelineViaProj}, reminder_dto::{ReminderTrait, SubmitReminder}, versioning::{get_savepath, get_verpath, upd_ver_temp}};
 
-pub(crate) fn new_pipeline(data_path: PathBuf, msg: Bytes, ty: usize) -> Result<Option<String>, String> {
+pub(crate) fn new_pipeline(data_path: PathBuf, msg: Bytes, ty: CardTypes) -> Result<Option<String>, String> {
   choose_ty(data_path, msg, ty, CRUD::Create)
 }
 
-pub(crate) fn edit_pipeline(data_path: PathBuf, msg: Bytes, ty: usize) -> Result<Option<String>, String> {
+pub(crate) fn edit_pipeline(data_path: PathBuf, msg: Bytes, ty: CardTypes) -> Result<Option<String>, String> {
   choose_ty(data_path, msg, ty, CRUD::Update)
 }
 
-pub(crate) fn delete_pipeline(data_path: PathBuf, msg: Bytes, ty: usize) -> Result<Option<String>, String> {
+pub(crate) fn delete_pipeline(data_path: PathBuf, msg: Bytes, ty: CardTypes) -> Result<Option<String>, String> {
   choose_ty(data_path, msg, ty, CRUD::Delete)
 }
 
@@ -113,11 +113,11 @@ fn modify_checklist(data_path: PathBuf, msg: Bytes, crud: CRUD) -> Result<Option
 
 
 // ===================================================
-fn choose_ty(data_path: PathBuf, msg: Bytes, ty: usize, crud: CRUD) -> Result<Option<String>, String> {
-  match ty as u64 {
-    REMINDER_TYPE => modify_reminder(data_path, msg, crud),
-    KELLY_TYPE => modify_kelly(data_path, msg, crud),
-    CHECKLIST_TYPE => modify_checklist(data_path, msg, crud),
+fn choose_ty(data_path: PathBuf, msg: Bytes, ty: CardTypes, crud: CRUD) -> Result<Option<String>, String> {
+  match ty {
+    CardTypes::Reminder => modify_reminder(data_path, msg, crud),
+    CardTypes::Kelly => modify_kelly(data_path, msg, crud),
+    CardTypes::Checklist => modify_checklist(data_path, msg, crud),
     _ => {
       error!("pipeline_controller choose_ty No ty matches.");
       Err(format!("{:?} Pipeline: None of the ty matches.", crud))

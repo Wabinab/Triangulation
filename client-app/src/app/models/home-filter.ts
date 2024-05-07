@@ -1,4 +1,5 @@
 export enum HomeFilter {
   Template,
-  Project
+  Project,
+  SampleTemplate
 }

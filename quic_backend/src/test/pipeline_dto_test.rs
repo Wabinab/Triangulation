@@ -109,14 +109,10 @@ fn get_old_serde_proj() -> Value {
     "t_ver": 2,
     "pipelines": [
       [
-        [{"name": "0", "data": [
-          "", "", ""
-        ]}],
-        [{"name": "0", "data": [
-          "mid response"
-        ]}, {
-          "name": "0", "data": ["mid response 2"]
-        }],
+        [{"name": "0", "data": ["", "", ""]}],
+        [{"name": "0", "data": ["mid response"]}, 
+          {"name": "1", "data": ["mid response 2"]}
+        ],
         [{"name": "0", "data": [
           "short response",
           "long response",
@@ -126,7 +122,10 @@ fn get_old_serde_proj() -> Value {
           [3, 4, 0],
           [[1, 2], [2]],
           "2024-03-20T11:23"
-        ]}]
+        ]}],
+        [{"name": "0", "data": [true, false, true], "extra": [["Question 1"], [true]]},
+          {"name": "1", "data": [false, false, true], "extra": null}
+        ]
       ]
     ]
   }"#;
@@ -262,3 +261,38 @@ fn test_response_invalid_cycle_index() {
   assert!(edited_serde.is_err_and(|x| x == OOB_CYCLE_IDX.to_owned()));
 }
 
+#[test]
+fn test_get_response_checklist_have_extra() {
+  let old_serde = get_old_serde_proj();
+  let d = r#"{
+    "filename": "...",
+    "stage_index": 0,
+    "pipeline_index": 3,
+    "cycle_index": 0
+  }"#;
+  let submit: SubmitPipeline = serde_json::from_str(&d).unwrap();
+  
+  let edited_serde = submit.get_response_checklist(old_serde.clone()).unwrap();
+  let ooi = edited_serde.clone();
+  let old_ooi = old_serde["pipelines"][0][3][0].clone();
+  assert!(!old_ooi["extra"].is_null());
+  assert_eq!(ooi["extra"], old_ooi["extra"]);
+}
+
+#[test]
+fn test_get_normal_response_for_checklist_no_extra() {
+  let old_serde = get_old_serde_proj();
+  let d = r#"{
+    "filename": "...",
+    "stage_index": 0,
+    "pipeline_index": 3,
+    "cycle_index": 0
+  }"#;
+  let submit: SubmitPipeline = serde_json::from_str(&d).unwrap();
+
+  let edited_serde = submit.get_response(old_serde.clone()).unwrap();
+  let ooi = edited_serde.clone();
+  let old_ooi = old_serde["pipelines"][0][3][0].clone();
+  assert!(!old_ooi["extra"].is_null());
+  assert!(ooi["extra"].is_null());
+}

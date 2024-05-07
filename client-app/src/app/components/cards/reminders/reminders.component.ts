@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, Input, inject } from '@angular/core';
+import { Component, HostListener, Input, inject } from '@angular/core';
 import { Http3Service } from '../../../services/http3.service';
 import { SharedModule } from '../../../shared/shared.module';
 import { SharedFormsModule } from '../../../shared/shared-forms.module';
@@ -21,7 +21,8 @@ import { Subscription, interval } from 'rxjs';
 @Component({
   selector: 'app-reminders',
   standalone: true,
-  imports: [SharedModule, SharedFormsModule, FontAwesomeModule, HumanPipe],
+  imports: [SharedModule, SharedFormsModule, FontAwesomeModule, 
+    HumanPipe],
   templateUrl: './reminders.component.html',
   styleUrl: './reminders.component.scss'
 })
@@ -56,7 +57,7 @@ export class RemindersComponent {
 
   constructor(private http3: Http3Service, private fb: FormBuilder, 
     private translate: TranslateService, private toastr: ToastrService,
-    private cd: ChangeDetectorRef
+    // private cd: ChangeDetectorRef
   ) {
     this.myForm = this.fb.group({
       t: [CardTypes.Reminders, [Validators.required]],
@@ -81,7 +82,7 @@ export class RemindersComponent {
       stage_index: this.curr_stage,
       pipeline_index: this.id,
     }
-    // console.log(data);
+    this.loading = true;
     let value: any = await this.http3.send(Routes.Pi, JSON.stringify(data));
     this.items = JSON.parse(value ?? '{}');
     if (this.items.err && this.items.err == "backend.OOBPipeline") {
@@ -107,22 +108,19 @@ export class RemindersComponent {
     this.loading = false;
   }
 
-  // async test_submit_error() {
-  //   let data = {
-  //     filename: this.filename,
-  //     stage_index: 500,
-  //     pipeline_index: this.id,
-  //   }
-  //   // console.log(data);
-  //   this.http3.send(Routes.Pi, JSON.stringify(data)).then((res: any) => {
-  //     let data = this.http3.json_handler(res);
-  //     // this.bsModalRef.close({ ty: data });
-  //   }).catch((err: any) => { this.doErr(err); });
-  // }
+  // ==============================================================================
+  @HostListener("document:keydown", ['$event'])
+  onSave(event: KeyboardEvent) {
+    if (event.ctrlKey && event.key === 's') {
+      event.preventDefault();
+      this.autoSave("proj.ManualSave");
+      // if (this.myForm.invalid) { this.doErr("err.InvalidForm"); return; }
+    }
+  }
 
-  autoSave() {
-    if (this.submitting || this.loading || !this.myForm.valid) return;
-    this.toastr.info(this.translate.instant('proj.Autosave'), '', { timeOut: 1000 });
+  autoSave(msg = "proj.Autosave") {
+    if (this.submitting || this.loading) return;
+    this.toastr.info(this.translate.instant(msg), '', { timeOut: 1000 });
     this.submitting = true;
     const row = {
       filename: this.filename,
@@ -140,34 +138,9 @@ export class RemindersComponent {
     }).catch((err: any) => { this.doErr(err); this.submitting = false; });
   }
 
-  // test_handler() {
-  //   let data = {
-  //     filename: this.filename,
-  //     stage_index: this.curr_stage,
-  //     pipeline_index: 500,
-  //   }
-  //   this.http3.send(Routes.Pi, JSON.stringify(data)).then((res: any) => {
-  //     this.bsModalRef.close({ ty: this.http3.json_handler(res) });
-  //   }).catch((err: any) => { this.doErr(err); });
-  // }
-
-  // ==============================================================================
-  // fakeSubmit() {
-  //   const row = {
-  //     filename: this.filename,
-  //     stage_index: this.curr_stage,
-  //     reminder_index: this.id,
-  //     title: this.myForm.get('title')?.value,
-  //     question: this.filter_row()
-  //   }
-  //   console.log(row);
-  // }
-
   onSubmit() {
-    // if (this.submitting || this.loading || this.myForm.invalid) {
-    //   if (this.myForm.invalid) this.doErr("err.InvalidForm"); return;
-    // }
-    if (this.submitting || this.loading) return; // always invalid for unknown reason.
+    // if (this.myForm.invalid) { this.doErr("err.InvalidForm"); return; }
+    if (this.submitting || this.loading) { this.wait(); return; }  // always invalid for unknown reason.
     this.submitting = true;
     const row = {
       filename: this.filename,
@@ -187,7 +160,7 @@ export class RemindersComponent {
 
   modalCancel: any;
   cancel() {
-    if (this.loading || this.submitting) return;
+    if (this.submitting || this.loading) { this.wait(); return; }
     // Too many actions that don't automatically
     // set dirty and touched. We'll just ask everytime, to be safe. 
     
@@ -218,7 +191,6 @@ export class RemindersComponent {
   // }
 
   set_row() {
-    // let qs = this.myForm.get('questions') as FormArray;
     this.items.others.forEach((q: any) => {
       this.add_new_question(q);
     })
@@ -287,6 +259,7 @@ export class RemindersComponent {
   q_validators_2 = [Validators.required, Validators.maxLength(this.desc_limit)];
 
   add_new_question(data: any = {}) {
+    // if (this.submitting || this.loading) { this.wait(); return; }
     let qs = this.myForm.get('questions') as FormArray;
     let q_val = (data && data.t && data.t.toString() == '8') ? this.q_validators_2 : this.q_validators_1;
     qs.push(this.fb.group({
@@ -309,9 +282,11 @@ export class RemindersComponent {
   }
 
   remove_question(i: number) {
+    if (this.submitting || this.loading) { this.wait(); return; }
     let qs = this.myForm.get('questions') as FormArray;
     if (qs.length == 1) return;
     qs.removeAt(i);
+    qs.markAsDirty();
   }
 
   get questions() {
@@ -330,18 +305,6 @@ export class RemindersComponent {
     if (this.is_qtype(i, '8')) q.get('question')?.setValidators(this.q_validators_2);
     else q.get('question')?.setValidators(this.q_validators_1);
 
-    // const q = this.get_q('questions', i);
-    // if (this.is_qtype(i, '4')) {
-    //   let validator = this.name_validators.concat(Validators.required);
-    //   q.get('min_name')?.setValidators(validator);
-    //   q.get('max_name')?.setValidators(validator);
-    // } else {
-    //   q.get('min_name')?.setValidators(this.name_validators);
-    //   q.get('max_name')?.setValidators(this.name_validators);
-    //   q.get('min_name')?.updateValueAndValidity();
-    //   q.get('max_name')?.updateValueAndValidity();
-    // }
-
     q.updateValueAndValidity();
   }
 
@@ -354,6 +317,7 @@ export class RemindersComponent {
 
   // ===============================
   add_rowcol(i: number, j: number, rowcol = 'rows', data = '') {
+    // if (this.submitting || this.loading) { this.wait(); return; }
     if (j > this.maxrowcol) return;
     let mcqs = this.get_formarray('questions', i, rowcol);
     mcqs.push(this.fb.group({
@@ -362,15 +326,18 @@ export class RemindersComponent {
   }
 
   remove_rowcol(i: number, j: number, rowcol = 'rows') {
+    if (this.submitting || this.loading) { this.wait(); return; }
     let mcqs = this.get_formarray('questions', i, rowcol);
     if (mcqs.length == 1) return;
     mcqs.removeAt(j);
+    mcqs.markAsDirty();
   }
 
-  clear_rowcol(i: number, rowcol = 'rows') {
-    let mcqs = this.get_formarray('questions', i, rowcol);
-    mcqs.clear();
-  }
+  // clear_rowcol(i: number, rowcol = 'rows') {
+  //   if (this.submitting || this.loading) { this.wait(); return; }
+  //   let mcqs = this.get_formarray('questions', i, rowcol);
+  //   mcqs.clear();
+  // }
 
   rowcols(i: number, rowcol = 'rows') {
     const mcqs = this.get_formarray('questions', i, rowcol);
@@ -395,9 +362,7 @@ export class RemindersComponent {
 
   // Question Level
   openModalUpDownQLevel(i: number) {
-    console.log(i);
     const form_array = this.myForm.get('questions') as FormArray;
-    console.warn(form_array.value.map((c: any) => c.question));
     this.modalMoveTo = this.modalSvc.open(MovetoComponent);
     this.modalMoveTo.componentInstance.from = i + 1;  // i is zero-based.
     this.modalMoveTo.componentInstance.list_names = form_array.value.map((c: any) => c.question);
@@ -410,6 +375,7 @@ export class RemindersComponent {
     let item = arr.at(old_index);
     arr.removeAt(old_index);
     arr.insert(new_index, item);
+    arr.markAsDirty();
   }
 
   // =============================================
@@ -434,6 +400,10 @@ export class RemindersComponent {
     else this.toastr.error(err);
   }
 
+  wait() {
+    this.toastr.info(this.translate.instant("wait"));
+  }
+
   public findInvalidControls(i: number): any[] {
     const invalid: any[] = [];
     const mid_man: any = this.get_q('questions', i);
@@ -443,48 +413,6 @@ export class RemindersComponent {
     }
     return invalid;
   }
-
-  // public findInvalidControls() {
-  //   const invalid = [];
-  //   const controls = this.myForm.controls;
-  //   for (const name in controls) {
-  //       if (controls[name].invalid) {
-  //           invalid.push(name);
-  //       }
-  //   }
-  //   return invalid;
-  // }
-
-  // get errors() {
-  //   const myerrors: any = {};
-  //   Object.keys(this.myForm.controls).forEach(key => {
-  //     // Get errors of every form control
-  //     const form = this.myForm.get(key)!;
-  //     if (form.errors != null && (form.dirty || form.touched)) { 
-  //       myerrors[key] = form.errors; 
-  //     }
-  //   });
-
-  //   // For master details
-  //   let dtls = this.myForm.get('questions') as FormArray;
-  //   dtls.controls.forEach(formgroup => {
-  //     // is a form group; we already know. 
-  //     const elem = formgroup as FormGroup;
-  //     Object.keys(elem.controls).forEach((key) => {
-  //       const field = elem.get(key)!;
-  //       if (field.errors != null) {
-  //         if (key != 'markup') {
-  //           myerrors[key] = field.errors;
-  //         } else {
-  //           // We change keyname cause repeated. 
-  //           myerrors['md_markup'] = field.errors;
-  //         }
-  //       }
-  //     });
-  //   });
-
-  //   return Object.keys(myerrors).length ? myerrors : null;
-  // }
 }
 
 type custom_option = {

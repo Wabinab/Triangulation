@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, HostListener, Input, inject } from '@angular/core';
 import { SharedModule } from '../../../shared/shared.module';
 import { SharedFormsModule } from '../../../shared/shared-forms.module';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -46,7 +46,7 @@ export class ChecklistComponent {
       checklist: fb.array([])
     });
 
-    setTimeout(() => this.loadData(), 100);
+    setTimeout(() => this.loadData(), 75);
   }
 
   async loadData() {
@@ -55,12 +55,11 @@ export class ChecklistComponent {
       stage_index: this.curr_stage,
       pipeline_index: this.id
     };
-
+    this.loading = true;
     let value: any = await this.http3.send(Routes.Pi, JSON.stringify(data));
     this.items = JSON.parse(value ?? '{}');
     if (this.items.err && this.items.err == "backend.OOBPipeline") {
       this.is_new = true;
-      // this.add_to_list();  // temporary. 
       this.loading = false; return;
     }
     this.is_new = false;
@@ -70,26 +69,33 @@ export class ChecklistComponent {
     }
     this.myForm.get('title')?.setValue(this.items.title);
     this.set_checklist(this.items.others);
-    // this.loading = false;  // set inside set_checklist. 
+    this.loading = false; 
   }
 
   private set_checklist(checklist: any) {
     let c = this.myForm.get('checklist') as FormArray;
 
-    if ([null, undefined].includes(checklist)) {this.loading = false; return; }
+    if ([null, undefined].includes(checklist)) { this.loading = false; return; }
     checklist.forEach((d: string) => {
       c.push(this.fb.group({
         title: [d ?? '', [Validators.required, Validators.minLength(1), Validators.maxLength(1_000)]]
       }));
     })
-    this.loading = false;
   }
 
   // ===============================================
-  onSubmit() {
-    if (this.submitting || this.loading || this.myForm.invalid) {
-      if (this.myForm.invalid) this.doErr("err.InvalidForm"); return;
+  @HostListener("document:keydown", ['$event'])
+  onSave(event: KeyboardEvent) {
+    if (event.ctrlKey && event.key === 's') {
+      event.preventDefault();
+      this.onSubmit("proj.ManualSave");
     }
+  }
+
+  onSubmit(msg: string | null = null) {
+    if (this.myForm.invalid) { this.doErr("err.InvalidForm"); return; }
+    if (this.submitting || this.loading) { this.wait(); return; }
+    if (msg !== null) this.toastr.info(this.translate.instant(msg), '', { timeOut: 1000 });
     this.submitting = true;
     const row = {
       filename: this.filename,
@@ -98,19 +104,17 @@ export class ChecklistComponent {
       title: this.myForm.get('title')!.value,
       checklist: this.get_checklist()
     };
-    console.warn(row);
 
     this.http3.send(this.is_new ? Routes.PiNew2 : Routes.PiEdit2, JSON.stringify(row))
     .then((res: any) => {
       this.submitting = false;
-      this.bsModalRef.close({ ty: this.http3.json_handler(res) });
+      if (msg === null) this.bsModalRef.close({ ty: this.http3.json_handler(res) });
     }).catch((err: any) => { this.doErr(err); this.submitting = false; });
   }
 
   modalCancel: any;
   cancel() {
-    console.log(`Loading: ${this.loading}\nSubmitting: ${this.submitting}`);
-    if (this.loading || this.submitting) return;
+    if (this.loading || this.submitting) { this.wait(); return; }
     if (this.is_dirty()) {
       this.modalCancel = this.modalSvc.open(CancellationComponent);
       this.modalCancel.componentInstance.back_path = "hide modal";
@@ -128,17 +132,25 @@ export class ChecklistComponent {
   is_dirty() {
     let dirty = false;
     Object.keys(this.myForm.controls).forEach(key => {
-      const field = this.myForm.get(key)!;
+      let field = this.myForm.get(key)!;
       if (field.dirty) dirty = true;
     });
 
     // TBD: Check second level later. 
+    const dtls = this.myForm.get('checklist') as FormArray;
+    dtls.controls.forEach(fg => {
+      let elem = fg as FormGroup;
+      Object.keys(elem.controls).forEach(key => {
+        let field2 = elem.get(key)!;
+        if (field2.dirty) dirty = true;
+      })
+    })
     return dirty;
   }
 
   // ===============================================
   get_checklist() {
-    // Need convert to array.
+    // Need convert to array. (????)
     return this.myForm.get('checklist')!.value.map((c: any) => c.title);
   }
   
@@ -156,6 +168,7 @@ export class ChecklistComponent {
   }
 
   add_and_focus(i: number | null = null, event: any = null) {
+    if (this.loading || this.submitting) { this.wait(); return; }
     if (i !== null && (event.value.length === 0 || event.value === null)) return;
     let length = this.add_to_list();
     setTimeout(() => {
@@ -164,8 +177,10 @@ export class ChecklistComponent {
   }
 
   remove_item(i: number) {
+    if (this.loading || this.submitting) { this.wait(); return; }
     let c = this.myForm.get('checklist') as FormArray;
     c.removeAt(i);
+    c.markAsDirty();
   }
   
   // ===============================================
@@ -173,7 +188,9 @@ export class ChecklistComponent {
     console.error(err);
     if (typeof(err) === 'string') this.toastr.error(this.translate.instant(err || ''));
     else this.toastr.error(err);
-    // this.translate.get(err).subscribe((res: any) => this.toastr.error(res), 
-    //   err => this.toastr.error(err));
+  }
+
+  wait() {
+    this.toastr.info(this.translate.instant("wait"));
   }
 }

@@ -1,0 +1,79 @@
+<div class="modal-header">
+  <h3>{{ myForm.get('title')!.value }}</h3>
+  <button type="button" class="btn-close" (click)="cancel()" aria-label="Close"></button>
+</div>
+
+<div class="modal-body">
+  <p class="text-center"><strong>{{ 'home.PreviewNotEqual' | translate }}</strong></p>
+  <form [formGroup]="myForm">
+    <!-- {{ questions | json }} -->
+    <ng-container formArrayName="questions">
+      <ng-container *ngFor="let q of questions; let i=index;" [formGroupName]="i">
+        <div class="card">
+          <div class="card-body row">
+            <div class="col-1 col-lg-1"><span class="text-center">{{ i + 1 }}</span></div>
+            <div class="col-11 col-lg-11">
+              <input type="text" *ngIf="!is_qtype(i, '8')" class="form-control" formControlName="question">
+              <textarea *ngIf="is_qtype(i, '8')" class="form-control" formControlName="question"></textarea>
+            </div>
+  
+            <div class="col-1 col-lg-1"></div>
+            <div class="col-11 col-lg-11 pt-2">
+              @if (is_qtype(i, "0")) {
+                <input type="text" class="form-control">
+              }
+              @if (is_qtype(i, "1")) {
+                <textarea rows="3" class="form-control"></textarea>
+              }
+              @if (is_qtype(i, ["2", "3"])) {
+                @for (r of q.get('rows')!.value; let j = $index; track j) {
+                  <div class="form-check">
+                    <input [type]="is_qtype(i, '2') ? 'radio' : 'checkbox'" 
+                    class="form-check-input">
+                    <label class="form-check-label">{{ r.option }}</label>
+                  </div>
+                }
+              }
+              @if (is_qtype(i, "4")) {
+                @if (q.get('min_name')?.value) { <span class="pr-4">{{ q.get('min_name')!.value }}</span> }
+                @for (c of range_min_max(q.get('min')!.value, q.get('max')!.value); track c) {
+                  <div class="form-check-inline">
+                    <label class="form-check-label text-center" for="inlineRadio">{{ c }}<br>
+                      <input type="radio" class="form-check-input no-margin">
+                    </label>
+                  </div>
+                }
+                @if (q.get('max_name')?.value) { <span class="pl-4">{{ q.get('max_name')!.value }}</span> }
+              }
+              @if (is_qtype(i, ["5", "6"])) {
+                <table class="table table-borderless">
+                  <thead><tr>
+                    <td scope="col"></td>
+                    @for (c of q.get('cols')!.value; track c) { <td scope="col">{{ c.option }}</td> }
+                  </tr></thead>
+                  <tbody>
+                    @for (r of q.get('rows')!.value; let j = $index; track j) {
+                      <tr>
+                        <td scope="row">{{ r.option }}</td>
+                        @for (c of q.get('cols')!.value; let k = $index; track k) {
+                          <td><input [type]="is_qtype(i, '5') ? 'radio' : 'checkbox'"
+                          class="form-check-input"></td>
+                        }
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              }
+              @if (is_qtype(i, "7")) {
+                <span>{{ "home.DisplayDateTimeHere" | translate }}</span>
+              }
+            </div>
+          </div>
+        </div>
+        <div class="pb-2"></div>
+      </ng-container>
+    </ng-container>
+  </form>
+</div>
+
+<!-- {{ myForm.getRawValue() | json }} -->

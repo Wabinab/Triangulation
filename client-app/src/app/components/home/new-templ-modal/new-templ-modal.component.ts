@@ -39,7 +39,8 @@ export class NewTemplModalComponent {
   }
 
   async onSubmit() {
-    if (!this.myForm.valid || this.loading || this.submitting) return;
+    if (this.myForm.invalid) { this.doErr("err.InvalidForm"); return; }
+    if (this.submitting || this.loading) { this.wait(); return; }
     this.submitting = true; 
     const row = {
       name: this.myForm.get('name')!.value,
@@ -52,10 +53,7 @@ export class NewTemplModalComponent {
         filename: filename_json.filename
       }});
       this.submitting = false;
-    }).catch((err) => {
-      this.doErr(err);
-      this.submitting = false;
-    });
+    }).catch((err) => { this.doErr(err); this.submitting = false; });
     
   }
 
@@ -93,7 +91,10 @@ export class NewTemplModalComponent {
     console.error(err);
     if (typeof(err) === 'string') this.toastr.error(this.translate.instant(err || ''));
     else this.toastr.error(err);
-    // Waiting for errSvc. 
+  }
+
+  wait() {
+    this.toastr.info(this.translate.instant("wait"));
   }
 
   charcount: string = '';

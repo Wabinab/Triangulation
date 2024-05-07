@@ -1,22 +1,12 @@
 use uuid::Uuid;
 use std::fs;
 
-use crate::{messages::FILENAME_NO_NULL, *};
+use crate::{messages::{FILENAME_NO_NULL, SUCCESS_DEL_TEMPL}, *};
 
 use self::{compressor::{compress_and_save, retrieve_decompress, retrieve_decompress_fullpath}, file::gen_filename, filelist_dto::SubmitFileList, stage_dto::{StageTrait, SubmitStage}, template_dto::{to_basic_template, to_nameonly, to_nlist_temp, SubmitCloneTemp, SubmitGetTemplate, SubmitTemplate, SubmitTemplateVer, TemplateTrait, TemplateVerTrait}, versioning::{get_verpath, upd_ver_temp}
 };
 
 // =================================================
-// GET
-// pub(crate) fn get_template(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
-//   let submit: SubmitGetTemplate = serde_json::from_slice(&msg).unwrap();
-
-//   let data = get_data(data_path, submit.filename.clone());
-//   if data.is_err() { return Err(data.unwrap_err()); }
-
-//   Ok(Some(data.unwrap().to_string()))
-// }
-
 pub(crate) fn get_template_nlist(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
   let submit: SubmitGetTemplate = serde_json::from_slice(&msg).unwrap();
 
@@ -36,11 +26,14 @@ pub(crate) fn get_templates_nameonly(data_path: PathBuf) -> Result<Option<String
   let mut errors: Vec<String> = vec![]; 
   let mut retvals: Vec<Value> = vec![];
   for path in paths {
-    if path.is_err() { error!("get_templates_nameonly path as_ref"); errors.push(path.unwrap_err().to_string()); continue; }
+    if path.is_err() { error!("get_templates_nameonly path as_ref"); 
+      errors.push(path.unwrap_err().to_string()); continue; }
     let data = retrieve_decompress_fullpath(path.unwrap().path());
-    if data.is_err() { error!("get_templates_nameonly retrieve data"); errors.push(data.unwrap_err()); continue; }
+    if data.is_err() { error!("get_templates_nameonly retrieve data"); 
+      errors.push(data.unwrap_err()); continue; }
     let retval = serde_json::to_value(&to_nameonly(data.unwrap()));
-    if retval.is_err() { error!("get_templates_nameonly retval"); errors.push(retval.unwrap_err().to_string()); continue; }
+    if retval.is_err() { error!("get_templates_nameonly retval"); 
+      errors.push(retval.unwrap_err().to_string()); continue; }
     retvals.push(retval.unwrap());
   }
   Ok(Some(json!({
@@ -111,10 +104,8 @@ pub(crate) fn new_template(data_path: PathBuf, msg: Bytes) -> Result<Option<Stri
 pub(crate) fn edit_template(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
   // Edit Template (Name and Description)
   let submit: SubmitTemplate = serde_json::from_slice(&msg).unwrap();
-  if submit.filename.is_none() { 
-    error!("edit_template filename template"); 
-    return Err(FILENAME_NO_NULL.to_owned()); 
-  }
+  if submit.filename.is_none() { error!("edit_template filename template"); 
+    return Err(FILENAME_NO_NULL.to_owned()); }
 
   let old_serde = get_data(
     data_path.clone(), submit.filename.clone().unwrap());
@@ -128,12 +119,13 @@ pub(crate) fn edit_template(data_path: PathBuf, msg: Bytes) -> Result<Option<Str
   let submit: SubmitStage = serde_json::from_slice(&msg).unwrap();
 
   let new_serde = submit.edit_stage(edited_serde);
-  let ret = compress_and_save(
-    new_serde.to_string(), modify_datapath(data_path.clone()), submit.filename.clone());
+  let ret = compress_and_save(new_serde.to_string(), 
+    modify_datapath(data_path.clone()), submit.filename.clone());
   if ret.is_err() { error!("edit_template save new serde"); return Err(ret.unwrap_err()); }
 
   // Update versioning when update template. 
-  let ret = upd_ver_temp(get_verpath(data_path.clone()), submit.filename.clone());
+  let ret = upd_ver_temp(get_verpath(data_path.clone()), 
+    submit.filename.clone());
   if ret.is_err() { error!("edit_template update version"); return Err(ret.unwrap_err()); }
 
   // We'll update to change filename too in the future. That isn't too important for now. 
@@ -146,17 +138,21 @@ pub(crate) fn delete_template(data_path: PathBuf, msg: Bytes) -> Result<Option<S
   let mut filepath = modify_datapath(data_path);
   filepath.push(filename.clone());
   let ret = fs::remove_file(filepath.as_path());
-  if ret.is_err() { error!("delete_template failed to remove file."); return Err(ret.unwrap_err().to_string()); }
+  if ret.is_err() { error!("delete_template failed to remove file."); 
+    return Err(ret.unwrap_err().to_string()); }
   Ok(Some(json!({
-    "msg": format!("Successfully delete template with filename: {}", filename)
+    // "msg": format!("Successfully delete template with filename: {}", filename)
+    "msg": SUCCESS_DEL_TEMPL.to_owned()
   }).to_string()))
 }
 
 pub(crate) fn clone_template(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
   let submit: SubmitCloneTemp = serde_json::from_slice(&msg).unwrap();
-  let filename = gen_filename(TEMPLATE_NAME.to_owned(), submit.uuid, None);
+  let filename = gen_filename(TEMPLATE_NAME.to_owned(), 
+    submit.uuid, None);
   let data = clone::clone_template(data_path, filename);
-  if data.is_err() { error!("template_controller clone_template err."); return Err(data.unwrap_err()); }
+  if data.is_err() { error!("template_controller clone_template err."); 
+    return Err(data.unwrap_err()); }
   Ok(Some(data.unwrap().to_string()))
 }
 

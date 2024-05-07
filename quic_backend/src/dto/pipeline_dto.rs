@@ -16,6 +16,8 @@ pub(crate) trait PipelineTrait {
 
   // This is from project pipeline (a.k.a. response)
   fn get_response(&self, old_serde: Value) -> Result<Value, String>;
+  fn get_response_checklist(&self, old_serde: Value) -> Result<Value, String>;
+  fn _get_response(&self, old_serde: Value, is_checklist: bool) -> Result<Value, String>;
 }
 
 impl PipelineTrait for SubmitPipeline {
@@ -28,14 +30,23 @@ impl PipelineTrait for SubmitPipeline {
   }
 
   fn get_response(&self, old_serde: Value) -> Result<Value, String> {
+    self._get_response(old_serde, false)
+  }
+
+  fn get_response_checklist(&self, old_serde: Value) -> Result<Value, String> {
+    self._get_response(old_serde, true)
+  }
+
+  fn _get_response(&self, old_serde: Value, is_checklist: bool) -> Result<Value, String> {
     let stages = old_serde["pipelines"][self.stage_index].clone();
-    if stages.is_null() { error!("pipeline_dto get_response stages"); return Err(OOB_STAGE_IDX.to_owned()); }
+    if stages.is_null() { error!("pipeline_dto _get_response stages"); return Err(OOB_STAGE_IDX.to_owned()); }
     let response = stages[self.pipeline_index].clone();
-    if response.is_null() { error!("pipeline_dto get_response response"); return Err(OOB_PIPELINE_IDX.to_owned()); } 
+    if response.is_null() { error!("pipeline_dto _get_response response"); return Err(OOB_PIPELINE_IDX.to_owned()); } 
 
     if self.cycle_index.is_some() {
-      let resp2 = response[self.cycle_index.unwrap()]["data"].clone();
-      if resp2.is_null() { error!("pipeline_dto get_response cycle not null but resp2 null."); return Err(OOB_CYCLE_IDX.to_owned()); }
+      let mut resp2 = response[self.cycle_index.unwrap()].clone();
+      if !is_checklist { resp2 = resp2["data"].clone(); }
+      if resp2.is_null() { error!("pipeline_dto _get_response cycle not null but resp2 null."); return Err(OOB_CYCLE_IDX.to_owned()); }
       return Ok(resp2);
     }
 

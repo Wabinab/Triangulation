@@ -34,47 +34,93 @@
 					(click)="set_filter(HomeFilter.Project)">{{ 'home.allProject' | translate }}</a></li>
 				<li class="nav-item nav-sidebar" [ngClass]="is_active(HomeFilter.Template)"><a class="nav-link" role="button" 
 					(click)="set_filter(HomeFilter.Template)">{{ 'home.allTemplate' | translate }}</a></li>
+        <li class="nav-item nav-sidebar" [ngClass]="is_active(HomeFilter.SampleTemplate)"><a class="nav-link" 
+          role="button" (click)="set_filter(HomeFilter.SampleTemplate)">{{ 'home.SampleTemplate' | translate }}</a></li>
 			</ul>
 		</div>
 
 		<div class="col-md-8 col-xl-9 col-xxl-10 pt-3">
 			<!-- List of cards -->
-      <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 row-cols-xxl-4 g-3 card-group">
-        @for (item of items | paginate: page; track item.uuid) {
-          <div class="col">
-            <div class="card card-hover" hover-class="border-primary | null | true">
-              <div class="card-header" (click)="redirect_to(item.uuid)">
-                {{ item.name }}
-              </div>
-              <div class="card-body" (click)="redirect_to(item.uuid)">
-                <p class="card-text">{{ item.description }}</p>
-              </div>
-              <ul class="list-group list-group-flush" *ngIf="item.t_name" (click)="redirect_to(item.uuid)">
-                <li class="list-group-item">{{ 'home.TemplateName' | translate }}: {{ item.t_name }}</li>
-                <li class="list-group-item">{{ 'home.Version' | translate }}: {{ item.t_ver + 1 }}</li>
-              </ul>
-              <!-- <div class="card-footer" *ngIf="item.t_name">
-                <span>{{ 'home.TemplateName' | translate }}: {{ item.t_name }}</span><br>
-                <span>{{ 'home.Version' | translate }}: {{ item.t_ver + 1 }}</span>
-              </div> -->
-              <div class="row row-cols-2 g-0">
-                <div class="card-footer col text-center border-end" 
-                [ngClass]="item.t_name ? 'border-top-0' : ''"
-                hover-class="text-bg-secondary | null"
-                (click)="clone_item(item.uuid)">
-                  {{ 'clone' | translate }}
+      @if (is_active(HomeFilter.Project) || is_active(HomeFilter.Template)) {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 row-cols-xxl-4 g-3 card-group">
+          @for (item of items | paginate: page; track item.uuid) {
+            <div class="col">
+              <div class="card card-hover" hover-class="border-primary | null | true">
+                <div class="card-header" (click)="redirect_to(item.uuid)">
+                  {{ item.name }}
                 </div>
-                <div class="card-footer col text-center delete-footer" 
-                [ngClass]="item.t_name ? 'border-top-0' : ''"
-                hover-class="text-bg-danger | null"
-                (click)="delete_item(item.uuid)">
-                  {{ 'delete' | translate }}
+                <div class="card-body" (click)="redirect_to(item.uuid)">
+                  <p class="card-text">{{ item.description }}</p>
+                </div>
+                <ul class="list-group list-group-flush" *ngIf="item.t_name" (click)="redirect_to(item.uuid)">
+                  <li class="list-group-item">{{ 'home.TemplateName' | translate }}: {{ item.t_name }}</li>
+                  <li class="list-group-item">{{ 'home.Version' | translate }}: {{ item.t_ver + 1 }}</li>
+                </ul>
+                <div class="row row-cols-2 g-0">
+                  <div class="card-footer col text-center border-end" 
+                  [ngClass]="item.t_name ? 'border-top-0' : ''"
+                  hover-class="text-bg-secondary | null"
+                  (click)="clone_item(item.uuid)">
+                    <fa-icon [icon]="faClone"></fa-icon>
+                  </div>
+                  <div class="card-footer col text-center delete-footer" 
+                  [ngClass]="item.t_name ? 'border-top-0' : ''"
+                  hover-class="text-bg-danger | null"
+                  (click)="delete_item(item.uuid)">
+                    <fa-icon [icon]="faDelete"></fa-icon>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        }
-      </div>
+          }
+        </div>
+      } 
+
+      @if (is_active(HomeFilter.SampleTemplate)) {
+        <div class="position-relative pb-5">
+          <span>{{ "home.ManualDownload" | translate }}</span>
+          <button type="button" class="position-absolute end-0 btn btn-primary" (click)="sync_index()"><fa-icon [icon]="faSync"></fa-icon></button>
+        </div>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 row-cols-xxl-4 g-3 card-group">
+          @for(item of items | keyvalue | paginate: page; track item.key) {
+            <div class="col">
+              <div class="card h-100 card-hover" hover-class="border-primary | null | true">
+                <div class="card-header h-100" (click)="preview_sample(item.value[0])">
+                  {{ item.key }}
+                </div>
+                <div class="card-body" (click)="preview_sample(item.value[0])">
+                  {{ item.value[1] }}
+                </div>
+                <ul class="list-group list-group-flush" (click)="preview_sample(item.value[0])">
+                  <li class="list-group-item">{{ 'home.Version' | translate }}: {{ item.value[2] }}</li>
+                  <li class="list-group-item"><strong>{{ 'home.Filename' | translate }}: {{ item.value[0] }}</strong></li>
+                </ul>
+                <div class="row row-cols-2 g-0">
+                  @if(downloaded(item.value[0])) {
+                    <div class="card-footer col text-center border-end border-top-0" 
+                    hover-class="text-bg-secondary | null"
+                    (click)="clone_sample(item.value[0])">
+                      <fa-icon [icon]="faClone"></fa-icon>
+                    </div>
+                    <div class="card-footer col text-center border-top-0 text-bg-success">
+                      <fa-icon [icon]="faTick"></fa-icon>
+                    </div>
+                  } @else {
+                    <div class="card-footer col text-center border-end border-top-0">
+                      <!-- <fa-icon [icon]="faClone"></fa-icon> -->
+                    </div>
+                    <div class="card-footer col text-center border-top-0"
+                    hover-class="text-bg-primary | null"
+                    (click)="download_sample(item.value[0])">
+                      <fa-icon [icon]="faDownload"></fa-icon>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
       <div class="pt-5"></div>
       <pagination-controls (pageChange)="change_page($event)" 
         class="text-center"
@@ -103,5 +149,5 @@
 </ng-container>
 
 
-<!-- <button (click)="get_templates()">GET templates</button> -->
+<!-- <button (click)="test_get_index()">GET index</button> -->
 <!-- {{ items | json }} -->

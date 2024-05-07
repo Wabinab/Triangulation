@@ -1,6 +1,6 @@
 use uuid::Uuid;
 
-use crate::{messages::{FILENAME_NO_NULL, UUID_NO_NULL}, *};
+use crate::{messages::{FILENAME_NO_NULL, SUCCESS_DEL_PROJ, UUID_NO_NULL}, *};
 
 use self::{compressor::{compress_and_save, retrieve_decompress, retrieve_decompress_fullpath}, file::gen_filename, filelist_dto::SubmitFileList, project_dto::{to_basic_project, to_nlist_proj, ProjVerTrait, ProjectTrait, SubmitCloneProj, SubmitGetProject, SubmitProjVer, SubmitProject}, template_dto::to_nlist_temp, versioning::{get_savepath, get_verpath, upd_ver_proj}};
 
@@ -188,7 +188,8 @@ pub(crate) fn delete_project(data_path: PathBuf, msg: Bytes) -> Result<Option<St
   let ret = fs::remove_file(filepath.as_path());
   if ret.is_err() { error!("delete_project failed to remove file."); return Err(ret.unwrap_err().to_string()); }
   Ok(Some(json!({
-    "msg": format!("Successfully delete project with filename: {}", filename)
+    // "msg": format!("Successfully delete project with filename: {}", filename)
+    "msg": SUCCESS_DEL_PROJ.to_owned()
   }).to_string()))
 }
 

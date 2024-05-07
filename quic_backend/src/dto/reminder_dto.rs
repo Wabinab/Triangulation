@@ -33,7 +33,7 @@ impl ReminderTrait for SubmitReminder {
 
     let mut pipelines = stages["pipeline"].as_array().unwrap().clone();
     let data = json!({
-      "ty": REMINDER_TYPE,
+      "ty": CardTypes::Reminder as u64,
       "title": self.title.clone().unwrap(),
       "others": self.question.clone().unwrap()
     });
@@ -55,7 +55,7 @@ impl ReminderTrait for SubmitReminder {
     if pipeline.is_null() { error!("reminder_dto edit pipeline"); return Err(OOB_PIPELINE_IDX.to_owned()); }
 
     let data = json!({
-      "ty": REMINDER_TYPE,
+      "ty": CardTypes::Reminder as u64,
       "title": self.title.clone().unwrap(),
       "others": self.question.clone().unwrap()
     });

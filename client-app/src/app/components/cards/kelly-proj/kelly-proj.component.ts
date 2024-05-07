@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, HostListener, Input, OnDestroy, inject } from '@angular/core';
 import { SharedModule } from '../../../shared/shared.module';
 import { SharedFormsModule } from '../../../shared/shared-forms.module';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -23,7 +23,7 @@ import { NumberNodotValidatorDirective } from '../../../directives/number-nodot-
   templateUrl: './kelly-proj.component.html',
   styleUrl: './kelly-proj.component.scss'
 })
-export class KellyProjComponent {
+export class KellyProjComponent implements OnDestroy {
   bsModalRef = inject(NgbActiveModal);
   private modalSvc = inject(NgbModal);
 
@@ -54,6 +54,10 @@ export class KellyProjComponent {
     this.subscription = source.subscribe(_ => this.autoSave());
   }
 
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
+
   private assign_initial_form() {
     this.myForm = this.fb.group({
       transactions: this.fb.array([])
@@ -69,6 +73,7 @@ export class KellyProjComponent {
         this.bsModalRef.dismiss({ ty: res["reminder.IdMinusOne"] });
       }); return;
     }
+    this.loading = true;
     let row = {
       t_uuid: this.t_uuid,
       t_ver: this.t_ver,
@@ -117,7 +122,6 @@ export class KellyProjComponent {
     });
 
     // this.cd.detectChanges();
-    // console.log(this.calc_row_total(3));
   }
 
   // ======================================================================
@@ -128,6 +132,7 @@ export class KellyProjComponent {
   param_latest = { value: this.max_transaction };  // also change at kelly.component! 
 
   add_transaction() {
+    if (this.loading || this.submitting) { this.wait(); return; }
     let t = this.myForm.get('transactions') as FormArray;
     t.insert(0, this.fb.group({  // insert to the beginning. 
       coin: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(10)]],
@@ -166,16 +171,25 @@ export class KellyProjComponent {
   }
 
   remove_transaction(i: number) {
+    if (this.loading || this.submitting) { this.wait(); return; }
     let t = this.myForm.get('transactions') as FormArray;
     t.removeAt(i);
+    t.markAsDirty();
   }
 
   // ======================================================================
-  autoSave() {
+  @HostListener("document:keydown", ['$event'])
+  onSave(event: KeyboardEvent) {
+    if (event.ctrlKey && event.key === 's') {
+      event.preventDefault();
+      this.autoSave("proj.ManualSave");
+      if (this.myForm.invalid) { this.doErr("err.InvalidForm"); return; }
+    }
+  }
+
+  autoSave(msg = "proj.Autosave") {
     if (this.submitting || this.loading || this.myForm.invalid) return;
-    this.translate.get('proj.Autosave', {}).subscribe((res: string) => {
-      this.toastr.info(res, '', { timeOut: 1000 });
-    });
+    this.toastr.info(this.translate.instant(msg), '', { timeOut: 1000 });
     this.submitting = true;
     const row = {
       filename: this.filename,
@@ -190,7 +204,8 @@ export class KellyProjComponent {
   }
 
   onSubmit() {
-    if (this.submitting || this.loading || this.myForm.invalid) return;
+    if (this.myForm.invalid) { this.doErr("err.InvalidForm"); return; }
+    if (this.submitting || this.loading) { this.wait(); return; }
     this.submitting = true;
     const row = {
       filename: this.filename,
@@ -221,7 +236,7 @@ export class KellyProjComponent {
   // ========================================================
   modalCancel: any;
   cancel() {
-    if (this.loading || this.submitting) return;
+    if (this.loading || this.submitting) { this.wait(); return; }
     if (this.is_dirty()) {
       this.modalCancel = this.modalSvc.open(CancellationComponent);
       this.modalCancel.componentInstance.back_path = "hide modal";
@@ -237,7 +252,7 @@ export class KellyProjComponent {
   }
 
   clear_data() {
-    if (this.submitting || this.loading) return;
+    if (this.submitting || this.loading) { this.wait(); return; }
     this.modalCancel = this.modalSvc.open(CancellationComponent);
     this.modalCancel.componentInstance.back_path = "hide modal";
     this.modalCancel.componentInstance.back_dismiss = true;
@@ -289,6 +304,10 @@ export class KellyProjComponent {
 
   round_to(value: number, dp: number = 5) {
     return Math.round(value * 10**dp) / 10**dp;
+  }
+
+  wait() {
+    this.toastr.info(this.translate.instant("wait"));
   }
 
   // ========================================================

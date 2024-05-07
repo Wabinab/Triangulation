@@ -29,6 +29,7 @@ export enum Routes {
   Ps     = "/projects",
 
   R      = "/response",
+  RCL    = "/response/checklist",  // include "extra". 
   REdit  = "/response/edit",
   RDel   = "/response/delete",
   REditKelly = "/response/edit/kelly",
@@ -40,6 +41,10 @@ export enum Routes {
   CEdit  = "/cycle/edit",
   CDel   = "/cycle/delete",
   CClear = "/cycle/clear",
+
+  SampleList = "/sample/list",
+  SampleTNlist = "/sample/nlist",
+  SamplePi = "/sample/pipeline",
 
   GenFilename = "/gen_filename"
 }

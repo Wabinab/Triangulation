@@ -2,7 +2,7 @@
 // Anything new will "shift" out position 0's and throw it away. 
 use crate::{messages::{PIPELINE_IDX_CANNOT_NULL, OOB_PIPELINE_IDX, OOB_STAGE_IDX, TITLE_NONE, TRANSACTION_NONE}, *};
 
-use self::{messages::NOT_IMPLEMENTED, reminder_dto::ReminderTrait, response_dto::ResponseTrait};
+use self::{reminder_dto::ReminderTrait, response_dto::ResponseTrait};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub(crate) struct SubmitKelly {
@@ -28,7 +28,6 @@ impl ReminderTrait for SubmitKelly {
   // New kelly
   fn new_reminder(&self, old_serde: Value) -> Result<Value, String> {
     if self.title.is_none() { error!("kelly_dto new title is none."); return Err(TITLE_NONE.to_owned()); }
-    // if self.transactions.is_none() { error!("kelly_dto new transactions is none."); return Err(TRANSACTION_NONE.to_owned()); }
     let mut new_serde = old_serde.clone();
 
     let stages = new_serde["stages"][self.stage_index].clone();
@@ -36,7 +35,7 @@ impl ReminderTrait for SubmitKelly {
 
     let mut pipelines = stages["pipeline"].as_array().unwrap().clone();
     let data = json!({
-      "ty": KELLY_TYPE,
+      "ty": CardTypes::Kelly as u64,
       "title": self.title.clone().unwrap(),
       "others": []
     });
@@ -58,7 +57,7 @@ impl ReminderTrait for SubmitKelly {
     if pipeline.is_null() { error!("kelly_dto edit pipeline"); return Err(OOB_PIPELINE_IDX.to_owned()); }
 
     let data = json!({
-      "ty": KELLY_TYPE,
+      "ty": CardTypes::Kelly as u64,
       "title": self.title.clone().unwrap(),
       "others": pipeline["others"].clone()
     });
@@ -87,48 +86,32 @@ impl ReminderTrait for SubmitKelly {
 
 // ===========================================================
 impl ResponseTrait for SubmitKelly {
-  fn add_new_cycle(&self, _old_serde: Value) -> Result<Value, String> {
-    return Err(NOT_IMPLEMENTED.to_owned());
-  }
-
-  fn edit_cycle(&self, _old_serde: Value) -> Result<Value, String> {
-    return Err(NOT_IMPLEMENTED.to_owned());
-  }
-
-  fn delete_cycle(&self, _old_serde: Value) -> Result<Value, String> {
-    return Err(NOT_IMPLEMENTED.to_owned())
-  }
-
-  fn clear_cycle(&self, _old_serde: Value) -> Result<Value, String> {
-    return Err(NOT_IMPLEMENTED.to_owned())
-  }
-
   fn edit_response(&self, old_serde: Value) -> Result<Value, String> {
-    if self.pipeline_index.is_none() { error!("kelly_dto edit-response kelly_idx is null."); return Err(PIPELINE_IDX_CANNOT_NULL.to_owned()); }
-    if self.transactions.is_none() { error!("kelly_dto edit-response transactions is none."); return Err(TRANSACTION_NONE.to_owned()); }
+    if self.pipeline_index.is_none() { error!("kelly_dto edit-response kelly_idx is null."); 
+      return Err(PIPELINE_IDX_CANNOT_NULL.to_owned()); }
+    if self.transactions.is_none() { error!("kelly_dto edit-response transactions is none."); 
+      return Err(TRANSACTION_NONE.to_owned()); }
     let mut new_serde = old_serde.clone();
     if new_serde["pipelines"][self.stage_index].is_null() {
-      error!("kelly_dto edit-response stage idx oob"); return Err(OOB_STAGE_IDX.to_owned());
-    }
+      error!("kelly_dto edit-response stage idx oob"); return Err(OOB_STAGE_IDX.to_owned()); }
     let pipeline = new_serde["pipelines"][self.stage_index][self.pipeline_index.unwrap()].clone();
-    if pipeline.is_null() {
-      error!("kelly_dto edit-response pipeline idx oob"); return Err(OOB_PIPELINE_IDX.to_owned());
-    }
+    if pipeline.is_null() { error!("kelly_dto edit-response pipeline idx oob"); 
+      return Err(OOB_PIPELINE_IDX.to_owned()); }
     // No check length unlike normal response. 
-    new_serde["pipelines"][self.stage_index][self.pipeline_index.unwrap()] = json!(self.transactions.as_ref().unwrap().clone());
+    new_serde["pipelines"][self.stage_index][self.pipeline_index.unwrap()] 
+      = json!(self.transactions.as_ref().unwrap().clone());
     Ok(new_serde)
   }
 
   fn delete_response(&self, old_serde: Value) -> Result<Value, String> {
-    if self.pipeline_index.is_none() { error!("kelly_dto edit-response kelly_idx is null."); return Err(PIPELINE_IDX_CANNOT_NULL.to_owned()); }
+    if self.pipeline_index.is_none() { error!("kelly_dto edit-response kelly_idx is null."); 
+      return Err(PIPELINE_IDX_CANNOT_NULL.to_owned()); }
     let mut new_serde = old_serde.clone();
     if new_serde["pipelines"][self.stage_index].is_null() {
-      error!("kelly_dto delete-response stage idx oob"); return Err(OOB_STAGE_IDX.to_owned());
-    }
+      error!("kelly_dto delete-response stage idx oob"); return Err(OOB_STAGE_IDX.to_owned()); }
     let pipeline = new_serde["pipelines"][self.stage_index][self.pipeline_index.unwrap()].clone();
-    if pipeline.is_null() {
-      error!("kelly_dto delete-response pipeline idx oob"); return Err(OOB_PIPELINE_IDX.to_owned());
-    }
+    if pipeline.is_null() { error!("kelly_dto delete-response pipeline idx oob"); 
+      return Err(OOB_PIPELINE_IDX.to_owned()); }
     new_serde["pipelines"][self.stage_index][self.pipeline_index.unwrap()] = json!([]);
     Ok(new_serde)
   }

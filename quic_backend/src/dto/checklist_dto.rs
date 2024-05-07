@@ -1,6 +1,6 @@
 use crate::{messages::{ANS_NONE, CHECKLIST_LEN_2, CHECKLIST_NONE, CHECKLIST_STRVEC, CL_EXTRA_LEN_NOT_MATCH, CYCLE_IDX_CANNOT_NULL, LEN_PIPELINE_NOT_MATCH, OOB_CYCLE_IDX, OOB_PIPELINE_IDX, OOB_STAGE_IDX, PIPELINE_IDX_CANNOT_NULL, TITLE_NONE, VEC_BOOL_ONLY}, *};
 
-use self::{messages::NOT_IMPLEMENTED, reminder_dto::ReminderTrait, response_dto::ResponseTrait};
+use self::{reminder_dto::ReminderTrait, response_dto::ResponseTrait};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub(crate) struct SubmitChecklist {
@@ -23,7 +23,7 @@ impl ReminderTrait for SubmitChecklist {
 
     let mut pipelines = stages["pipeline"].as_array().unwrap().clone();
     let data = json!({
-      "ty": CHECKLIST_TYPE,
+      "ty": CardTypes::Checklist as u64,
       "title": self.title.clone().unwrap(),
       "others": self.checklist.clone().unwrap()
     });
@@ -45,7 +45,7 @@ impl ReminderTrait for SubmitChecklist {
     if pipeline.is_null() { error!("checklist_dto edit pipeline"); return Err(OOB_PIPELINE_IDX.to_owned()); }
 
     let data = json!({
-      "ty": CHECKLIST_TYPE,
+      "ty": CardTypes::Checklist as u64,
       "title": self.title.clone().unwrap(),
       "others": self.checklist.clone().unwrap()
     });
@@ -84,44 +84,28 @@ pub(crate) struct SubmitRespChecklist {
 }
 
 impl ResponseTrait for SubmitRespChecklist {
-  fn add_new_cycle(&self, _old_serde: Value) -> Result<Value, String> {
-    Err(NOT_IMPLEMENTED.to_owned())
-  }
-  fn edit_cycle(&self, _old_serde: Value) -> Result<Value, String> {
-    Err(NOT_IMPLEMENTED.to_owned())
-  }
-  fn delete_cycle(&self, _old_serde: Value) -> Result<Value, String> {
-    Err(NOT_IMPLEMENTED.to_owned())
-  }
-  fn clear_cycle(&self, _old_serde: Value) -> Result<Value, String> {
-    Err(NOT_IMPLEMENTED.to_owned())
-  }
-
   fn edit_response(&self, old_serde: Value) -> Result<Value, String> {
-    if self.checklist.is_none() {
-      error!("checklist_dto answer none"); return Err(ANS_NONE.to_owned()); }
-    if self.cycle_index.is_none() { error!("checklist_dto edit cycle index null"); return Err(CYCLE_IDX_CANNOT_NULL.to_owned()); }
+    if self.checklist.is_none() { error!("checklist_dto answer none"); return Err(ANS_NONE.to_owned()); }
+    if self.cycle_index.is_none() { error!("checklist_dto edit cycle index null"); 
+      return Err(CYCLE_IDX_CANNOT_NULL.to_owned()); }
     let mut new_serde = old_serde.clone();
 
     if new_serde["pipelines"][self.stage_index].is_null() { 
       error!("checklist_dto edit stages"); return Err(OOB_STAGE_IDX.to_owned()); }
     let pipeline = new_serde["pipelines"][self.stage_index][self.pipeline_index].clone();
-    if pipeline.is_null() {
-      error!("checklist_dto edit pipeline"); return Err(OOB_PIPELINE_IDX.to_owned()); }
+    if pipeline.is_null() { error!("checklist_dto edit pipeline"); 
+      return Err(OOB_PIPELINE_IDX.to_owned()); }
     let cycles = pipeline[self.cycle_index.unwrap()].clone();
-    if cycles.is_null() {
-      error!("checklist_dto edit cycle"); return Err(OOB_CYCLE_IDX.to_owned()); }
+    if cycles.is_null() { error!("checklist_dto edit cycle"); 
+    return Err(OOB_CYCLE_IDX.to_owned()); }
     if cycles["data"].as_array().unwrap().len() != self.checklist.as_ref().unwrap().as_array().unwrap().len() {
-      error!("checklist_dto edit length"); 
-      return Err(LEN_PIPELINE_NOT_MATCH.to_owned());
-    }
+      error!("checklist_dto edit length"); return Err(LEN_PIPELINE_NOT_MATCH.to_owned()); }
 
     // Unlike usual data only, we have one "extra".
     if self.extra_checklist.is_some() {
       let checklist: Value = self.extra_checklist.clone().unwrap();
       let _c = checklist.as_array().unwrap().clone();
-      if _c.len() != 2 { error!("checklist_dto _c checklist len != 2"); 
-        return Err(CHECKLIST_LEN_2.to_owned()); }
+      if _c.len() != 2 { error!("checklist_dto _c checklist len != 2"); return Err(CHECKLIST_LEN_2.to_owned()); }
       let _q: Result<Vec<String>, serde_json::Error> = serde_json::from_value(checklist[0].clone());
       if _q.is_err() { error!("checklist_dto _q question not pure string."); 
         return Err(CHECKLIST_STRVEC.to_owned()); }
@@ -133,8 +117,12 @@ impl ResponseTrait for SubmitRespChecklist {
 
       new_serde["pipelines"][self.stage_index][self.pipeline_index]
         [self.cycle_index.unwrap()]["extra"] = self.extra_checklist.clone().unwrap();
+    } else {
+      // if null, also save, but slightly different. 
+      new_serde["pipelines"][self.stage_index][self.pipeline_index]
+        [self.cycle_index.unwrap()]["extra"] = json!(null);
     }
-
+    
     // Must be boolean only. 
     let checklist: Result<Vec<bool>, serde_json::Error> = 
       serde_json::from_value(self.checklist.clone().unwrap());
@@ -145,6 +133,7 @@ impl ResponseTrait for SubmitRespChecklist {
     Ok(new_serde)
   }
 
+
   fn delete_response(&self, old_serde: Value) -> Result<Value, String> {
     if self.cycle_index.is_none() { error!("checklist_dto edit cycle index null"); 
       return Err(CYCLE_IDX_CANNOT_NULL.to_owned()); }
@@ -153,11 +142,11 @@ impl ResponseTrait for SubmitRespChecklist {
     if new_serde["pipelines"][self.stage_index].is_null() { 
       error!("checklist_dto delete stages"); return Err(OOB_STAGE_IDX.to_owned()); }
     let pipeline = new_serde["pipelines"][self.stage_index][self.pipeline_index].clone();
-    if pipeline.is_null() {
-      error!("checklist_dto delete pipeline"); return Err(OOB_PIPELINE_IDX.to_owned()); }
+    if pipeline.is_null() { error!("checklist_dto delete pipeline"); 
+      return Err(OOB_PIPELINE_IDX.to_owned()); }
     let cycles = pipeline[self.cycle_index.unwrap()].clone();
-    if cycles.is_null() {
-      error!("checklist_dto delete cycle"); return Err(OOB_CYCLE_IDX.to_owned()); }
+    if cycles.is_null() { error!("checklist_dto delete cycle"); 
+      return Err(OOB_CYCLE_IDX.to_owned()); }
     
     let mut c = cycles["data"].as_array().unwrap().clone();
     c = c.iter_mut()
@@ -165,10 +154,8 @@ impl ResponseTrait for SubmitRespChecklist {
       .collect();
     new_serde["pipelines"][self.stage_index][self.pipeline_index]
       [self.cycle_index.unwrap()]["data"] = json!(c);
-    
-    // This for extra
     new_serde["pipelines"][self.stage_index][self.pipeline_index]
-      [self.cycle_index.unwrap()]["extra"] = json!(null);
+      [self.cycle_index.unwrap()]["extra"] = json!(null);  // extra
 
     Ok(new_serde)
   }

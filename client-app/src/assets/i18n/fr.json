@@ -13,9 +13,17 @@
     "newTemplate": "Nouveau Modèle",
     "allProject": "Tous les Projets",
     "allTemplate": "Tous les Modèle",
+    "SampleTemplate": "Exemple de Modèle",
     "Filters": "Filtres",
     "TemplateName": "Modèle",
-    "Version": "Version"
+    "Version": "Version",
+    "WrongFilter": "Cette fonction pas appeler sans filtres 'Tous les Project' ou 'Tous les Modèle'.",
+    "ManualDownload": "Mettre le file téléchargé dans \"(emplacement_cette_app)/data/sample_templ\" s'il te plaît. Le nom fichier sont égal comme affiché.",
+    "Filename": "Le nom fichier",
+    "DownloadFirst": "Téléchargement le fichier et mettre la dans \"(emplacement_cette_app)/data/sample_templ\" avant aperçu s'il te plaît.",
+    "PreviewNotEqual": "Attention! Le prévu pas sont similaire avec le projet actuel.",
+    "DisplayDateTimeHere": "La sélecteur de date et d'heure ne sont pas incluses dans la prévu.",
+    "PreviewNotIncluded": "Ne sont pas incluses dans la prévu."
   },
   "newProj": {
     "title": "Créer une Nouveau Projet",
@@ -48,6 +56,7 @@
     "DateTime": "Choisir la date et l'heure",
     "Submit": "Sauvegarder",
     "Autosave": "Sauvegarder Automatique en cours",
+    "ManualSave": "Sauvegarde",
     "Unsafe": "Dangereux",
     "UndFilename": "Nom de fichier pas défini",
     "AtLeast": "Au moins {{ value }} caractère(s).",
@@ -98,7 +107,12 @@
     "ClearData": "Succès effacées les données."
   },
   "checklist": {
-    "Name": "Liste de contrôle"
+    "Name": "Liste de contrôle",
+    "Main": "L'objet principaux",
+    "Status": "Statut",
+    "Item": "Item",
+    "Extra": "L'objet supplémentaire",
+    "ForgetAny": "Ajoute quelque chose ici immédiatement dans le projet."
   },
   "QuestionChoice": {
     "Short": "Réponse courte",
@@ -111,6 +125,7 @@
     "GridCheckbox": "Grille de cases à cocher",
     "Datetime": "Date et Heure",
     "None": "Pas le réponse",
+    "Announcement": "Utiliser ça pour annoncer quelque chose pour la utilisateur",
 
     "Question": "Question",
     "Option": "Option",
@@ -132,8 +147,10 @@
   "delete": "Supprimer",
   "cancel": "Annuler",
   "save": "Enrégistrer Succes {{ value }}",
+  "saving": "Sauvegarde en cours",
   "yes": "Oui",
   "no": "Non",
+  "wait": "Quelque chose est en cours, veuillez patienter.",
   "cycle": {
     "": "Cycle",
     "Clear": "Supprimer tout les Cycles",
@@ -160,7 +177,8 @@
   "error": {
     "filter": "Question {{ i }} est invalide, sur {{ value }}. Veuillez corriger avant de soumettre.",
     "OneCycle": "Au moins une cycle.",
-    "CycleMaxReached": "Nombre maximum de cycles atteint. Clonez plutôt vers un nouveau projet."
+    "CycleMaxReached": "Nombre maximum de cycles atteint. Clonez plutôt vers un nouveau projet.",
+    "Timeout": "Reéssayer temps mort."
   },
   "backend": {
     "UuidNoNull": "L'UUID du modèle ne peut pas être nul.",
@@ -186,7 +204,19 @@
     "AnswerNull": "answer ne peut pas être nul. Signaler un bug s'il te plaît.",
     "PipelineLen": "La longueur du pipeline ne correspond pas.",
     "TitleNone": "Titre ne peut pas être vide.",
-    "QuestionNone": "Il besoin de au moins une question."
+    "QuestionNone": "Il besoin de au moins une question.",
+    "ChecklistNone": "Liste de Contrôle ne peut pas être nul.",
+    "CycleIdxNull": "Signaler un bug: Cycle Index ne peut pas être nul.",
+    "OOBCycle": "Index de la Cycle hors limite.",
+    "CycleNameNull": "Le nom Cycle ne peut pas être nul ou vide.",
+    "AtLeastOneCycle": "Au moins d'une cycle.",
+    "VecBoolOnly": "Le valeur soumis besoin de tableau de vrai/faux.",
+    "ChecklistLen2": "Bug: Le longueur 'extra' besoin d'égal à 2.",
+    "ChecklistStrVec": "Bug 'extra': Le tableau question pas seulement le 'string'.",
+    "ChecklistLenNotMatch": "Bug 'extra': Le longueur tableau question et réponse pas égal.",
+    "DelProj": "Suppression du projet réussie.",
+    "DelTempl": "Suppression du modèle réussie.",
+    "NoRoute": "Le route pas trouvé."
   }
 }
   

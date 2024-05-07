@@ -13,9 +13,17 @@
     "newTemplate": "New Template",
     "allProject": "All Projects",
     "allTemplate": "All Templates",
+    "SampleTemplate": "Sample Template",
     "Filters": "Filters",
     "TemplateName": "Template",
-    "Version": "Version"
+    "Version": "Version",
+    "WrongFilter": "Only 'All Template' or 'All Project' filter can use this function.",
+    "ManualDownload": "Please put all downloaded file into \"(where_this_app_is_located)/data/sample_templ\" manually. The filename should match the displayed name below.",
+    "Filename": "Filename",
+    "DownloadFirst": "Please download the file and put it into \"(where_this_app_is_located)/data/sample_templ\" before preview.",
+    "PreviewNotEqual": "Note, preview don't behave exactly like actual project. They're just preview.",
+    "DisplayDateTimeHere": "Date and Time picker isn't available in preview.",
+    "PreviewNotIncluded": "Not Available in preview."
   },
   "newProj": {
     "title": "Create a New Project",
@@ -48,6 +56,7 @@
     "DateTime": "Choose Date and Time",
     "Submit": "Save",
     "Autosave": "Autosave in progress",
+    "ManualSave": "Saved",
     "Unsafe": "Unsafe",
     "UndFilename": "Filename Not Defined",
     "AtLeast": "At Least {{ value }} character(s).",
@@ -98,7 +107,12 @@
     "ClearData": "Successfully Cleared Data."
   },
   "checklist": {
-    "Name": "Checklist"
+    "Name": "Checklist",
+    "Main": "Main Items",
+    "Status": "Status",
+    "Item": "Item",
+    "Extra": "Extra Items",
+    "ForgetAny": "Add anything on the go in projects."
   },
   "QuestionChoice": {
     "Short": "Short Answer",
@@ -111,6 +125,7 @@
     "GridCheckbox": "Checkbox grid",
     "Datetime": "Date and Time",
     "None": "No Answer",
+    "Announcement": "Use this for announcement. Type whatever you want the reader to know here!",
     
     "Question": "Question",
     "Option": "Option",
@@ -132,8 +147,10 @@
   "delete": "Delete",
   "cancel": "Cancel",
   "save": "Successfully Save {{ value }}",
+  "saving": "Saving",
   "yes": "Yes",
   "no": "No",
+  "wait": "Something is in progress, please wait.",
   "cycle": {
     "": "Cycle",
     "Clear": "Clear Cycles",
@@ -160,7 +177,8 @@
   "error": {
     "filter": "Question {{ i }} is invalid, on {{ value }}. Please fix before submit.",
     "OneCycle": "Must have at least one cycle.",
-    "CycleMaxReached": "Max no. of cycle reached. Clone to a new project instead."
+    "CycleMaxReached": "Max no. of cycle reached. Clone to a new project instead.",
+    "Timeout": "Retry timeout."
   },
   "backend": {
     "UuidNoNull": "Template UUID Cannot Be Null.",
@@ -186,7 +204,19 @@
     "AnswerNull": "answer cannot be null. Please report bug.",
     "PipelineLen": "Pipeline length does not match.",
     "TitleNone": "Title cannot be empty.",
-    "QuestionNone": "There must be at least one question."
+    "QuestionNone": "There must be at least one question.",
+    "ChecklistNone": "Checklist cannot be null.",
+    "CycleIdxNull": "Report bug: Cycle Index cannot be null.",
+    "OOBCycle": "Cycle Index Out of Bound.",
+    "CycleNameNull": "Cycle Name cannot be null nor empty.",
+    "AtLeastOneCycle": "Must have at least 1 cycle.",
+    "VecBoolOnly": "Submitted value must be array of true/false.",
+    "ChecklistLen2": "Bug: Checklist 'extra' length must be equal to 2.",
+    "ChecklistStrVec": "Bug: Checklist 'extra' question array not purely string.",
+    "ChecklistLenNotMatch": "Bug: Checklist 'extra' question and answer array length not match.",
+    "DelProj": "Successfully Delete Project.",
+    "DelTempl": "Successfully Delete Template.",
+    "NoRoute": "Cannot find route."
   }
 }
   

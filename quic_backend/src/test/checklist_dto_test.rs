@@ -1,6 +1,6 @@
 use serde_json::{json, Value};
 
-use crate::{checklist_dto::{SubmitChecklist, SubmitRespChecklist}, messages::{CHECKLIST_LEN_2, CHECKLIST_NONE, CHECKLIST_STRVEC, CL_EXTRA_LEN_NOT_MATCH, OOB_PIPELINE_IDX, OOB_STAGE_IDX, PIPELINE_IDX_CANNOT_NULL, TITLE_NONE, VEC_BOOL_ONLY}, reminder_dto::ReminderTrait, response_dto::ResponseTrait, CHECKLIST_TYPE, REMINDER_TYPE};
+use crate::{checklist_dto::{SubmitChecklist, SubmitRespChecklist}, messages::{CHECKLIST_LEN_2, CHECKLIST_NONE, CHECKLIST_STRVEC, CL_EXTRA_LEN_NOT_MATCH, OOB_PIPELINE_IDX, OOB_STAGE_IDX, PIPELINE_IDX_CANNOT_NULL, TITLE_NONE, VEC_BOOL_ONLY}, reminder_dto::ReminderTrait, response_dto::ResponseTrait, CardTypes};
 
 fn get_old_serde() -> Value {
   let c = r#"{
@@ -240,8 +240,8 @@ fn test_edit_forced_ty_to_be_new() {
   let edited_serde = submit.edit_reminder(old_serde.clone()).unwrap();
   let ooi = edited_serde["stages"][0]["pipeline"][1].clone();
   let old_ooi = old_serde["stages"][0]["pipeline"][1].clone();
-  assert_eq!(old_ooi["ty"], REMINDER_TYPE);
-  assert_eq!(ooi["ty"], CHECKLIST_TYPE);
+  assert_eq!(old_ooi["ty"], CardTypes::Reminder as u64);
+  assert_eq!(ooi["ty"], CardTypes::Checklist as u64);
 }
 
 #[test]
@@ -507,3 +507,42 @@ fn test_delete_response_reset_all_to_expected() {
   assert_eq!(ooi["data"], json!([false, false, false]));
 }
 
+#[test]
+fn test_edit_extra_delete_all() {
+  let old_serde = get_proj_serde();
+  let d = r#"{
+    "filename": "...",
+    "stage_index": 0,
+    "pipeline_index": 1,
+    "cycle_index": 0,
+    "checklist": [true, false, true]
+  }"#;
+  let submit: SubmitRespChecklist = serde_json::from_str(&d).unwrap();
+  
+  let edited_serde = submit.edit_response(old_serde.clone()).unwrap();
+  let ooi = edited_serde["pipelines"][0][1][0].clone();
+  // let old_ooi = old_serde["pipelines"][0][1][0].clone();
+  assert!(ooi["extra"].is_null(), "{:?}", ooi["extra"]);
+}
+
+#[test]
+fn test_edit_extra_remove_one_works() {
+  let old_serde = get_proj_serde();
+  let d = r#"{
+    "filename": "...",
+    "stage_index": 0,
+    "pipeline_index": 1,
+    "cycle_index": 0,
+    "checklist": [true, false, true],
+    "extra_checklist": [
+      ["Question 1"], 
+      [true]
+    ]
+  }"#;
+  let submit: SubmitRespChecklist = serde_json::from_str(&d).unwrap();
+  
+  let edited_serde = submit.edit_response(old_serde.clone()).unwrap();
+  let ooi = edited_serde["pipelines"][0][1][0].clone();
+  // println!("{:?}", ooi);
+  assert_eq!(ooi["extra"][0].as_array().unwrap().len(), 1);
+}

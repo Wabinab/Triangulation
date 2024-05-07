@@ -19,7 +19,7 @@ Then, we have 2 groups of items.  -->
     <div class="pb-3"></div>
 
     <!-- Compulsory checklist: defined in template -->
-    <h4 class="text-center">Compulsory Items</h4>
+    <h4 class="text-center">{{ 'checklist.Main' | translate }}</h4>
     <div class="row" formArrayName="checklist">
       <table class="table">
         <thead>
@@ -28,9 +28,9 @@ Then, we have 2 groups of items.  -->
             <th scope="col" class="col-2 col-md-1"></th>
             <!-- Below for ID -->
             <th scope="col" class="col-2 col-md-1"></th>
-            <th scope="col">Title</th>
+            <th scope="col">{{ 'reminder.title' | translate }}</th>
             <!-- The columns we can tune later. -->
-            <th scope="col" class="col-2 col-md-1">Status</th>
+            <th scope="col" class="col-2 col-md-1 text-center">{{ 'checklist.Status' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -63,7 +63,7 @@ Then, we have 2 groups of items.  -->
             <td colspan="99">
               <button class="btn btn-outline-secondary" type="button" 
               (click)="add_and_focus()">
-                <fa-icon [icon]="faAdd"></fa-icon> Add Item
+                <fa-icon [icon]="faAdd"></fa-icon> {{'checklist.Item' | translate }}
               </button>
             </td>
           </tr>
@@ -73,7 +73,7 @@ Then, we have 2 groups of items.  -->
     <div class="pb-3"></div>
 
     <!-- Extra checklist: defined in projects. -->
-    <h4 class="text-center">Extra Items</h4>
+    <h4 class="text-center">{{ 'checklist.Extra' | translate }}</h4>
     <div class="row">
       <table class="table">
         <thead>
@@ -82,14 +82,14 @@ Then, we have 2 groups of items.  -->
             <th scope="col" class="col-2 col-md-1"></th>
             <!-- Below for ID -->
             <th scope="col" class="col-2 col-md-1"></th>
-            <th scope="col">Title</th>
+            <th scope="col">{{ 'reminder.title' | translate }}</th>
             <!-- The columns we can tune later. -->
-            <th scope="col" class="col-2 col-md-1">Status</th>
+            <th scope="col" class="col-2 col-md-1 text-center">{{ 'checklist.Status' | translate }}</th>
           </tr>
         </thead>
         <tbody>
           <tr><td colspan="99" class="text-center">
-            If you forget anything, add here during editing projects.
+            {{ 'checklist.ForgetAny' | translate }}
           </td></tr>
         </tbody>
       </table>
@@ -114,4 +114,5 @@ Then, we have 2 groups of items.  -->
 <pre>
   <!-- {{ myForm.value | json }} -->
   <!-- {{ items | json }} -->
+  <!-- {{ is_dirty() | json}} -->
 </pre>

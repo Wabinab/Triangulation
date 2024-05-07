@@ -12,12 +12,14 @@
       <fa-icon [icon]="faTrash"></fa-icon> 
     </button>
     @for(c of cycles; track c; let i = $index) {
-      <a class="nav-link" [ngClass]="cycle_active(i)" (click)="set_cycle(i)" *ngIf="!is_edit_cycle(i)">
-        {{ c }}</a>
+      <a class="nav-link" [ngClass]="cycle_active(i)" (click)="set_cycle(i)" 
+        *ngIf="!is_edit_cycle(i)">{{ c }}</a>
       <div class="input-group mb-3" *ngIf="is_edit_cycle(i)">
-        <input type="text" class="form-control" [(ngModel)]="cycle_name" minlength="1" maxlength="50" 
-        (keydown.enter)="finish_edit_cycle_name()" id="cycle_name">
-        <button class="btn btn-primary" (click)="finish_edit_cycle_name()"><fa-icon [icon]="faSave"></fa-icon></button>
+        <input type="text" class="form-control" [(ngModel)]="cycle_name" minlength="1" 
+        maxlength="50" (keydown.enter)="finish_edit_cycle_name()" id="cycle_name">
+        <button class="btn btn-primary" (click)="finish_edit_cycle_name()">
+          <fa-icon [icon]="faSave"></fa-icon>
+        </button>
       </div>
     }
   </ul>
@@ -25,7 +27,7 @@
 
   <form [formGroup]="myForm">
     <!-- Compulsory checklist: defined in template -->
-    <h4 class="text-center">Compulsory Items</h4>
+    <h4 class="text-center">{{ 'checklist.Main' | translate }}</h4>
     <div class="row">
       <table class="table">
         <thead>
@@ -34,9 +36,9 @@
             <!-- <th scope="col" class="col-2 col-md-1"></th> -->
             <!-- Below for ID -->
             <th scope="col" class="col-2 col-md-1"></th>
-            <th scope="col">Title</th>
+            <th scope="col">{{ 'reminder.title' | translate }}</th>
             <!-- The columns we can tune later. -->
-            <th scope="col" class="col-2 col-md-1">Status</th>
+            <th scope="col" class="col-2 col-md-1 text-center">{{ 'checklist.Status' | translate }}</th>
           </tr>
         </thead>
         <tbody formArrayName="checklist">
@@ -50,7 +52,8 @@
                 <input type="checkbox" class="btn-check" id="check_{{ i }}" 
                 formControlName="check" autocomplete="off">
                 <label class="btn btn-outline-primary" for="check_{{ i }}">
-                  <fa-icon [icon]="faTick"></fa-icon>
+                  @if (c.get('check')!.value) { <fa-icon [icon]="faTick"></fa-icon> }
+                  @else { <fa-icon [icon]="faMinus"></fa-icon> }
                 </label>
               </td>
             </tr>
@@ -61,7 +64,7 @@
     <div class="pb-3"></div>
 
     <!-- Extra checklist: defined in projects. -->
-    <h4 class="text-center">Extra Items</h4>
+    <h4 class="text-center">{{ 'checklist.Extra' | translate }}</h4>
     <div class="row">
       <table class="table">
         <thead>
@@ -70,9 +73,9 @@
             <th scope="col" class="col-2 col-md-1"></th>
             <!-- Below for ID -->
             <th scope="col" class="col-2 col-md-1"></th>
-            <th scope="col">Title</th>
+            <th scope="col">{{ 'reminder.title' | translate }}</th>
             <!-- The columns we can tune later. -->
-            <th scope="col" class="col-2 col-md-1">Status</th>
+            <th scope="col" class="col-2 col-md-1 text-center">{{ 'checklist.Status' | translate }}</th>
           </tr>
         </thead>
         <tbody formArrayName="extra_checklist">
@@ -94,7 +97,8 @@
                 <input type="checkbox" class="btn-check" id="ex_check_{{ i }}" 
                 formControlName="check" autocomplete="off">
                 <label class="btn btn-outline-primary" for="ex_check_{{ i }}">
-                  <fa-icon [icon]="faTick"></fa-icon>
+                  @if (c.get('check')!.value) { <fa-icon [icon]="faTick"></fa-icon> }
+                  @else { <fa-icon [icon]="faMinus"></fa-icon> }
                 </label>
               </td>
             </tr>
@@ -103,7 +107,7 @@
             <td colspan="99">
               <button class="btn btn-outline-secondary" type="button" 
               (click)="add_and_focus()">
-                <fa-icon [icon]="faAdd"></fa-icon> Add Item
+                <fa-icon [icon]="faAdd"></fa-icon> {{'checklist.Item' | translate }}
               </button>
             </td>
           </tr>
@@ -137,7 +141,8 @@
   </div>
 </div>
 
+<!-- <button type="button" (click)="set_loading()">SET loading</button> -->
 <pre>
   <!-- {{ myForm.getRawValue() | json }} -->
-  {{ items | json }}
+  <!-- {{ items | json }} -->
 </pre>

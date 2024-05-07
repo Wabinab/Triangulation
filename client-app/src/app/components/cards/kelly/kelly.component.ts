@@ -1,9 +1,9 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, HostListener, Input, inject } from '@angular/core';
 import { SharedModule } from '../../../shared/shared.module';
 import { SharedFormsModule } from '../../../shared/shared-forms.module';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Http3Service } from '../../../services/http3.service';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 // import { UppercaseDirective } from '../../../directives/uppercase.directive';
@@ -65,6 +65,7 @@ export class KellyComponent {
       pipeline_index: this.id
     }
 
+    this.loading = true;
     let value: any = await this.http3.send(Routes.Pi, JSON.stringify(data));
     this.items = JSON.parse(value ?? '{}');
     if (this.items.err && this.items.err == "backend.OOBPipeline") {
@@ -81,11 +82,18 @@ export class KellyComponent {
   }
 
   // ========================================================
-  onSubmit() {
-    if (this.submitting || this.loading || this.myForm.invalid) {
-      if (this.myForm.invalid) this.doErr("err.InvalidForm");
-      return;
+  @HostListener("document:keydown", ['$event'])
+  onSave(event: KeyboardEvent) {
+    if (event.ctrlKey && event.key === 's') {
+      event.preventDefault();
+      this.onSubmit("proj.ManualSave");
     }
+  }
+
+  onSubmit(msg: string | null = null) {
+    if (this.myForm.invalid) { this.doErr("err.InvalidForm"); return; }
+    if (this.submitting || this.loading) { this.wait(); return; }
+    if (msg !== null) this.toastr.info(this.translate.instant(msg), '', { timeOut: 1000 });
     this.submitting = true;
     const row = {
       filename: this.filename,
@@ -97,14 +105,14 @@ export class KellyComponent {
     this.http3.send(this.is_new ? Routes.PiNew1 : Routes.PiEdit1, JSON.stringify(row))
     .then((res: any) => {
       this.submitting = false;
-      this.bsModalRef.close({ ty: this.http3.json_handler(res) });
+      if (msg === null) this.bsModalRef.close({ ty: this.http3.json_handler(res) });
     }).catch((err: any) => { this.doErr(err); this.submitting = false; });
   }
 
   private modalSvc = inject(NgbModal);
   modalCancel: any;
   cancel() {
-    if (this.loading || this.submitting) return;
+    if (this.loading || this.submitting) { this.wait(); return; }
     if (this.is_dirty()) {
       this.modalCancel = this.modalSvc.open(CancellationComponent);
       this.modalCancel.componentInstance.back_path = "hide modal";
@@ -133,5 +141,9 @@ export class KellyComponent {
     console.error(err);
     if (typeof(err) === 'string') this.toastr.error(this.translate.instant(err || ''));
     else this.toastr.error(err);
+  }
+
+  wait() {
+    this.toastr.info(this.translate.instant("wait"));
   }
 }

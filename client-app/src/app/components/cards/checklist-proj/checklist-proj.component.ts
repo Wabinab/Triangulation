@@ -1,10 +1,10 @@
-import { Component, HostListener, Input, inject } from '@angular/core';
+import { Component, HostListener, Input, OnDestroy, inject } from '@angular/core';
 import { SharedModule } from '../../../shared/shared.module';
 import { SharedFormsModule } from '../../../shared/shared-forms.module';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { UppercaseDirective } from '../../../directives/uppercase.directive';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { faAdd, faCheck, faTrashCan, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faAdd, faCheck, faMinus, faTrashCan, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { faSave } from '@fortawesome/free-regular-svg-icons';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subscription, interval } from 'rxjs';
@@ -21,7 +21,7 @@ import { CancellationComponent } from '../../cancellation/cancellation.component
   templateUrl: './checklist-proj.component.html',
   styleUrl: './checklist-proj.component.scss'
 })
-export class ChecklistProjComponent {
+export class ChecklistProjComponent implements OnDestroy {
   bsModalRef = inject(NgbActiveModal);
   private modalSvc = inject(NgbModal);
 
@@ -30,6 +30,7 @@ export class ChecklistProjComponent {
   faSave = faSave;
   faTrash = faTrashCan;
   faTick = faCheck;
+  faMinus = faMinus;
 
   @Input() id: number = -1;
   @Input() curr_stage: number = 0;
@@ -54,6 +55,10 @@ export class ChecklistProjComponent {
     this.subscription = source.subscribe(_ => this.autoSave());
   }
 
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
+
   private assign_initial_form() {
     this.myForm = this.fb.group({
       checklist: this.fb.array([]), 
@@ -70,6 +75,7 @@ export class ChecklistProjComponent {
         this.bsModalRef.dismiss({ ty: res["reminder.IdMinusOne"] });
       }); return;
     }
+    this.loading = true;
     let row = {
       t_uuid: this.t_uuid,
       t_ver: this.t_ver,
@@ -80,18 +86,17 @@ export class ChecklistProjComponent {
       let data = this.http3.json_handler(value);
       this.items = data;
 
-      // Answer TBD
-      this.set_checklist(this.items.others);
-
       let row2 = {
         filename: this.filename,
         stage_index: this.curr_stage,
         pipeline_index: this.id
       };
 
-      let answers = await this.http3.send(Routes.R, JSON.stringify(row2));
+      let answers = await this.http3.send(Routes.RCL, JSON.stringify(row2));
       let answers_json: any = this.http3.json_handler(answers);
-      console.warn(answers_json);
+      this.fill_cycle(answers_json.map((c: any) => c.name));
+      this.set_checklist(this.items.others, answers_json[this.cycle_id]);
+      this.set_extra(answers_json[this.cycle_id]);
       this.loading = false;
     }).catch(err => { this.doErr(err); this.loading = false; });
   }
@@ -104,24 +109,50 @@ export class ChecklistProjComponent {
       cycle_index: this.cycle_id
     };
 
-    this.http3.send(Routes.R, JSON.stringify(row2)).then(async (answers: any) => {
+    this.loading = true;
+    this.http3.send(Routes.RCL, JSON.stringify(row2)).then(async (answers: any) => {
       let answers_json: any = this.http3.json_handler(answers);
-      // Fill here. 
+      // console.log(answers_json);
+      this.set_checklist_again(answers_json);
       this.loading = false;
     }).catch((err: any) => { this.doErr(err); this.loading = false; });
   }
 
-  private set_checklist(checklist: any) {
+  private set_checklist(checklist: any, answers_json: any) {
     let c = this.myForm.get('checklist') as FormArray;
 
-    if ([null, undefined].includes(checklist)) { this.loading = false; return; }
-    checklist.forEach((d: string) => {
+    if ([null, undefined].includes(checklist)) return; // nothing, just return. 
+    checklist.forEach((d: string, i: number) => {
       c.push(this.fb.group({
         title: [{value: d ?? '', disabled: true}],
-        check: [false]
+        check: [answers_json.data[i] ?? false]
+      }));
+    });
+  }
+
+  private set_extra(answers_json: any) {
+    let e = this.myForm.get('extra_checklist') as FormArray;
+    if ([null, undefined].includes(answers_json.extra)) return;
+    answers_json.extra[0].forEach((val: any, i: number) => {
+      e.push(this.fb.group({
+        title: [val ?? '', [Validators.required, Validators.minLength(1), Validators.maxLength(1_000)]],
+        check: [answers_json.extra[1][i] ?? false]
       }));
     })
-    // this.loading = false;
+  }
+
+  private set_checklist_again(answers_json: any) {
+    let c = this.myForm.get('checklist') as FormArray;
+
+    let i = 0;
+    for (let control of c.controls) {
+      control.get('check')!.setValue(answers_json.data[i]);
+      i++;
+    }
+
+    let e = this.myForm.get('extra_checklist') as FormArray;
+    e.clear();
+    this.set_extra(answers_json);
   }
 
   // ===============================================
@@ -136,6 +167,7 @@ export class ChecklistProjComponent {
   }
 
   add_and_focus(i: number | null = null, event: any = null) {
+    if (this.loading || this.submitting) { this.wait(); return; }
     if (i !== null && (event.value.length === 0 || event.value === null)) return;
     let length = this.add_to_list();
     setTimeout(() => {
@@ -144,8 +176,10 @@ export class ChecklistProjComponent {
   }
 
   remove_item(i: number) {
+    if (this.loading || this.submitting) { this.wait(); return; }
     let c = this.myForm.get('extra_checklist') as FormArray;
     c.removeAt(i);
+    c.markAsDirty();
   }
 
   // ===============================================
@@ -165,14 +199,17 @@ export class ChecklistProjComponent {
   cycle_active(id: number) { return {'active': this.cycle_id == id }; }
 
   add_cycle() {
+    if (this.loading || this.submitting) { this.wait(); return; }
     if (this.cycles.length >= this.max_cycle) { this.doErr("error.CycleMaxReached"); return; }
     this.cycle_id = this.cycles.length;
-    this.cycles.push(`Cycle ${this.cycles.length}`);
+    // this.cycles.push(`Cycle ${this.cycles.length}`);
+    this.cycles.push(`${this.cycles.length}`);
     this.is_new_cycle = true;
     this.edit_cycle_name(true);  // save after edit. 
   }
 
   remove_curr_cycle() {
+    if (this.loading || this.submitting) { this.wait(); return; }
     if (this.cycles.length == 1) { this.doErr("error.OneCycle"); return; }
 
     let row2 = {
@@ -209,6 +246,7 @@ export class ChecklistProjComponent {
   }
 
   edit_cycle_name(select = false) {
+    // if (this.loading || this.submitting) { this.wait(); return; }
     this.curr_edit_cycle = true;
     this.cycle_name = this.cycles[this.cycle_id];
     setTimeout(() => { 
@@ -233,7 +271,7 @@ export class ChecklistProjComponent {
     this.submitting = true;
     this.http3.send(this.is_new_cycle ? Routes.CNew : Routes.CEdit, JSON.stringify(row2)).then((value: any) => {
       this.cycle_name = '';
-      let resp = this.http3.json_handler(value);
+      let _ = this.http3.json_handler(value);
       this.toastr.success(this.translate.instant("save", {value: row2.cycle_name}));
       this.submitting = false;
       this.is_new_cycle = false;
@@ -246,18 +284,26 @@ export class ChecklistProjComponent {
   }
 
   // ===============================================
-  autoSave() {
-    if (this.submitting || this.loading || this.myForm.invalid) return;
-    this.translate.get('proj.Autosave', {}).subscribe((res: string) => {
-      this.toastr.info(res, '', { timeOut: 1000 });
-    });
+  @HostListener("document:keydown", ['$event'])
+  onSave(event: KeyboardEvent) {
+    if (event.ctrlKey && event.key === 's') {
+      event.preventDefault();
+      this.autoSave("proj.ManualSave");
+      if (this.myForm.invalid) { this.doErr("err.InvalidForm"); return; }
+    }
+  }
+  
+  autoSave(msg = "proj.Autosave") {
+    if (this.submitting || this.loading || this.myForm.invalid) return; // no need invalid or wait. 
+    this.toastr.info(this.translate.instant(msg, {}), '', { timeOut: 1000});
     this.submitting = true;
     const row = {
       filename: this.filename,
       stage_index: this.curr_stage,
       pipeline_index: this.id,
       cycle_index: this.cycle_id,
-      answer: this.get_answers()
+      checklist: this.get_answers(),
+      extra_checklist: this.get_extra_answers()
     };
     this.http3.send(Routes.REditCL, JSON.stringify(row)).then((_: any) => {
       this.submitting = false; // Autosave no check for error. 
@@ -265,14 +311,16 @@ export class ChecklistProjComponent {
   }
 
   onSubmit() {
-    if (this.submitting || this.loading || this.myForm.invalid) return;
+    if (this.myForm.invalid) { this.doErr("err.InvalidForm"); return; }
+    if (this.submitting || this.loading) { this.wait(); return; }
     this.submitting = true;
     const row = {
       filename: this.filename,
       stage_index: this.curr_stage,
       pipeline_index: this.id,
       cycle_index: this.cycle_id,
-      answer: this.get_answers()
+      checklist: this.get_answers(),
+      extra_checklist: this.get_extra_answers()
     };
     this.http3.send(Routes.REditCL, JSON.stringify(row)).then((value: any) => {
       this.submitting = false;
@@ -284,7 +332,17 @@ export class ChecklistProjComponent {
   // extra_checklist, requires both checklist_title and tick/cross boolean. 
   // Then, combine both together. 
   private get_answers() {
-    return null;  // TBD
+    let checklist = this.myForm.get('checklist')!.value;
+    return checklist.map((c: any) => c.check === '' ? false : c.check);
+  }
+
+  private get_extra_answers() {
+    let extra_checklist = this.myForm.get('extra_checklist')?.value;
+    if (extra_checklist === null || extra_checklist.length == 0) return null;
+    return [
+      extra_checklist.map((c: any) => c.title),
+      extra_checklist.map((c: any) => c.check === '' ? false : c.check)
+    ];
   }
 
   // ==================================================
@@ -308,7 +366,7 @@ export class ChecklistProjComponent {
   }
 
   clear_data() {
-    if (this.submitting || this.loading) return;
+    if (this.loading || this.submitting) { this.wait(); return; }
     this.modalCancel = this.modalSvc.open(CancellationComponent);
     this.modalCancel.componentInstance.back_path = "hide modal";
     this.modalCancel.componentInstance.back_dismiss = true;
@@ -331,7 +389,7 @@ export class ChecklistProjComponent {
   }
 
   clear_cycles() {
-    if (this.submitting || this.loading) return;
+    if (this.loading || this.submitting) { this.wait(); return; }
     this.modalCancel = this.modalSvc.open(CancellationComponent);
     this.modalCancel.componentInstance.back_path = "hide modal";
     this.modalCancel.componentInstance.back_dismiss = true;
@@ -386,4 +444,14 @@ export class ChecklistProjComponent {
     if (typeof(err) === 'string') this.toastr.error(this.translate.instant(err || ''));
     else this.toastr.error(err);
   }
+
+  wait() {
+    this.toastr.info(this.translate.instant("wait"));
+  }
+
+  // ============================
+  // Debug
+  // set_loading() {
+  //   this.loading = true;
+  // }
 }

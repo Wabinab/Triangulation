@@ -56,6 +56,7 @@ export class ProjectComponent {
       this.doErr("proj.UndFilename");
       this.loading = false; return; 
     }
+    this.loading = true;
     const row = { filename: this.filename };
 
     // Any subsequent error can be catch this way; since it doesn't directly raise error but return Err json. 
@@ -81,6 +82,7 @@ export class ProjectComponent {
   }
 
   async save(save_ver: boolean = false) {
+    if (this.saving) { this.wait(); return; }
     this.saving = true;
     let row = {
       filename: this.filename,
@@ -97,6 +99,7 @@ export class ProjectComponent {
 
   /// Unsafe saving of version.
   async unsafe_save_ver() {
+    if (this.saving) { this.wait(); return; }
     this.saving = true;
     let row = {
       filename: this.filename,
@@ -267,43 +270,15 @@ export class ProjectComponent {
     });
   }
 
-  // get_icon_by_ty(ty: number) {
-  //   if (ty == CardTypes.Reminders) return this.faReminder;
-  //   if (ty == CardTypes.Kelly) return this.faInvestment;
-  //   if (ty == CardTypes.Checklist) return this.faChecklist;
-  //   return null
-  // }
-
-  // ====================================================
-  // To be moved to a service. 
-  /// Get the translation of object. `obj` must have translation-readable
-  /// keys. E.g. obj = {"en": "something", "fr": "quelque chose"}, the keys
-  /// are "en" and "fr", which are translation-readable. 
-  // get_translate(obj: any) {
-  //   const keys = Object.keys(obj);
-  //   const currentLang = this.translate.currentLang;
-  //   if (keys.includes(currentLang)) return obj[currentLang];
-  //   const browserLang = this.translate.getBrowserLang() ?? 'en';
-  //   if (keys.includes(browserLang)) return obj[browserLang];
-  //   const defaultLang = this.translate.getDefaultLang();
-  //   if (keys.includes(defaultLang)) return obj[defaultLang];
-  //   return obj[keys[0]];
-  // }
-
-  // get_locale(obj: any) {
-  //   const currentLang = this.translate.currentLang;
-  //   if (currentLang) return currentLang;
-  //   const browserLang = this.translate.getBrowserLang();
-  //   if (browserLang) return browserLang;
-  //   const defaultLang = this.translate.getDefaultLang();
-  //   if (defaultLang) return defaultLang;
-  //   return Object.keys(obj)[0];
-  // }
-
+  // =======================================================
   doErr(err: any) {
     console.log(this.saving);
     console.error(err);
     if (typeof(err) === 'string') this.toastr.error(this.translate.instant(err || ''));
     else this.toastr.error(err);
+  }
+
+  wait() {
+    this.toastr.info(this.translate.instant("wait"));
   }
 }

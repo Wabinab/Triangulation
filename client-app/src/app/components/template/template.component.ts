@@ -1,4 +1,4 @@
-import { AfterViewChecked, AfterViewInit, Component, ElementRef, HostListener, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, ViewChild, inject } from '@angular/core';
 import { faBell, faListCheck, faMoneyBillWheat, faPencil, faPlus, faSave, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { SharedModule } from '../../shared/shared.module';
 import { SharedFormsModule } from '../../shared/shared-forms.module';
@@ -55,18 +55,18 @@ export class TemplateComponent implements AfterViewInit {
   }
 
   ngAfterViewInit() {
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-      var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    let _ = tooltipTriggerList.map(function (tooltipTriggerEl) {
       return new Tooltip(tooltipTriggerEl)
-      });    
+    });    
   }
 
   async load(curr_stage: number = 0) {
     if (!this.filename) { 
       this.doErr("proj.UndFilename");
-      this.loading = false; 
-      return;
+      this.loading = false; return;
     }
+    this.loading = true;
     const row = { filename: this.filename };
     this.http3.send(Routes.TNlist, JSON.stringify(row)).then(async (value: any) => {
       this.template = this.http3.json_handler(value);
@@ -82,6 +82,7 @@ export class TemplateComponent implements AfterViewInit {
   }
 
   async save() {
+    if (this.saving) { this.wait(); return; }
     this.saving = true;
     const row = {
       filename: this.filename,
@@ -365,31 +366,35 @@ export class TemplateComponent implements AfterViewInit {
   /// Get the translation of object. `obj` must have translation-readable
   /// keys. E.g. obj = {"en": "something", "fr": "quelque chose"}, the keys
   /// are "en" and "fr", which are translation-readable. 
-  get_translate(obj: any) {
-    const keys = Object.keys(obj);
-    const currentLang = this.translate.currentLang;
-    if (keys.includes(currentLang)) return obj[currentLang];
-    const browserLang = this.translate.getBrowserLang() ?? 'en';
-    if (keys.includes(browserLang)) return obj[browserLang];
-    const defaultLang = this.translate.getDefaultLang();
-    if (keys.includes(defaultLang)) return obj[defaultLang];
-    return obj[keys[0]];
-  }
+  // get_translate(obj: any) {
+  //   const keys = Object.keys(obj);
+  //   const currentLang = this.translate.currentLang;
+  //   if (keys.includes(currentLang)) return obj[currentLang];
+  //   const browserLang = this.translate.getBrowserLang() ?? 'en';
+  //   if (keys.includes(browserLang)) return obj[browserLang];
+  //   const defaultLang = this.translate.getDefaultLang();
+  //   if (keys.includes(defaultLang)) return obj[defaultLang];
+  //   return obj[keys[0]];
+  // }
 
-  get_locale(obj: any) {
-    const currentLang = this.translate.currentLang;
-    if (currentLang) return currentLang;
-    const browserLang = this.translate.getBrowserLang();
-    if (browserLang) return browserLang;
-    const defaultLang = this.translate.getDefaultLang();
-    if (defaultLang) return defaultLang;
-    return Object.keys(obj)[0];
-  }
+  // get_locale(obj: any) {
+  //   const currentLang = this.translate.currentLang;
+  //   if (currentLang) return currentLang;
+  //   const browserLang = this.translate.getBrowserLang();
+  //   if (browserLang) return browserLang;
+  //   const defaultLang = this.translate.getDefaultLang();
+  //   if (defaultLang) return defaultLang;
+  //   return Object.keys(obj)[0];
+  // }
 
   doErr(err: any) {
     console.error(err);
     if (typeof(err) === 'string') this.toastr.error(this.translate.instant(err || ''));
     else this.toastr.error(err);
+  }
+
+  wait() {
+    this.toastr.info(this.translate.instant("wait"));
   }
 
   disable_modals() {

@@ -8,3 +8,4 @@ pub(crate) mod project_controller;
 pub(crate) mod response_controller;
 pub(crate) mod misc_controller;
 pub(crate) mod cycle_controller;
+pub(crate) mod sample_controller;

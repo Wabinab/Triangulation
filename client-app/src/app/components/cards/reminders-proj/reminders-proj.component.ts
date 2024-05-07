@@ -1,4 +1,4 @@
-import { Component, HostListener, Input, SecurityContext, ViewEncapsulation, inject } from '@angular/core';
+import { Component, HostListener, Input, OnDestroy, SecurityContext, ViewEncapsulation, inject } from '@angular/core';
 import { SharedModule } from '../../../shared/shared.module';
 import { SharedFormsModule } from '../../../shared/shared-forms.module';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -34,7 +34,7 @@ import { MarkdownComponent, MarkdownService, provideMarkdown } from 'ngx-markdow
   styleUrl: './reminders-proj.component.scss',
   // encapsulation: ViewEncapsulation.None
 })
-export class RemindersProjComponent {
+export class RemindersProjComponent implements OnDestroy {
   bsModalRef = inject(NgbActiveModal);
   private modalSvc = inject(NgbModal);
 
@@ -74,6 +74,10 @@ export class RemindersProjComponent {
     this.subscription = source.subscribe(_ => this.autoSave());
   }
 
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
+
   private assign_initial_form() {
     this.myForm = this.fb.group({
       questions: this.fb.array([]),  
@@ -89,13 +93,13 @@ export class RemindersProjComponent {
         this.bsModalRef.dismiss({ ty: res["reminder.IdMinusOne"] });
       }); return;
     }
+    this.loading = true;
     let row = {
       t_uuid: this.t_uuid,
       t_ver: this.t_ver,
       stage_index: this.curr_stage,
       pipeline_index: this.id
     }
-    // console.warn(row);
     this.http3.send(Routes.PiProj, JSON.stringify(row)).then(async (value: any) => {
       let data = this.http3.json_handler(value);
       this.items = data;
@@ -194,11 +198,6 @@ export class RemindersProjComponent {
     if ([AnswerTypes.GridCheckbox, AnswerTypes.GridMultipleChoice].includes(q_type as AnswerTypes)) {
       let arr: FormArray = this.fb.array([]);
       for (let r in rows) {
-        // arr.push(this.fb.group({
-        //   option: q_type == AnswerTypes.GridCheckbox 
-        //     ? this.get_answer(AnswerTypes.Checkbox, cols, []) // loop over cols instead of rows
-        //     : ['', Validators.required]
-        // }));
         arr.push(q_type == AnswerTypes.GridCheckbox
           ? this.fb.control([...Array(cols.length).fill(false)], [atLeastOneTrueValidator()])
           : this.fb.control('', [Validators.required])  
@@ -210,7 +209,6 @@ export class RemindersProjComponent {
   }
 
   private get_validators(q_type: string) {
-    // let qtype = parseInt(q_type);
     if (q_type == AnswerTypes.Short) { return [Validators.required, Validators.minLength(1), Validators.maxLength(75)] };
     if (q_type == AnswerTypes.Long) { return [Validators.required, Validators.minLength(1), Validators.maxLength(this.desc_limit)]};
     return [Validators.required];
@@ -231,7 +229,6 @@ export class RemindersProjComponent {
 
   // For grid checkbox only
   checking_grid(j: number, k: number, event: any, control: AbstractControl) {
-    // let value = control.get([j, 'option'])!.value;
     let value = control.get([j])!.value;
     value[k] = event.target.checked;
     control.get([j])!.setValue(value);
@@ -267,6 +264,7 @@ export class RemindersProjComponent {
   }
 
   add_cycle() {
+    if (this.loading || this.submitting) { this.wait(); return; }
     if (this.cycles.length >= this.max_cycle) { this.doErr("error.CycleMaxReached"); return; }
     this.cycle_id = this.cycles.length;
     this.cycles.push(`Cycle ${this.cycles.length}`);
@@ -275,6 +273,7 @@ export class RemindersProjComponent {
   }
 
   remove_curr_cycle() {
+    if (this.loading || this.submitting) { this.wait(); return; }
     if (this.cycles.length == 1) { this.doErr("error.OneCycle"); return; }
 
     let row2 = {
@@ -348,9 +347,18 @@ export class RemindersProjComponent {
   }
 
   // ===========================================================
-  autoSave() {
+  @HostListener("document:keydown", ['$event'])
+  onSave(event: KeyboardEvent) {
+    if (event.ctrlKey && event.key === 's') {
+      event.preventDefault();
+      this.autoSave("proj.ManualSave");
+      if (this.myForm.invalid) { this.doErr("err.InvalidForm"); return; }
+    }
+  }
+
+  autoSave(msg = "proj.Autosave") {
     if (this.submitting || this.loading || this.myForm.invalid) return;
-    this.toastr.info(this.translate.instant('proj.Autosave'), '', { timeOut: 1000 });
+    this.toastr.info(this.translate.instant(msg), '', { timeOut: 1000 });
     this.submitting = true;
     const row = {
       filename: this.filename,
@@ -359,14 +367,14 @@ export class RemindersProjComponent {
       cycle_index: this.cycle_id,
       answer: this.get_answer()
     };
-
     this.http3.send(Routes.REdit, JSON.stringify(row)).then((_: any) => {
       this.submitting = false;   // Autosave no check for error. 
     }).catch(err => { this.doErr(err); this.submitting = false; })
   }
 
   onSubmit() {
-    if (this.submitting || this.loading || this.myForm.invalid) return;
+    if (this.myForm.invalid) { this.doErr("err.InvalidForm"); return; }
+    if (this.submitting || this.loading) { this.wait(); return; }
     this.submitting = true;
     const row = {
       filename: this.filename,
@@ -415,7 +423,7 @@ export class RemindersProjComponent {
   }
 
   clear_data() {
-    if (this.submitting || this.loading) return;
+    if (this.loading || this.submitting) { this.wait(); return; }
     this.modalCancel = this.modalSvc.open(CancellationComponent);
     this.modalCancel.componentInstance.back_path = "hide modal";
     this.modalCancel.componentInstance.back_dismiss = true;
@@ -438,7 +446,7 @@ export class RemindersProjComponent {
   }
 
   clear_cycles() {
-    if (this.submitting || this.loading) return;
+    if (this.loading || this.submitting) { this.wait(); return; }
     this.modalCancel = this.modalSvc.open(CancellationComponent);
     this.modalCancel.componentInstance.back_path = "hide modal";
     this.modalCancel.componentInstance.back_dismiss = true;
@@ -476,30 +484,12 @@ export class RemindersProjComponent {
     return dirty;
   }
 
-  // all_dirty(): string[] {
-  //   let changedProperties: any[] = [];
-  
-  //   Object.keys(this.myForm.controls).forEach((name) => {
-  //     const currentControl = this.myForm.controls[name];
-  
-  //     if (currentControl.dirty) {
-  //       changedProperties.push(name);
-  //     }
-  //   });
-  
-  //   return changedProperties;
-  // }
-
   // ===========================================================
   get title() { return this.items?.title ?? 'Untitled'; }
   get questions() {
     const q = this.myForm.get('questions') as FormArray;
     return q['controls'];
   }
-
-  // get questions() {
-  //   return this.myForm.get('questions')?.value;
-  // }
 
   doErr(err: any) {
     console.error(err);
@@ -515,6 +505,10 @@ export class RemindersProjComponent {
     const charcount = this.desc_limit - len;
     const translate_word = charcount >= 0 ? 'newTempl.charRemain' : 'newTempl.charOver';
     this.charcount[i.toString()] = `${Math.abs(charcount)} ${this.translate.instant(translate_word)}`;
+  }
+
+  wait() {
+    this.toastr.info(this.translate.instant("wait"));
   }
 
   // ===========================================================
@@ -534,16 +528,6 @@ export class RemindersProjComponent {
     if (errors && errors.atLeastOneTrue) { return "ng-invalid" }
     return "ng-valid";
   }
-
-  // private get_formarray(first: string, i: number, second: string ): FormArray {
-  //   let q = this.get_q(first, i);
-  //   return q.get(second) as FormArray;
-  // }
-
-  // private get_q(first: string, i: number): AbstractControl {
-  //   let qs = this.myForm.get(first) as FormArray;
-  //   return qs.at(i);
-  // }
 
   // Convert boolean array to indices. 
   // https://stackoverflow.com/questions/50981806/javascript-get-indices-of-true-values-in-a-boolean-array

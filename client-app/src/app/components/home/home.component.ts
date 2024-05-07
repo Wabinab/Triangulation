@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { SharedModule } from '../../shared/shared.module';
 import { ToastrService } from 'ngx-toastr';
-import { faRoad, faRoute } from '@fortawesome/free-solid-svg-icons';
+import { faArrowDown, faCheck, faRoad, faRotate, faRoute, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { HomeView } from '../../models/home-view';
 import { NewProjModalComponent } from './new-proj-modal/new-proj-modal.component';
 import { NewTemplModalComponent } from './new-templ-modal/new-templ-modal.component';
@@ -15,6 +15,9 @@ import { TranslateService } from '@ngx-translate/core';
 import { Routes } from '../../models/routes';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CancellationComponent } from '../cancellation/cancellation.component';
+import { GithubService } from '../../services/github.service';
+import { faClone } from '@fortawesome/free-regular-svg-icons';
+import { TemplatePreviewComponent } from '../template-preview/template-preview.component';
 
 @Component({
   selector: 'app-home',
@@ -27,6 +30,12 @@ import { CancellationComponent } from '../cancellation/cancellation.component';
 export class HomeComponent {
   faProj = faRoad;
   faTempl = faRoute;
+  faSync = faRotate;
+  faDownload = faArrowDown;
+  faClone = faClone;
+  faDelete = faTrashAlt;
+  faTick = faCheck;
+
   deferProjClicked = signal(false);
   deferTemplClicked = signal(false);
   private modalSvc = inject(NgbModal);
@@ -41,11 +50,13 @@ export class HomeComponent {
   loading = false;
 
   constructor(private toastr: ToastrService, private http3: Http3Service, 
-    private router: Router, private translate: TranslateService
+    private router: Router, private translate: TranslateService,
+    private github: GithubService
   ) {
     // Default is project, so we get project and fill items. 
     setTimeout(() => {
       this.get_projects(true);  // give time for service to load. 
+      // this.get_sample_templates(true);
     }, 100);
   }
 
@@ -66,16 +77,20 @@ export class HomeComponent {
   // Filter
   set_filter(value: HomeFilter) {
     this.curr_filter = value;
-    this.get_template_or_project();
+    this.get_filter();
     // this.toastr.success(value, "Filter chosen");
   }
 
   change_page(page_no: any) {
     this.page.currentPage = page_no;
-    this.get_template_or_project();
+    this.get_filter();
   }
 
+  // Can only be called if isn't in sample template. 
   redirect_to(uuid: string) {
+    if (![HomeFilter.Template, HomeFilter.Project].includes(this.curr_filter)) {
+      this.doErr("home.WrongFilter");
+    }
     this.loading = true;
     const type_name = this.curr_filter == HomeFilter.Template ? 'template': 'project'
     const row = {
@@ -113,50 +128,70 @@ export class HomeComponent {
 
   // =================================================================
   // Get data
-  get_template_or_project() {
+  get_filter() {
     if (this.curr_filter == HomeFilter.Template) this.get_templates();
     if (this.curr_filter == HomeFilter.Project) this.get_projects();
+    if (this.curr_filter == HomeFilter.SampleTemplate) this.get_sample_templates();
   }
 
   get_templates(retry: boolean = false) {
-    this.get_internal(Routes.Ts);
+    this.get_internal(Routes.Ts, retry);
   }
 
   get_projects(retry: boolean = false) {
     this.get_internal(Routes.Ps, retry);
   }
 
+  get_sample_templates(retry: boolean = false) {
+    // this.get_internal('', retry);
+    if (this.loading) { this.wait(); return; }
+    this.loading = true;
+    this.github.get_index().subscribe((res: any) => {
+      this.items = res;
+      this.loading = false;
+      this.sync_index();
+    }, (err: any) => { this.doErr(err); this.loading = false; });
+  }
+
+  timeout_count = 0;
+  timeout_threshold = 300;
   private get_internal(route: string, retry: boolean = false) {
+    this.timeout_count++;
+    if (this.timeout_count > this.timeout_threshold) {
+      this.doErr("error.Timeout");
+      this.timeout_count = 0;
+      return;
+    }
     const row = {
       page_no: this.page.currentPage - 1,
       page_size: this.page.itemsPerPage
     };
-    // console.log(row);
+    this.loading = true;
     this.http3.send(route, JSON.stringify(row)).then(async (_res: any) => {
       let res = this.http3.json_handler(_res);
       this.items = res.data.reverse();
       if (res.err && res.err.length > 0) {
-        // this.toastr.error("Check F12 logs", "Error Found");
         this.translate.get(["newProj.checkF12", "newProj.F12errors"], {}).subscribe((res: any) => {
           this.toastr.error(res["newProj.F12errors"], res["newProj.checkF12"]);
         });
       }
       this.page.totalItems = res.total_count;
+      this.timeout_count = 0;
+      this.loading = false;
     }).catch((err: any) => {
-      if (retry) { setTimeout(() => this.get_internal(route, retry), 100); return; }
+      if (retry) { setTimeout(() => this.get_internal(route, retry), 1000); return; }
       this.doErr(err);
+      this.loading = false;
     });
   }
 
-  doErr(err: any) {
-    this.loading = false;
-    console.error(err);
-    if (typeof(err) === 'string') this.toastr.error(this.translate.instant(err || ''));
-    else this.toastr.error(err);
-  }
-
   // ======================================================
+  // The "clone" from sample template to template use another function. 
   clone_item(uuid: string) {
+    if (![HomeFilter.Template, HomeFilter.Project].includes(this.curr_filter)) {
+      this.doErr("home.WrongFilter");
+    }
+    if (this.loading) { this.wait(); return; }
     this.loading = true;
     const route = this.curr_filter === HomeFilter.Template ? Routes.TClone : Routes.PClone;
     const row = { uuid: uuid };
@@ -174,7 +209,10 @@ export class HomeComponent {
 
   modalDelete: any;
   delete_item(uuid: string) {
-    if (this.loading) return;
+    if (![HomeFilter.Template, HomeFilter.Project].includes(this.curr_filter)) {
+      this.doErr("home.WrongFilter");
+    }
+    if (this.loading) { this.wait(); return; }
     this.modalDelete = this.modalSvc.open(CancellationComponent);
     this.modalDelete.componentInstance.back_path = "hide modal";  // no need redirect.
     this.modalDelete.componentInstance.back_dismiss = true;
@@ -184,9 +222,66 @@ export class HomeComponent {
       const row = { uuid: uuid };
       this.http3.send(route, JSON.stringify(row)).then((_res: any) => {
         let res = this.http3.json_handler(_res);
-        this.get_template_or_project();  // we refresh since we're not redirecting.
+        this.get_filter();  // we refresh since we're not redirecting.
         this.loading = false;
       }).catch((err: any) => { this.doErr(err); this.loading = false; })
     });
   }
+
+  // ==========================================================
+  // Sample template
+  // Sync after download from folder. 
+  downloaded_sample: string[] = [];
+  sync_index() {
+    this.loading = true;
+    this.http3.send(Routes.SampleList, "{}").then((res: any) => {
+      this.downloaded_sample = this.http3.json_handler(res).data;
+      this.loading = false;
+    }).catch((err: any) => {this.doErr(err); this.loading = false });
+  }
+
+  // Download the file, then open up template.component as modal to preview sample. 
+  // Auto-download file when clicked. 
+  modalSample: any;
+  preview_sample(filename: string) {
+    if (!this.downloaded(filename)) { this.doErr("home.DownloadFirst"); return; }
+    // Either use TemplateComponent, or create TemplateReadOnlyComponent for specifics. 
+    this.modalSample = this.modalSvc.open(TemplatePreviewComponent, {
+      // backdrop: 'static',
+      fullscreen: 'lg',
+      size: 'xl'
+    });
+    this.modalSample.componentInstance.filename = filename;
+    // this.modalSample.componentInstance.read_only = true;  
+  }
+
+  clone_sample(filename: string) {
+
+  }
+
+  download_sample(filename: string) {
+    this.github.download_object(filename);
+  }
+
+  downloaded(filename: string) {
+    return this.downloaded_sample.includes(filename);
+  }
+
+  // ==========================================================
+  doErr(err: any) {
+    this.loading = false;
+    console.error(err);
+    if (typeof(err) === 'string') this.toastr.error(this.translate.instant(err || ''));
+    else this.toastr.error(err);
+  }
+
+  wait() {
+    this.toastr.info(this.translate.instant("wait"));
+  }
+
+  // ============================================================
+  // Debug
+  // test_get_index() {
+  //   this.github.get_index();
+  // }
 }

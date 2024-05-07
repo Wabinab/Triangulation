@@ -1,6 +1,6 @@
 use crate::*;
 
-use self::{compressor::{compress_and_save, retrieve_decompress}, file::modify_datapath, response_dto::{ResponseTrait, SubmitResponse}};
+use self::{compressor::{compress_and_save, retrieve_decompress}, file::modify_datapath, response_dto::{CycleTrait, SubmitResponse}};
 
 // ==============================================
 pub(crate) fn modify_cycle(data_path: PathBuf, msg: Bytes, crud: CRUD) -> Result<Option<String>, String> {
@@ -23,21 +23,6 @@ pub(crate) fn modify_cycle(data_path: PathBuf, msg: Bytes, crud: CRUD) -> Result
 
   Ok(Some(resp.unwrap().to_string()))
 }
-
-// pub(crate) fn clear_cycle(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
-//   let submit: SubmitResponse = serde_json::from_slice(&msg).unwrap();
-//   let old_serde = get_data(data_path.clone(), submit.filename.clone());
-//   if old_serde.is_err() { error!("clear_cycle old_serde"); return Err(old_serde.unwrap_err()); }
-
-//   let resp = submit.clear_cycle(old_serde.unwrap());
-//   if resp.is_err() { error!("clear_cycle resp"); return Err(resp.unwrap_err()); }
-
-//   let ret = compress_and_save(resp.clone().unwrap().to_string(), 
-//     _modify_datapath(data_path.clone()), submit.filename.clone());
-//   if ret.is_err() { error!("clear_cycle compress_and_save"); return Err(ret.unwrap_err()); }
-
-//   Ok(Some(resp.unwrap().to_string()))
-// }
 
 // ==============================================
 fn _modify_datapath(data_path: PathBuf) -> PathBuf {

@@ -1,0 +1,63 @@
+<div class="modal-header">
+  <h3>{{ myForm.get('title')!.value }}</h3>
+  <button type="button" class="btn-close" (click)="cancel()" aria-label="Close"></button>
+</div>
+
+<div class="modal-body">
+  <form [formGroup]="myForm">
+    <h4 class="text-center">{{ 'checklist.Main' | translate }}</h4>
+    <div class="row" formArrayName="checklist">
+      <table class="table">
+        <thead>
+          <tr>
+            <!-- Below for X -->
+            <!-- <th scope="col" class="col-2 col-md-1"></th> -->
+            <!-- Below for ID -->
+            <th scope="col" class="col-2 col-md-1"></th>
+            <th scope="col">{{ 'reminder.title' | translate }}</th>
+            <!-- The columns we can tune later. -->
+            <th scope="col" class="col-2 col-md-1 text-center">{{ 'checklist.Status' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of checklists; let i = $index; track i) {
+            <tr>
+              <td>{{ i + 1 }}</td>
+              <td>{{ c }}</td>
+              <td>
+                <input type="checkbox" class="btn-check" autocomplete="off" disabled>
+                <label class="btn btn-outline-primary">
+                  <fa-icon [icon]="faTick"></fa-icon>
+                </label>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="pb-3"></div>
+
+    <!-- Extra checklist: defined in projects. -->
+    <h4 class="text-center">{{ 'checklist.Extra' | translate }}</h4>
+    <div class="row">
+      <table class="table">
+        <thead>
+          <tr>
+            <!-- Below for X -->
+            <!-- <th scope="col" class="col-2 col-md-1"></th> -->
+            <!-- Below for ID -->
+            <th scope="col" class="col-2 col-md-1"></th>
+            <th scope="col">{{ 'reminder.title' | translate }}</th>
+            <!-- The columns we can tune later. -->
+            <th scope="col" class="col-2 col-md-1 text-center">{{ 'checklist.Status' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="99" class="text-center">
+            {{ 'checklist.ForgetAny' | translate }}
+          </td></tr>
+        </tbody>
+      </table>
+    </div>
+  </form>
+</div>

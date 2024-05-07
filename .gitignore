@@ -8,4 +8,6 @@ gitpod_serve.sh
 
 *.sqlite
 data/template/
-data/projects/
+data/project/
+data/temp_versioned/
+data/versioning.json.zl

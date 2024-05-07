@@ -78,7 +78,7 @@ async fn main() -> anyhow::Result<()>  {
         let _ = fs::create_dir_all(root2.join("template"));
         let _ = fs::create_dir_all(root2.join("project"));
         // We define some sample. 
-        let _ = fs::create_dir_all(root2.join("sample_proj"));
+        // let _ = fs::create_dir_all(root2.join("sample_proj"));
         let _ = fs::create_dir_all(root2.join("sample_templ"));
     }
 

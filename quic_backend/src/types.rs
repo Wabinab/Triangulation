@@ -1,9 +1,9 @@
 pub type Version = usize;
 pub type Decimal = String;
 
-pub const REMINDER_TYPE: u64 = 0;
-pub const KELLY_TYPE: u64 = 1;
-pub const CHECKLIST_TYPE: u64 = 2;
+// pub const REMINDER_TYPE: u64 = 0;
+// pub const KELLY_TYPE: u64 = 1;
+// pub const CHECKLIST_TYPE: u64 = 2;
 
 pub const UPDATE_VER: bool = true;
 
