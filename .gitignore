@@ -11,3 +11,5 @@ data/template/
 data/project/
 data/temp_versioned/
 data/versioning.json.zl
+
+publishes/

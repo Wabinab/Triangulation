@@ -58,8 +58,11 @@ pub(crate) fn retrieve_decompress(filepath: PathBuf, filename: String) -> Result
 }
 
 pub(crate) fn retrieve_decompress_fullpath(fullpath: PathBuf) -> Result<Value, String> {
-    let contents = fs::read(fullpath);
-    if contents.is_err() { error!("retrieve_decompress can't find file."); return Err(RD_CANNOT_FIND_FILE.to_string()); }
+    let contents = fs::read(fullpath.clone());
+    if contents.is_err() {
+      error!("retrieve_decompress can't find file. {:?}", fullpath.clone());
+      return Err(RD_CANNOT_FIND_FILE.to_string()); 
+    }
     let contents: &[u8] = &contents.unwrap();
 
     let mut dec = ZlibDecoder::new(contents);

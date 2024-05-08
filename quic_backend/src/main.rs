@@ -80,6 +80,7 @@ async fn main() -> anyhow::Result<()>  {
         // We define some sample. 
         // let _ = fs::create_dir_all(root2.join("sample_proj"));
         let _ = fs::create_dir_all(root2.join("sample_templ"));
+        let _ = fs::create_dir_all(root2.join("temp_versioned"));
     }
 
     // let mut g = true;

@@ -10,18 +10,21 @@ use self::{compressor::{compress_and_save_fullpath, retrieve_decompress_fullpath
 
 /// Update Version Save Project
 /// temp_filename is (original non-versioned) template filename. 
+/// We save a version of this template first before saving it version file, to ensure if it fails,
+/// we don't need to revert changes. 
 pub(crate) fn upd_ver_proj(ver_path: PathBuf, temp_filename: String, data_path: PathBuf) -> Result<Version, String> {
   let ver_file = retrieve_decompress_fullpath(ver_path.clone());
   if ver_file.clone().is_err_and(|x| x == RD_CANNOT_FIND_FILE.to_owned()) {
     let output = File::create(ver_path.clone());
     if output.is_err() { error!("upd_ver_proj ver_file create file"); return Err(UPD_VER_PROJ_FILE.to_owned()); }
+    let save_ver = save_a_version_of_this_template(
+      data_path, temp_filename.clone(), 0);
+    if save_ver.is_err() { 
+      error!("upd_ver_proj ver_file save_ver"); return Err(save_ver.unwrap_err()); }
     let res = compress_and_save_fullpath(json!({
       strip_ext(temp_filename.clone()): [0, UPDATE_VER]
     }).to_string(), ver_path.clone());
     if res.is_err() { error!("upd_ver_proj ver_file compress_and_save"); return Err(res.unwrap_err()); }
-    let save_ver = save_a_version_of_this_template(
-      data_path, temp_filename.clone(), 0);
-    if save_ver.is_err() { error!("upd_ver_proj ver_file save_ver"); return Err(save_ver.unwrap_err()); }
     return Ok(0);
   }
   if ver_file.is_err() { error!("upd_ver_proj ver_file"); return Err(ver_file.unwrap_err()); }
@@ -43,12 +46,12 @@ pub(crate) fn upd_ver_proj(ver_path: PathBuf, temp_filename: String, data_path: 
     }
   }
   if updated {
-    let res = compress_and_save_fullpath(ver_file.to_string(), ver_path);
-    if res.is_err() { error!("upd_ver_proj compress_and_save"); return Err(res.unwrap_err()); }
-
     let save_ver = save_a_version_of_this_template(
       data_path, temp_filename.clone(), version.clone());
     if save_ver.is_err() { error!("upd_ver_proj save_ver"); return Err(save_ver.unwrap_err()); }
+
+    let res = compress_and_save_fullpath(ver_file.to_string(), ver_path);
+    if res.is_err() { error!("upd_ver_proj compress_and_save"); return Err(res.unwrap_err()); }
   }
   Ok(version)
 }
