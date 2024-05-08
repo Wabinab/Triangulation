@@ -256,7 +256,18 @@ export class HomeComponent {
   }
 
   clone_sample(filename: string) {
-
+    this.loading = true;
+    let row = {
+      filename: filename
+    };
+    this.http3.send(Routes.SampleClone, JSON.stringify(row)).then((res: any) => {
+      let retval = this.http3.json_handler(res);
+      let filename = retval.filename;
+      this.router.navigate([`/template`], {queryParams: {
+        filename: filename
+      }});
+      this.loading = false;
+    }).catch(err => { this.doErr(err); this.loading = false; });
   }
 
   download_sample(filename: string) {

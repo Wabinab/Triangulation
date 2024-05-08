@@ -1,10 +1,12 @@
 // use std::ffi::OsString;
 
+use uuid::Uuid;
+
 /// This controls the sample template
 
 use crate::*;
 
-use self::{compressor::retrieve_decompress, pipeline_dto::{PipelineTrait, SubmitPipeline}, template_dto::{to_nlist_temp, SubmitGetTemplate}};
+use self::{compressor::{compress_and_save, compress_and_save_fullpath, retrieve_decompress, retrieve_decompress_fullpath}, file::gen_filename, misc_dto::SubmitFilenameOnly, pipeline_dto::{PipelineTrait, SubmitPipeline}, template_dto::{to_nlist_temp, SubmitGetTemplate}};
 
 pub(crate) fn get_downloaded_list(data_path: PathBuf) -> Result<Option<String>, String> {
   info!("Enter here");
@@ -36,6 +38,28 @@ pub(crate) fn get_sample_pipeline(data_path: PathBuf, msg: Bytes) -> Result<Opti
   let pipeline = submit.get_pipeline(old_serde.unwrap());
   if pipeline.is_err() { error!("get_pipeline pipeline"); return Err(pipeline.unwrap_err()); }
   Ok(Some(pipeline.unwrap().to_string()))
+}
+
+pub(crate) fn clone_sample_template(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
+  let submit: SubmitFilenameOnly = serde_json::from_slice(&msg).unwrap();
+  let from_folder = modify_datapath(data_path.clone());
+  let from = from_folder.join(submit.filename.clone());
+  let to_folder = file::modify_datapath(data_path.clone(), "template");
+  let uuid = Uuid::now_v7().to_string();
+  let new_filename = gen_filename(TEMPLATE_NAME.to_string(), uuid.clone(), None);
+  let to = to_folder.join(new_filename.clone());
+  let res = fs::copy(from, to.clone());
+  if res.is_err() { error!("clone_sample_template copy error."); return Err(res.unwrap_err().to_string()); }
+
+  // Make change to the existing "uuid"
+  let res_data = retrieve_decompress_fullpath(to.clone());
+  if res_data.is_err() { error!("clone_sample_template retrieve error."); return Err(res_data.unwrap_err()); }
+  let mut data = res_data.unwrap();
+  data["uuid"] = json!(uuid.clone());
+  let res2 = compress_and_save_fullpath(data.to_string(), to.clone());
+  if res2.is_err() { error!("clone_sample_template save back error."); return Err(res2.unwrap_err()); }
+
+  Ok(Some(json!({ "filename": new_filename }).to_string()))
 }
 
 

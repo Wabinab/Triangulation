@@ -53,6 +53,7 @@ pub(crate) fn routes_handler(msg: Bytes, path: String, data_path: PathBuf) -> Re
         "/sample/list" => sample_controller::get_downloaded_list(data_path),
         "/sample/nlist" => sample_controller::get_sample_nlist(data_path, msg),
         "/sample/pipeline" => sample_controller::get_sample_pipeline(data_path, msg),
+        "/sample/clone" => sample_controller::clone_sample_template(data_path, msg),
 
         // Miscellaneous functions
         "/gen_filename" => misc_controller::get_filename(msg),

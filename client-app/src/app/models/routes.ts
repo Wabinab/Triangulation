@@ -45,6 +45,7 @@ export enum Routes {
   SampleList = "/sample/list",
   SampleTNlist = "/sample/nlist",
   SamplePi = "/sample/pipeline",
+  SampleClone = "/sample/clone",
 
   GenFilename = "/gen_filename"
 }
