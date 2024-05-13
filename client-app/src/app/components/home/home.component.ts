@@ -18,7 +18,7 @@ import { CancellationComponent } from '../cancellation/cancellation.component';
 import { GithubService } from '../../services/github.service';
 import { faClone } from '@fortawesome/free-regular-svg-icons';
 import { TemplatePreviewComponent } from '../template-preview/template-preview.component';
-import { ExportComponent } from '../export/export.component';
+// import { ExportComponent } from '../export/export.component';
 
 @Component({
   selector: 'app-home',
@@ -231,16 +231,39 @@ export class HomeComponent {
     });
   }
 
-  modalExport: any;
+  // modalExport: any;
   export_item(uuid: string, title: string) {
     if (this.curr_filter != HomeFilter.Template) { this.doErr("home.OnlyTemplate"); return; }
     if (this.loading) { this.wait(); return; }
-    this.modalExport = this.modalSvc.open(ExportComponent, { fullscreen: 'sm' });
-    this.modalExport.componentInstance.uuid = uuid;
-    this.modalExport.componentInstance.title = title;
-    this.modalExport.closed.subscribe((res: any) => {
-      this.get_filter();
-    });
+    // this.modalExport = this.modalSvc.open(ExportComponent, { fullscreen: 'sm' });
+    // this.modalExport.componentInstance.uuid = uuid;
+    // this.modalExport.componentInstance.title = title;
+    // this.modalExport.closed.subscribe((res: any) => {
+    //   this.get_filter();
+    // });
+    let row = { uuid: uuid };
+    this.loading = true;
+    this.http3.send_byte_ret(Routes.TExport, JSON.stringify(row)).then(({ value }) => {
+      let decoded_val = new TextDecoder().decode(value);
+      if (decoded_val[0] === "{" && decoded_val[decoded_val.length-1] == "}") {
+        this.http3.json_handler(decoded_val);
+        this.loading = false;
+        return;
+      }
+      // console.log(value);
+      const blob = new Blob([value]);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = this.filename_safe(title);
+      link.click();
+      this.loading = false;
+    }).catch(err => { this.doErr(err); this.loading = false; });
+  }
+
+  private filename_safe(normal_name: string) {
+    let safe_filename = normal_name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    return safe_filename + ".json.zl";
   }
 
   // ==========================================================
