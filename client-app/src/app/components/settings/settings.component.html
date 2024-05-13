@@ -1,8 +1,7 @@
 <label for="theme">Themes</label>
-<select name="theme" id="theme" (change)="change_theme($event.target)">
-    <!-- <option value="-1">None</option> -->
+<!-- <select name="theme" id="theme" (change)="change_theme($event.target)">
     <option *ngFor="let t of themes" [value]="t.id">{{ t.name }}</option>
-</select>
+</select> -->
 <br>
 <button class="btn btn-primary" (click)="toggle_light_dark()">
     <fa-icon [icon]="mode_icon"></fa-icon>

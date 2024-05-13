@@ -56,13 +56,21 @@
                   <li class="list-group-item">{{ 'home.TemplateName' | translate }}: {{ item.t_name }}</li>
                   <li class="list-group-item">{{ 'home.Version' | translate }}: {{ item.t_ver + 1 }}</li>
                 </ul>
-                <div class="row row-cols-2 g-0">
+                <div [class]="get_class()">
                   <div class="card-footer col text-center border-end" 
                   [ngClass]="item.t_name ? 'border-top-0' : ''"
                   hover-class="text-bg-secondary | null"
                   (click)="clone_item(item.uuid)">
                     <fa-icon [icon]="faClone"></fa-icon>
                   </div>
+                  @if (is_active(HomeFilter.Template)) {
+                    <div class="card-footer col text-center border-end" 
+                    [ngClass]="item.t_name ? 'border-top-0' : ''"
+                    hover-class="text-bg-success | null"
+                    (click)="export_item(item.uuid, item.name)">
+                      <fa-icon [icon]="faExport"></fa-icon>
+                    </div>
+                  }
                   <div class="card-footer col text-center delete-footer" 
                   [ngClass]="item.t_name ? 'border-top-0' : ''"
                   hover-class="text-bg-danger | null"
@@ -78,7 +86,7 @@
 
       @if (is_active(HomeFilter.SampleTemplate)) {
         <div class="position-relative pb-5">
-          <span>{{ "home.ManualDownload" | translate }}</span>
+          <!-- <span>{{ "home.ManualDownload" | translate }}</span> -->
           <button type="button" class="position-absolute end-0 btn btn-primary" (click)="sync_index()"><fa-icon [icon]="faSync"></fa-icon></button>
         </div>
         <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 row-cols-xxl-4 g-3 card-group">

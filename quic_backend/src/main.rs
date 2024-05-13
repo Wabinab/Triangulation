@@ -29,6 +29,8 @@ use dto::*;
 use data::*;
 use types::*;
 
+// use crate::messages::FILE_DOWNLOAD;
+
 // mod server_config;
 mod routes;
 mod controller;
@@ -215,8 +217,10 @@ async fn run_session(session: Session, path: String) -> anyhow::Result<()> {
                 let args = Args::parse();
 
                 let msg = recv.read_to_end(8192).await?;
-                match routes_handler(msg.try_into().unwrap(), path.clone(), args.data_path) {
-                    Ok(Some(value)) => send.write_all(value.as_bytes()).await?,
+                // match routes_handler(msg.clone().try_into().unwrap(), path.clone(), args.data_path.clone()) {
+                match routes_u8(msg.clone().try_into().unwrap(), path.clone(), args.data_path.clone()) {
+                    Ok(Some(value)) => send.write_all(&value).await?,
+                    // Err(err) => send.write_all(jsonify_err(err).as_bytes()).await?,
                     Err(err) => send.write_all(jsonify_err(err).as_bytes()).await?,
                     _ => {}  // all none no need send anything back. 
                 }
@@ -226,7 +230,7 @@ async fn run_session(session: Session, path: String) -> anyhow::Result<()> {
                 let args = Args::parse();
 
                 // handle_datagram(session.clone(), msg, path.clone()).await;
-                match routes_handler(msg, path.clone(), args.data_path) {
+                match routes_u8(msg, path.clone(), args.data_path) {
                     Ok(Some(value)) => session.send_datagram(value.try_into().unwrap()).await?,
                     Err(err) => session.send_datagram(jsonify_err(err).try_into().unwrap()).await?,
                     _ => {}

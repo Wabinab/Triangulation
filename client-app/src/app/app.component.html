@@ -88,7 +88,7 @@
   
               <ul class="dropdown-menu dropdown-menu-lg-end">
                 <li class="dropdown-item" *ngFor="let lang of translate.getLangs()"
-                (click)="translate.use(lang)" [class]="lang === translate.currentLang ? 'special-active' : ''">
+                (click)="use_lang(lang)" [class]="lang === translate.currentLang ? 'special-active' : ''">
                   {{ lang }}
                 </li>
               </ul>

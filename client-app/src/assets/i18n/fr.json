@@ -17,13 +17,16 @@
     "Filters": "Filtres",
     "TemplateName": "Modèle",
     "Version": "Version",
-    "WrongFilter": "Cette fonction pas appeler sans filtres 'Tous les Project' ou 'Tous les Modèle'.",
-    "ManualDownload": "Mettre le file téléchargé dans \"(emplacement_cette_app)/data/sample_templ\" s'il te plaît. Le nom fichier sont égal comme affiché.",
+    "WrongFilter": "Cette fonction seulement d'appeler si les filtres être 'Tous les Project' ou 'Tous les Modèle'.",
+    "OnlyTemplate": "Cette fonction seulement d'appeler si le filtre être 'Tous les Modèle'.",
     "Filename": "Le nom fichier",
-    "DownloadFirst": "Téléchargement le fichier et mettre la dans \"(emplacement_cette_app)/data/sample_templ\" avant aperçu s'il te plaît.",
+    "DownloadFirst": "Téléchargement le fichier avant aperçu s'il te plaît.",
     "PreviewNotEqual": "Attention! Le prévu pas sont similaire avec le projet actuel.",
     "DisplayDateTimeHere": "La sélecteur de date et d'heure ne sont pas incluses dans la prévu.",
     "PreviewNotIncluded": "Ne sont pas incluses dans la prévu."
+  },
+  "export": {
+    "name": "Exporter Le Modèle"
   },
   "newProj": {
     "title": "Créer une Nouveau Projet",
@@ -216,7 +219,11 @@
     "ChecklistLenNotMatch": "Bug 'extra': Le longueur tableau question et réponse pas égal.",
     "DelProj": "Suppression du projet réussie.",
     "DelTempl": "Suppression du modèle réussie.",
-    "NoRoute": "Le route pas trouvé."
+    "NoRoute": "Le route pas trouvé.",
+    "RequestFailed": "La demande de fichier a échoué",
+    "FailedCreate": "Création de la fichier modèle cloner a échoué.",
+    "FailedCopyContent": "Échec de la copie du contenu de l'échantillon vers le modèle.",
+    "SuccessDownload": "Téléchargement de fichier succès."
   }
 }
   

@@ -1,4 +1,4 @@
-import { Component, HostListener, Input, inject } from '@angular/core';
+import { Component, HostListener, Input, OnDestroy, inject } from '@angular/core';
 import { Http3Service } from '../../../services/http3.service';
 import { SharedModule } from '../../../shared/shared.module';
 import { SharedFormsModule } from '../../../shared/shared-forms.module';
@@ -26,7 +26,7 @@ import { Subscription, interval } from 'rxjs';
   templateUrl: './reminders.component.html',
   styleUrl: './reminders.component.scss'
 })
-export class RemindersComponent {
+export class RemindersComponent implements OnDestroy {
   bsModalRef = inject(NgbActiveModal);
 
   faAdd = faAdd;
@@ -72,6 +72,10 @@ export class RemindersComponent {
 
     const source = interval(60_000 * 5);  // Save every 5 mins. 
     this.subscription = source.subscribe(_ => this.autoSave());
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 
   // Remember to save clicking backdrop. 

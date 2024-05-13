@@ -85,7 +85,7 @@ export class TemplatePreviewComponent {
   }
 
   openReminder(id: number) {
-    this.openModal(id, RemindersReadonlyComponent, { fullscreen: 'sm', size: 'xl' });
+    this.openModal(id, RemindersReadonlyComponent, { fullscreen: 'lg', size: 'xl' });
   }
   openKelly(id: number) {
     this.openModal(id, KellyReadonlyComponent, { fullscreen: 'lg', size: 'xl'});

@@ -13,7 +13,8 @@
       <fa-icon [icon]="faTrash"></fa-icon> 
     </button>
     @for(c of cycles; track c; let i = $index) {
-      <a class="nav-link" [ngClass]="cycle_active(i)" (click)="set_cycle(i)" *ngIf="!is_edit_cycle(i)">
+      <a class="nav-link" [ngClass]="cycle_active(i)" (click)="set_cycle(i)" 
+      (click.double)="edit_cycle_name()" *ngIf="!is_edit_cycle(i)">
         {{ c }}</a>
       <div class="input-group mb-3" *ngIf="is_edit_cycle(i)">
         <input type="text" class="form-control" [(ngModel)]="cycle_name" minlength="1" maxlength="50" 

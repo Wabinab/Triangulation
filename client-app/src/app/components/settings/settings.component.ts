@@ -14,7 +14,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
   styleUrl: './settings.component.scss'
 })
 export class SettingsComponent implements OnInit {
-  themes: any[] = this.themeSvc.themes;
+  // themes: any[] = this.themeSvc.themes;
   curr_mode: string = '';
   constructor(private themeSvc: ThemeManager, private toast: ToastrService) {}
 
@@ -24,10 +24,10 @@ export class SettingsComponent implements OnInit {
     this.curr_mode = this.themeSvc.get_curr_mode();
   }
 
-  change_theme(target: any) {
-    this.themeSvc.setTheme(target.value);
-    // this.toast.info(this.themes.find(c => c.id == target.value).name, "Theme");
-  }
+  // change_theme(target: any) {
+  //   this.themeSvc.setTheme(target.value);
+  //   // this.toast.info(this.themes.find(c => c.id == target.value).name, "Theme");
+  // }
 
   toggle_light_dark() {
     this.curr_mode = this.themeSvc.toggle_mode();

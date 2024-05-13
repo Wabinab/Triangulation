@@ -1,5 +1,19 @@
 use crate::*;
 
+use self::messages::NO_ROUTE;
+
+
+pub(crate) fn routes_u8(msg: Bytes, path: String, data_path: PathBuf) -> Result<Option<Vec<u8>>, String> {
+  return match routes_handler(msg.clone(), path.clone(), data_path.clone()) {
+    Ok(Some(value)) => Ok(Some(value.into_bytes())),
+    Ok(None) => Ok(None),
+    Err(err) => {
+      if err == NO_ROUTE.to_owned() { return routes_handler_byte(msg, path, data_path); }
+      else { return Err(err); }
+    },
+  }
+}
+
 pub(crate) fn routes_handler(msg: Bytes, path: String, data_path: PathBuf) -> Result<Option<String>, String> {
     return match path.as_str() {
         // "/" => home_controller::echo(msg),
@@ -54,9 +68,19 @@ pub(crate) fn routes_handler(msg: Bytes, path: String, data_path: PathBuf) -> Re
         "/sample/nlist" => sample_controller::get_sample_nlist(data_path, msg),
         "/sample/pipeline" => sample_controller::get_sample_pipeline(data_path, msg),
         "/sample/clone" => sample_controller::clone_sample_template(data_path, msg),
+        "/sample/download" => sample_controller::download_sample_template(data_path, msg),
 
         // Miscellaneous functions
         "/gen_filename" => misc_controller::get_filename(msg),
-        _ => Err("backend.NoRoute".to_owned())
+
+        _ => Err(NO_ROUTE.to_owned())
     };
+}
+
+// This is to return bytes direction, without conversion to string. 
+pub(crate) fn routes_handler_byte(msg: Bytes, path: String, data_path: PathBuf) -> Result<Option<Vec<u8>>, String> {
+  return match path.as_str() {
+    "/template/export" => template_controller::export_template(data_path, msg),
+    _ => Err(NO_ROUTE.to_owned())
+  }
 }

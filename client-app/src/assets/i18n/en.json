@@ -18,12 +18,15 @@
     "TemplateName": "Template",
     "Version": "Version",
     "WrongFilter": "Only 'All Template' or 'All Project' filter can use this function.",
-    "ManualDownload": "Please put all downloaded file into \"(where_this_app_is_located)/data/sample_templ\" manually. The filename should match the displayed name below.",
+    "OnlyTemplate": "Only 'All Template' filter can use this function.",
     "Filename": "Filename",
-    "DownloadFirst": "Please download the file and put it into \"(where_this_app_is_located)/data/sample_templ\" before preview.",
+    "DownloadFirst": "Please download the file before preview.",
     "PreviewNotEqual": "Note, preview don't behave exactly like actual project. They're just preview.",
     "DisplayDateTimeHere": "Date and Time picker isn't available in preview.",
     "PreviewNotIncluded": "Not Available in preview."
+  },
+  "export": {
+    "name": "Export Template"
   },
   "newProj": {
     "title": "Create a New Project",
@@ -216,7 +219,11 @@
     "ChecklistLenNotMatch": "Bug: Checklist 'extra' question and answer array length not match.",
     "DelProj": "Successfully Delete Project.",
     "DelTempl": "Successfully Delete Template.",
-    "NoRoute": "Cannot find route."
+    "NoRoute": "Cannot find route.",
+    "RequestFailed": "Requesting for file failed.",
+    "FailedCreate": "Failed to create template file to clone to.",
+    "FailedCopyContent": "Failed to copy content from sample to template.",
+    "SuccessDownload": "File successfully downloaded."
   }
 }
   

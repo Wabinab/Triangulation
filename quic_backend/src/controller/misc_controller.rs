@@ -10,3 +10,12 @@ pub(crate) fn get_filename(msg: Bytes) -> Result<Option<String>, String> {
     "filename": output
   }).to_string()))
 }
+
+
+// pub(crate) fn get_bytes(data_path: PathBuf, msg: Bytes) -> Result<Option<Vec<u8>>, String> {
+//   let submit: SubmitFilenameOnly = serde_json::from_slice(&msg).unwrap();
+//   let path = modify_datapath(data_path, "template");
+//   let fullpath = path.join(submit.filename.clone());
+//   let contents = fs::read(fullpath.clone());
+//   Ok(Some(contents.unwrap()))
+// }

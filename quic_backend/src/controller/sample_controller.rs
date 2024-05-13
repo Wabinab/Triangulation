@@ -1,12 +1,14 @@
 // use std::ffi::OsString;
 
+use std::io;
+
 use uuid::Uuid;
 
 /// This controls the sample template
 
-use crate::*;
+use crate::{messages::{FAILED_COPY_CONTENT, FAILED_CREATE_FILE, REQUEST_FAILED, SUCCESS_DOWNLOAD}, *};
 
-use self::{compressor::{compress_and_save, compress_and_save_fullpath, retrieve_decompress, retrieve_decompress_fullpath}, file::gen_filename, misc_dto::SubmitFilenameOnly, pipeline_dto::{PipelineTrait, SubmitPipeline}, template_dto::{to_nlist_temp, SubmitGetTemplate}};
+use self::{compressor::{compress_and_save_fullpath, retrieve_decompress, retrieve_decompress_fullpath}, file::gen_filename, misc_dto::SubmitFilenameOnly, pipeline_dto::{PipelineTrait, SubmitPipeline}, template_dto::{to_nlist_temp, SubmitGetTemplate}};
 
 pub(crate) fn get_downloaded_list(data_path: PathBuf) -> Result<Option<String>, String> {
   info!("Enter here");
@@ -62,6 +64,28 @@ pub(crate) fn clone_sample_template(data_path: PathBuf, msg: Bytes) -> Result<Op
   Ok(Some(json!({ "filename": new_filename }).to_string()))
 }
 
+pub(crate) fn download_sample_template(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
+  let mut url: String = "https://github.com/Wabinab/Triangulation_Sample/raw/main/".to_owned();
+  let submit: SubmitFilenameOnly = serde_json::from_slice(&msg).unwrap();
+  url.push_str(&submit.filename.clone());
+
+  let mut resp = reqwest::blocking::get(url).unwrap();
+  if !resp.status().is_success() { error!("download_sample failed resp. {:?}", resp); return Err(REQUEST_FAILED.to_owned()); }
+  
+  let to_folder = modify_datapath(data_path.clone());
+  let to = to_folder.join(submit.filename.clone());
+  let out = File::create(to);
+  if out.is_err() { error!("download_sample failed create file. {:?}", out.unwrap_err()); return Err(FAILED_CREATE_FILE.to_owned()); }
+  let mut out = out.unwrap();
+
+  let finale = io::copy(&mut resp, &mut out);
+  if finale.is_err() { error!("download_sample io copy error. {:?}", finale.unwrap_err()); return Err(FAILED_COPY_CONTENT.to_owned()); }
+  
+  Ok(Some(json!({
+    "msg": SUCCESS_DOWNLOAD.to_owned(),
+    "total_bytes": finale.unwrap()
+  }).to_string()))
+}
 
 // ==============================================
 fn modify_datapath(data_path: PathBuf) -> PathBuf {

@@ -20,6 +20,7 @@ log = "0.4"
 quinn = "0.10"
 # quinn-proto = "0.10"
 rcgen = "0.12"
+reqwest = { version = "0.12", features = [ "blocking", "json" ]}
 ring = "0.17"
 rustls = "0.21"  # upgrade in the future. 
 rustls-pemfile = "1"

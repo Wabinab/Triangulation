@@ -66,6 +66,38 @@ export class Http3Service {
     if (body) await this.write(writer, body);
 
     let data = await this.read(reader);
+    
+    transport.close();
+    return await data;
+  }
+
+  /// Send but expect a byte return
+  async send_byte_ret(path: string, body: string | null, datagram: boolean = false) {
+    const transport = new WebTransport(`${this.url_host}${path}`, {
+      serverCertificateHashes: [{
+        "algorithm": "sha-256",
+        "value": new Uint8Array(this.fingerprint)
+      }]
+    });
+    // console.log(transport);
+    await transport.ready;
+
+    let writer;
+    let reader;
+
+    if (!datagram) {
+      const stream = await transport.createBidirectionalStream();
+      writer = stream.writable.getWriter();
+      reader = stream.readable.getReader();
+    } else {
+      writer = transport.datagrams.writable.getWriter();
+      reader = transport.datagrams.readable.getReader();
+    }
+
+    if (body) await this.write(writer, body);
+    let data = await reader.read();
+    // let data = this.read(reader);
+    
     transport.close();
     return await data;
   }

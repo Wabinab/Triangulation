@@ -46,6 +46,11 @@ export enum Routes {
   SampleTNlist = "/sample/nlist",
   SamplePi = "/sample/pipeline",
   SampleClone = "/sample/clone",
+  SampleDownload = "/sample/download",
 
-  GenFilename = "/gen_filename"
+  GenFilename = "/gen_filename",
+
+  // ===============================================
+  // Return bytes only
+  TExport = "/template/export",
 }

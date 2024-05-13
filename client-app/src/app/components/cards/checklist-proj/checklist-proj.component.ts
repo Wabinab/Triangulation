@@ -13,11 +13,14 @@ import { ToastrService } from 'ngx-toastr';
 import { TranslateService } from '@ngx-translate/core';
 import { Routes } from '../../../models/routes';
 import { CancellationComponent } from '../../cancellation/cancellation.component';
+import { DoubleClickDirective } from '../../../directives/double-click.directive';
 
 @Component({
   selector: 'app-checklist-proj',
   standalone: true,
-  imports: [SharedModule, SharedFormsModule, FontAwesomeModule, UppercaseDirective],
+  imports: [SharedModule, SharedFormsModule, FontAwesomeModule, UppercaseDirective,
+    DoubleClickDirective
+  ],
   templateUrl: './checklist-proj.component.html',
   styleUrl: './checklist-proj.component.scss'
 })

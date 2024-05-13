@@ -10,3 +10,8 @@ pub(crate) struct SubmitGenFilename {
 pub(crate) struct SubmitFilenameOnly {
   pub(crate) filename: String
 }
+
+#[derive(Serialize, Deserialize, Debug)]
+pub(crate) struct SubmitUuidOnly {
+  pub(crate) uuid: String
+}

@@ -34,5 +34,16 @@ pub(crate) const CHECKLIST_STRVEC: &'static str = "backend.ChecklistStrVec";
 pub(crate) const CL_EXTRA_LEN_NOT_MATCH: &'static str = "backend.ChecklistLenNotMatch";
 pub(crate) const SUCCESS_DEL_PROJ: &'static str = "backend.DelProj";
 pub(crate) const SUCCESS_DEL_TEMPL: &'static str = "backend.DelTempl";
+pub(crate) const NO_ROUTE: &'static str = "backend.NoRoute";
+pub(crate) const REQUEST_FAILED: &'static str = "backend.RequestFailed";
+pub(crate) const FAILED_CREATE_FILE: &'static str = "backend.FailedCreate";
+pub(crate) const FAILED_COPY_CONTENT: &'static str = "backend.FailedCopyContent";
+pub(crate) const SUCCESS_DOWNLOAD: &'static str = "backend.SuccessDownload";
+
 
 // pub(crate) const NOT_IMPLEMENTED: &'static str = "Function Not Implemented.";
+
+// ===========================================================
+// Internal only. No display on frontend. 
+// pub(crate) const FILE_DOWNLOAD: &'static str = "filedownload21273275";
+

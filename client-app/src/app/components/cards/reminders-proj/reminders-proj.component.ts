@@ -20,13 +20,14 @@ import { Routes } from '../../../models/routes';
 import { faPlus, faTrashCan, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { faSave } from '@fortawesome/free-regular-svg-icons';
 import { MarkdownComponent, MarkdownService, provideMarkdown } from 'ngx-markdown';
+import { DoubleClickDirective } from '../../../directives/double-click.directive';
 // import { NgxMaterialTimepickerModule } from 'ngx-material-timepicker';
 
 @Component({
   selector: 'app-reminders-proj',
   standalone: true,
   imports: [SharedModule, SharedFormsModule, FontAwesomeModule, HumanPipe,
-    MatFormFieldModule, MatInputModule, MarkdownComponent],
+    MatFormFieldModule, MatInputModule, MarkdownComponent, DoubleClickDirective],
   providers: [provideNativeDateAdapter(), 
     provideMarkdown({ sanitize: SecurityContext.STYLE })
   ],

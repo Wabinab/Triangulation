@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { SharedModule } from '../../shared/shared.module';
 import { ToastrService } from 'ngx-toastr';
-import { faArrowDown, faCheck, faRoad, faRotate, faRoute, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import { faArrowDown, faCheck, faFileExport, faRoad, faRotate, faRoute, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { HomeView } from '../../models/home-view';
 import { NewProjModalComponent } from './new-proj-modal/new-proj-modal.component';
 import { NewTemplModalComponent } from './new-templ-modal/new-templ-modal.component';
@@ -18,6 +18,7 @@ import { CancellationComponent } from '../cancellation/cancellation.component';
 import { GithubService } from '../../services/github.service';
 import { faClone } from '@fortawesome/free-regular-svg-icons';
 import { TemplatePreviewComponent } from '../template-preview/template-preview.component';
+import { ExportComponent } from '../export/export.component';
 
 @Component({
   selector: 'app-home',
@@ -35,6 +36,7 @@ export class HomeComponent {
   faClone = faClone;
   faDelete = faTrashAlt;
   faTick = faCheck;
+  faExport = faFileExport;
 
   deferProjClicked = signal(false);
   deferTemplClicked = signal(false);
@@ -42,7 +44,7 @@ export class HomeComponent {
 
   curr_view: HomeView = HomeView.Home;  // home, new (proj/temp) views.
   // curr_filter: string = 'proj';
-  curr_filter: HomeFilter = HomeFilter.Project;
+  curr_filter: HomeFilter = HomeFilter.Template;
   HomeFilter = HomeFilter;
   items: any[] = [];
   // page = { page_no: 0, page_size: 1, total_count: 0 }
@@ -55,7 +57,8 @@ export class HomeComponent {
   ) {
     // Default is project, so we get project and fill items. 
     setTimeout(() => {
-      this.get_projects(true);  // give time for service to load. 
+      // this.get_projects(true);  // give time for service to load. 
+      this.get_templates(true);
       // this.get_sample_templates(true);
     }, 100);
   }
@@ -210,10 +213,10 @@ export class HomeComponent {
   modalDelete: any;
   delete_item(uuid: string) {
     if (![HomeFilter.Template, HomeFilter.Project].includes(this.curr_filter)) {
-      this.doErr("home.WrongFilter");
+      this.doErr("home.WrongFilter"); return;
     }
     if (this.loading) { this.wait(); return; }
-    this.modalDelete = this.modalSvc.open(CancellationComponent);
+    this.modalDelete = this.modalSvc.open(CancellationComponent, { fullscreen: 'sm' });
     this.modalDelete.componentInstance.back_path = "hide modal";  // no need redirect.
     this.modalDelete.componentInstance.back_dismiss = true;
     this.modalDelete.closed.subscribe((res: any) => {
@@ -225,6 +228,18 @@ export class HomeComponent {
         this.get_filter();  // we refresh since we're not redirecting.
         this.loading = false;
       }).catch((err: any) => { this.doErr(err); this.loading = false; })
+    });
+  }
+
+  modalExport: any;
+  export_item(uuid: string, title: string) {
+    if (this.curr_filter != HomeFilter.Template) { this.doErr("home.OnlyTemplate"); return; }
+    if (this.loading) { this.wait(); return; }
+    this.modalExport = this.modalSvc.open(ExportComponent, { fullscreen: 'sm' });
+    this.modalExport.componentInstance.uuid = uuid;
+    this.modalExport.componentInstance.title = title;
+    this.modalExport.closed.subscribe((res: any) => {
+      this.get_filter();
     });
   }
 
@@ -257,9 +272,8 @@ export class HomeComponent {
 
   clone_sample(filename: string) {
     this.loading = true;
-    let row = {
-      filename: filename
-    };
+    let row = { filename: filename };
+
     this.http3.send(Routes.SampleClone, JSON.stringify(row)).then((res: any) => {
       let retval = this.http3.json_handler(res);
       let filename = retval.filename;
@@ -271,7 +285,17 @@ export class HomeComponent {
   }
 
   download_sample(filename: string) {
-    this.github.download_object(filename);
+    // this.github.download_object(filename);
+    this.loading = true;
+    let row = { filename: filename };
+
+    this.http3.send(Routes.SampleDownload, JSON.stringify(row)).then((res: any) => {
+      let retval: any = this.http3.json_handler(res);
+      console.warn(retval);
+      this.toastr.info(retval.msg);
+      this.loading = false;
+      this.get_sample_templates();
+    }).catch(err => { this.doErr(err); this.loading = false; });
   }
 
   downloaded(filename: string) {
@@ -288,6 +312,10 @@ export class HomeComponent {
 
   wait() {
     this.toastr.info(this.translate.instant("wait"));
+  }
+
+  get_class() {
+    return this.is_active(HomeFilter.Project) ? "row row-cols-2 g-0" : "row row-cols-3 g-0"
   }
 
   // ============================================================

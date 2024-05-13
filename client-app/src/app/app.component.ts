@@ -7,6 +7,7 @@ import { faGear, faGlobe, faMoon } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ThemeManager } from './services/theme-manager.service';
 import { faSun } from '@fortawesome/free-regular-svg-icons';
+import { TranslateManager } from './services/translate-manager.service';
 
 @Component({
   selector: 'app-root',
@@ -20,19 +21,20 @@ export class AppComponent {
   faGlobe = faGlobe;
 
   constructor(public translate: TranslateService, private toastr: ToastrService,
-    private themeSvc: ThemeManager
+    private themeSvc: ThemeManager, private translateMgr: TranslateManager
   ) {
     this.themeSvc.set_initial_mode();
-    translate.addLangs(['en', 'fr']);
-    translate.setDefaultLang('en');
+    translateMgr.set_initial();
+    // translate.addLangs(['en', 'fr']);
+    // translate.setDefaultLang('en');
 
-    const browserLang = translate.getBrowserLang() ?? 'en';
-    translate.use(browserLang.match(/en|fr/) ? browserLang : 'en');
+    // const browserLang = translate.getBrowserLang() ?? 'en';
+    // translate.use(browserLang.match(/en|fr/) ? browserLang : 'en');
   }
 
-  showSuccess() {
-    this.toastr.success("Hello world!", "Toastr fun!");
-  }
+  // showSuccess() {
+  //   this.toastr.success("Hello world!", "Toastr fun!");
+  // }
 
   closeMenu() {
     if (document.getElementById('navButton')?.getAttribute('aria-expanded') === 'true') {
@@ -57,5 +59,10 @@ export class AppComponent {
 
   get mode_icon() {
     return this.themeSvc.get_curr_mode() == 'light' ? faSun : faMoon;
+  }
+
+  // ==============================================
+  use_lang(lang: string) {
+    this.translateMgr.use_lang(lang);
   }
 }

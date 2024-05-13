@@ -3,7 +3,7 @@ use std::fs;
 
 use crate::{messages::{FILENAME_NO_NULL, SUCCESS_DEL_TEMPL}, *};
 
-use self::{compressor::{compress_and_save, retrieve_decompress, retrieve_decompress_fullpath}, file::gen_filename, filelist_dto::SubmitFileList, stage_dto::{StageTrait, SubmitStage}, template_dto::{to_basic_template, to_nameonly, to_nlist_temp, SubmitCloneTemp, SubmitGetTemplate, SubmitTemplate, SubmitTemplateVer, TemplateTrait, TemplateVerTrait}, versioning::{get_verpath, upd_ver_temp}
+use self::{compressor::{compress_and_save, retrieve_decompress, retrieve_decompress_fullpath}, file::gen_filename, filelist_dto::SubmitFileList, misc_dto::SubmitUuidOnly, stage_dto::{StageTrait, SubmitStage}, template_dto::{to_basic_template, to_nameonly, to_nlist_temp, SubmitCloneTemp, SubmitGetTemplate, SubmitTemplate, SubmitTemplateVer, TemplateTrait, TemplateVerTrait}, versioning::{get_verpath, upd_ver_temp}
 };
 
 // =================================================
@@ -156,6 +156,19 @@ pub(crate) fn clone_template(data_path: PathBuf, msg: Bytes) -> Result<Option<St
   Ok(Some(data.unwrap().to_string()))
 }
 
+
+/// Filename is the filename of the template file, which we'll fetch and return for the 
+/// user to download. 
+pub(crate) fn export_template(data_path: PathBuf, msg: Bytes) -> Result<Option<Vec<u8>>, String> {
+  let submit: SubmitUuidOnly = serde_json::from_slice(&msg).unwrap();
+  let filename = gen_filename(TEMPLATE_NAME.to_owned(), submit.uuid.clone(), None);
+  let path = modify_datapath(data_path);
+  let fullpath = path.join(filename);
+  let contents = fs::read(fullpath.clone());
+  if contents.is_err() { error!("export_template contents error"); return Err(contents.unwrap_err().to_string()); }
+  // fs::copy(from, to)
+  Ok(Some(contents.unwrap()))
+}
 
 // ================================================
 fn modify_datapath(data_path: PathBuf) -> PathBuf {
