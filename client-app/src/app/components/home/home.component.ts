@@ -44,7 +44,7 @@ export class HomeComponent {
 
   curr_view: HomeView = HomeView.Home;  // home, new (proj/temp) views.
   // curr_filter: string = 'proj';
-  curr_filter: HomeFilter = HomeFilter.Template;
+  curr_filter: HomeFilter = HomeFilter.Project;
   HomeFilter = HomeFilter;
   items: any[] = [];
   // page = { page_no: 0, page_size: 1, total_count: 0 }
@@ -57,8 +57,8 @@ export class HomeComponent {
   ) {
     // Default is project, so we get project and fill items. 
     setTimeout(() => {
-      // this.get_projects(true);  // give time for service to load. 
-      this.get_templates(true);
+      this.get_projects(true);  // give time for service to load. 
+      // this.get_templates(true);
       // this.get_sample_templates(true);
     }, 100);
   }

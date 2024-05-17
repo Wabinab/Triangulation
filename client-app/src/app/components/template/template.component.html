@@ -117,7 +117,7 @@
         <p class="card-text">{{ p.questions[0].q }}</p>
       </div> -->
       <div class="card-footer" hover-class="text-bg-danger | null" (click)="remove_question(i)">
-        {{ 'delete' | translate }}
+        <fa-icon [icon]="faRemove"></fa-icon> {{ 'delete' | translate }}
       </div>
     </div>
   </div>
