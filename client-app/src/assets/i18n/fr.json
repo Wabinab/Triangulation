@@ -23,7 +23,9 @@
     "DownloadFirst": "Téléchargement le fichier avant aperçu s'il te plaît.",
     "PreviewNotEqual": "Attention! Le prévu pas sont similaire avec le projet actuel.",
     "DisplayDateTimeHere": "La sélecteur de date et d'heure ne sont pas incluses dans la prévu.",
-    "PreviewNotIncluded": "Ne sont pas incluses dans la prévu."
+    "PreviewNotIncluded": "Ne sont pas incluses dans la prévu.",
+    "CurrVer": "Version Locale",
+    "NewestVer": "Dernière Version"
   },
   "export": {
     "name": "Exporter Le Modèle"

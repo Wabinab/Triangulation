@@ -23,16 +23,22 @@ export class HoverClassDirective {
   }
 
   @HostListener('mouseenter') onMouseEnter() {
-    this.elementRef.nativeElement.classList.remove(this.class_normal);
-    this.elementRef.nativeElement.classList.add(this.class_hover);
+    // this.elementRef.nativeElement.classList.remove(this.class_normal);
+    // this.elementRef.nativeElement.classList.add(this.class_hover);
+    this.add_or_remove(this.elementRef.nativeElement.classList, this.class_normal, "remove");
+    this.add_or_remove(this.elementRef.nativeElement.classList, this.class_hover, "add");
     if (this.child_also) {
       Array.from(this.elementRef.nativeElement.children).forEach((el: any) => {
-        el.classList.remove(this.class_normal);
-        el.classList.add(this.class_hover);
+        this.add_or_remove(el.classList, this.class_normal, "remove");
+        this.add_or_remove(el.classList, this.class_hover, "add");
+        // el.classList.remove(this.class_normal);
+        // el.classList.add(this.class_hover);
         if (el.matches('ul')) {
           Array.from(el.children).forEach((li: any) => {
-            li.classList.remove(this.class_normal);
-            li.classList.add(this.class_hover);
+            this.add_or_remove(li.classList, this.class_normal, "remove");
+            this.add_or_remove(li.classList, this.class_hover, "add");
+            // li.classList.remove(this.class_normal);
+            // li.classList.add(this.class_hover);
           })
         }
       });
@@ -40,19 +46,32 @@ export class HoverClassDirective {
   }
 
   @HostListener('mouseleave') onMouseLeave() {
-    this.elementRef.nativeElement.classList.remove(this.class_hover);
-    this.elementRef.nativeElement.classList.add(this.class_normal);
+    // this.elementRef.nativeElement.classList.remove(this.class_hover);
+    // this.elementRef.nativeElement.classList.add(this.class_normal);
+    this.add_or_remove(this.elementRef.nativeElement.classList, this.class_hover, "remove");
+    this.add_or_remove(this.elementRef.nativeElement.classList, this.class_normal, "add");
     if (this.child_also) {
       Array.from(this.elementRef.nativeElement.children).forEach((el: any) => {
-        el.classList.remove(this.class_hover);
-        el.classList.add(this.class_normal);
+        this.add_or_remove(el.classList, this.class_hover, "remove");
+        this.add_or_remove(el.classList, this.class_normal, "add");
+        // el.classList.remove(this.class_hover);
+        // el.classList.add(this.class_normal);
         if (el.matches('ul')) {
           Array.from(el.children).forEach((li: any) => {
-            li.classList.remove(this.class_hover);
-            li.classList.add(this.class_normal);
+            this.add_or_remove(li.classList, this.class_hover, "remove");
+            this.add_or_remove(li.classList, this.class_normal, "add");
+            // li.classList.remove(this.class_hover);
+            // li.classList.add(this.class_normal);
           })
         }
       });
     }
+  }
+
+  add_or_remove(classlist: any, classnames: string, type: string) {
+    classnames.split(" ").forEach(val => {
+      if (type == "remove") classlist.remove(val);
+      else if (type == "add") classlist.add(val);
+    });
   }
 }

@@ -4,9 +4,38 @@
 /// Then, when a new project is added, we change the project version. 
 /// If there are no change in template, nothing change. 
 
-use crate::{messages::UPD_VER_PROJ_FILE, *};
+use crate::{messages::{CURR_VER_NULL, REQUEST_FAILED, UPD_VER_PROJ_FILE}, *};
 
 use self::{compressor::{compress_and_save_fullpath, retrieve_decompress_fullpath}, file::{add_ver_json_zl, strip_ext}, messages::{CANNOT_FIND_VER, RD_CANNOT_FIND_FILE}};
+
+/// Update Version Download Sample Template
+pub(crate) fn upd_ver_sample(ver_path: PathBuf, key: String, filename: String) -> Result<Option<String>, String> {
+  let index_url = "https://raw.githubusercontent.com/Wabinab/Triangulation_Sample/main/index.json";
+  let resp = reqwest::blocking::get(index_url).unwrap();
+  if !resp.status().is_success() { error!("download_sample failed reqwest index.json {:?}", resp); return Err(REQUEST_FAILED.to_owned()); }
+  let index: Value = resp.json().unwrap();  // if can get, certainly will be json, no doubt.
+  let curr_ver = index[key][2].clone();
+  if curr_ver.is_null() { error!("Cannot find this file."); return Err(CURR_VER_NULL.to_owned()); }
+
+  // Create file if not exist. Else, edit file. 
+  let ver_file = retrieve_decompress_fullpath(ver_path.clone());
+  if ver_file.clone().is_err_and(|x| x == RD_CANNOT_FIND_FILE.to_owned()) {
+    // let output = File::create(ver_path.clone());
+    // if output.is_err() { error!("upd_ver_sample ver_file create file"); return Err(UPD_VER_SAMPLE_FILE.to_owned()); }
+    let res = compress_and_save_fullpath(json!({
+      strip_ext(filename.clone()): curr_ver.clone()
+    }).to_string(), ver_path.clone());
+    if res.is_err() { error!("upd_ver_sample compress_and_save new"); return Err(res.unwrap_err()); }
+    return Ok(None);
+  }
+  if ver_file.is_err() { error!("upd_ver_sample ver_file"); return Err(ver_file.unwrap_err()); }
+
+  let mut ver_file = ver_file.unwrap();
+  ver_file[strip_ext(filename.clone())] = json!(curr_ver.clone());
+  let res = compress_and_save_fullpath(ver_file.to_string(), ver_path.clone());
+  if res.is_err() { error!("upd_ver_sample compress_and_save existing"); return Err(res.unwrap_err()); }
+  return Ok(None)
+}
 
 /// Update Version Save Project
 /// temp_filename is (original non-versioned) template filename. 

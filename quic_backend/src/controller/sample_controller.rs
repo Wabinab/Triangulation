@@ -6,19 +6,22 @@ use uuid::Uuid;
 
 /// This controls the sample template
 
-use crate::{messages::{FAILED_COPY_CONTENT, FAILED_CREATE_FILE, REQUEST_FAILED, SUCCESS_DOWNLOAD}, *};
+use crate::{messages::{FAILED_COPY_CONTENT, FAILED_CREATE_FILE, REQUEST_FAILED, SAMPLE_VERFILE_ERR, SUCCESS_DOWNLOAD}, *};
 
-use self::{compressor::{compress_and_save_fullpath, retrieve_decompress, retrieve_decompress_fullpath}, file::gen_filename, misc_dto::SubmitFilenameOnly, pipeline_dto::{PipelineTrait, SubmitPipeline}, template_dto::{to_nlist_temp, SubmitGetTemplate}};
+use self::{compressor::{compress_and_save_fullpath, retrieve_decompress, retrieve_decompress_fullpath}, file::gen_filename, messages::RD_CANNOT_FIND_FILE, misc_dto::{SubmitDownload, SubmitFilenameOnly}, pipeline_dto::{PipelineTrait, SubmitPipeline}, template_dto::{to_nlist_temp, SubmitGetTemplate}, versioning::upd_ver_sample};
 
 pub(crate) fn get_downloaded_list(data_path: PathBuf) -> Result<Option<String>, String> {
-  info!("Enter here");
-  info!("{:?}", modify_datapath(data_path.clone()));
-  let paths = fs::read_dir(modify_datapath(data_path)).unwrap();
+  let paths = fs::read_dir(modify_datapath(data_path.clone())).unwrap();
   let filenames: Vec<String> = paths
     .map(|c| c.unwrap().file_name().into_string().unwrap())
     .collect();
-  // let filenames2: Vec<String> = filenames.into_iter().map(|c| c.into_string()).collect();
-  Ok(Some(json!({"data": filenames}).to_string()))
+  let versions = retrieve_decompress(data_path.clone(), SAMPLE_VERFILE.to_owned());
+  if versions.clone().is_err_and(|x| x == RD_CANNOT_FIND_FILE.to_owned()) {
+    // Create file only when file downloads. 
+    return Ok(Some(json!({"data": filenames}).to_string()))
+  }
+  if versions.is_err() { error!("get_downloaded_list version file got error."); return Err(SAMPLE_VERFILE_ERR.to_owned()); }
+  Ok(Some(json!({"data": filenames, "version": versions.unwrap()}).to_string()))
 }
 
 pub(crate) fn get_sample_nlist(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
@@ -66,7 +69,7 @@ pub(crate) fn clone_sample_template(data_path: PathBuf, msg: Bytes) -> Result<Op
 
 pub(crate) fn download_sample_template(data_path: PathBuf, msg: Bytes) -> Result<Option<String>, String> {
   let mut url: String = "https://github.com/Wabinab/Triangulation_Sample/raw/main/".to_owned();
-  let submit: SubmitFilenameOnly = serde_json::from_slice(&msg).unwrap();
+  let submit: SubmitDownload = serde_json::from_slice(&msg).unwrap();
   url.push_str(&submit.filename.clone());
 
   let mut resp = reqwest::blocking::get(url).unwrap();
@@ -80,6 +83,12 @@ pub(crate) fn download_sample_template(data_path: PathBuf, msg: Bytes) -> Result
 
   let finale = io::copy(&mut resp, &mut out);
   if finale.is_err() { error!("download_sample io copy error. {:?}", finale.unwrap_err()); return Err(FAILED_COPY_CONTENT.to_owned()); }
+
+  // Update version in version file. 
+  let mut ver_path = data_path.clone();
+  ver_path.push(SAMPLE_VERFILE);
+  let retval = upd_ver_sample(ver_path, submit.keyname.clone(), submit.filename.clone());
+  if retval.is_err() { error!("download_sample retval err."); return Err(retval.unwrap_err()); }
   
   Ok(Some(json!({
     "msg": SUCCESS_DOWNLOAD.to_owned(),

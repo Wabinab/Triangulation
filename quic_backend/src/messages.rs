@@ -40,7 +40,9 @@ pub(crate) const FAILED_CREATE_FILE: &'static str = "backend.FailedCreate";
 pub(crate) const FAILED_COPY_CONTENT: &'static str = "backend.FailedCopyContent";
 pub(crate) const SUCCESS_DOWNLOAD: &'static str = "backend.SuccessDownload";
 
-
+pub(crate) const SAMPLE_VERFILE_ERR: &'static str = "Bug: Sample version file got error. Please report steps to reproduce on Github.";
+pub(crate) const CURR_VER_NULL: &'static str = "Cannot find key in index.json. Are you sure it's correct? If yes, please report steps to reproduce on Github.";
+// pub(crate) const UPD_VER_SAMPLE_FILE: &'static str = "Update Version Sample Create File Error.";
 // pub(crate) const NOT_IMPLEMENTED: &'static str = "Function Not Implemented.";
 
 // ===========================================================

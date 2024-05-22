@@ -3,7 +3,7 @@ use std::{fs::File, path::{Path, PathBuf}};
 use serde_json::{json, Value};
 use uuid::Uuid;
 
-use crate::{compressor::{compress_and_save, compress_and_save_fullpath, retrieve_decompress_fullpath}, file::{add_ver_json_zl, strip_ext}, messages::CANNOT_FIND_VER, versioning::{get_savepath, get_ver, upd_ver_proj, upd_ver_temp}, UPDATE_VER};
+use crate::{compressor::{compress_and_save, compress_and_save_fullpath, retrieve_decompress_fullpath}, file::{add_ver_json_zl, strip_ext}, messages::{CANNOT_FIND_VER, CURR_VER_NULL}, versioning::{get_savepath, get_ver, upd_ver_proj, upd_ver_sample, upd_ver_temp}, UPDATE_VER};
 
 use super::helper::{get_datapath, cleanup};
 
@@ -391,4 +391,40 @@ fn test_data_after_change_version_different() {
   cleanup(check_file);
   cleanup(check_file_1);
   cleanup(get_tempfile_path(temp_filename));
+}
+
+#[test]
+fn test_upd_ver_sample_new_and_edit() {
+  let filename = gen_testver_filename();
+  let filepath = Path::new(&filename);
+  assert!(!filepath.exists());
+
+  let key = "Principles 5 Step Process";
+  let filename = "principles_5_step_process.json.zl";
+
+  let ret = upd_ver_sample(filepath.to_path_buf(), 
+    key.to_owned(), 
+    filename.to_owned());
+  assert!(ret.is_ok());
+
+  let versions = retrieve_decompress_fullpath(filepath.to_path_buf()).unwrap();
+  let data = versions[strip_ext(filename.to_owned())].clone();
+  assert!(data.is_string(), "{:?}", data);
+  // Can't really check for version unless we pull from the internet, which, how can we know
+  // we're correct if we use the same code to pull the same detail? 
+
+  // Edit can't do, but we can add new one, which we'll do later. 
+  cleanup(filepath.to_path_buf());
+}
+
+#[test]
+fn test_upd_ver_sample_curr_ver_not_found() {
+  let filename = gen_testver_filename();
+  let filepath = Path::new(&filename);
+  assert!(!filepath.exists());
+
+  let ret = upd_ver_sample(filepath.to_path_buf(), 
+    "NOT_EXIST_13857495854".to_owned(), 
+    "nevermind.json.zl".to_owned());
+  assert!(ret.is_err_and(|x| x == CURR_VER_NULL.to_owned()));
 }

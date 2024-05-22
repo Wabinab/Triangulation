@@ -87,7 +87,7 @@
       @if (is_active(HomeFilter.SampleTemplate)) {
         <div class="position-relative pb-5">
           <!-- <span>{{ "home.ManualDownload" | translate }}</span> -->
-          <button type="button" class="position-absolute end-0 btn btn-primary" (click)="sync_index()"><fa-icon [icon]="faSync"></fa-icon></button>
+          <button type="button" class="position-absolute end-0 btn btn-primary" (click)="get_sample_templates()"><fa-icon [icon]="faSync"></fa-icon></button>
         </div>
         <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 row-cols-xxl-4 g-3 card-group">
           @for(item of items | keyvalue | paginate: page; track item.key) {
@@ -100,11 +100,24 @@
                   {{ item.value[1] }}
                 </div>
                 <ul class="list-group list-group-flush" (click)="preview_sample(item.value[0])">
-                  <li class="list-group-item">{{ 'home.Version' | translate }}: {{ item.value[2] }}</li>
-                  <li class="list-group-item"><strong>{{ 'home.Filename' | translate }}: {{ item.value[0] }}</strong></li>
+                  <li class="list-group-item">{{ 'home.CurrVer' | translate }}: {{ get_version(item.value[0]) }}</li>
+                  <li class="list-group-item" *ngIf="item.value[2] != get_version(item.value[0])">{{ 'home.NewestVer' | translate }}: {{ item.value[2] }}</li>
+                  <!-- <li class="list-group-item"><strong>{{ 'home.Filename' | translate }}: {{ item.value[0] }}</strong></li> -->
                 </ul>
                 <div class="row row-cols-2 g-0">
-                  @if(downloaded(item.value[0])) {
+                  @if (downloaded(item.value[0]) && item.value[2] != get_version(item.value[0])) {
+                    <div class="card-footer col text-center border-end border-top-0" 
+                    hover-class="text-bg-secondary | null"
+                    (click)="clone_sample(item.value[0])">
+                      <fa-icon [icon]="faClone"></fa-icon>
+                    </div>
+                    <div class="card-footer col text-center border-top-0 text-bg-warning bg-opacity-50"
+                    hover-class="text-bg-warning | text-bg-warning bg-opacity-50"
+                    (click)="download_sample(item.value[0], item.key)">
+                      <fa-icon [icon]="faUpdate"></fa-icon>
+                    </div>
+                  }
+                  @else if(downloaded(item.value[0])) {
                     <div class="card-footer col text-center border-end border-top-0" 
                     hover-class="text-bg-secondary | null"
                     (click)="clone_sample(item.value[0])">
@@ -119,7 +132,7 @@
                     </div>
                     <div class="card-footer col text-center border-top-0"
                     hover-class="text-bg-primary | null"
-                    (click)="download_sample(item.value[0])">
+                    (click)="download_sample(item.value[0], item.key)">
                       <fa-icon [icon]="faDownload"></fa-icon>
                     </div>
                   }

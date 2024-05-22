@@ -12,6 +12,12 @@ pub(crate) struct SubmitFilenameOnly {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+pub(crate) struct SubmitDownload {
+  pub(crate) filename: String,
+  pub(crate) keyname: String
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub(crate) struct SubmitUuidOnly {
   pub(crate) uuid: String
 }
