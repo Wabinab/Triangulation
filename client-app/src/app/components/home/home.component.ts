@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { SharedModule } from '../../shared/shared.module';
 import { ToastrService } from 'ngx-toastr';
-import { faArrowDown, faCheck, faFileExport, faRoad, faRotate, faRoute, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import { faArrowDown, faArrowUpFromBracket, faCheck, faFileExport, faRoad, faRotate, faRoute, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { HomeView } from '../../models/home-view';
 import { NewProjModalComponent } from './new-proj-modal/new-proj-modal.component';
 import { NewTemplModalComponent } from './new-templ-modal/new-templ-modal.component';
@@ -37,6 +37,7 @@ export class HomeComponent {
   faDelete = faTrashAlt;
   faTick = faCheck;
   faExport = faFileExport;
+  faUpdate = faArrowUpFromBracket;
 
   deferProjClicked = signal(false);
   deferTemplClicked = signal(false);
@@ -270,12 +271,26 @@ export class HomeComponent {
   // Sample template
   // Sync after download from folder. 
   downloaded_sample: string[] = [];
+  versions: any = {};
   sync_index() {
     this.loading = true;
     this.http3.send(Routes.SampleList, "{}").then((res: any) => {
-      this.downloaded_sample = this.http3.json_handler(res).data;
+      let data = this.http3.json_handler(res);
+      this.downloaded_sample = data.data;
+      this.versions = data.version;
       this.loading = false;
     }).catch((err: any) => {this.doErr(err); this.loading = false });
+  }
+
+  get_version(filename: string) {
+    if ([undefined, null, ""].includes(filename)) return "";
+    if ([undefined, null, ""].includes(this.versions)) return "";
+    let key = this._strip_ext(filename);
+    return this.versions[key] ?? "";
+  }
+
+  private _strip_ext(filename: string) {
+    return filename.split('.')[0];
   }
 
   // Download the file, then open up template.component as modal to preview sample. 
@@ -307,15 +322,15 @@ export class HomeComponent {
     }).catch(err => { this.doErr(err); this.loading = false; });
   }
 
-  download_sample(filename: string) {
+  download_sample(filename: string, keyname: string) {
     // this.github.download_object(filename);
     this.loading = true;
-    let row = { filename: filename };
+    let row = { filename: filename, keyname: keyname };
 
     this.http3.send(Routes.SampleDownload, JSON.stringify(row)).then((res: any) => {
       let retval: any = this.http3.json_handler(res);
       console.warn(retval);
-      this.toastr.info(retval.msg);
+      this.toastr.info(this.translate.instant(retval.msg ?? ''));
       this.loading = false;
       this.get_sample_templates();
     }).catch(err => { this.doErr(err); this.loading = false; });

@@ -23,7 +23,9 @@
     "DownloadFirst": "Please download the file before preview.",
     "PreviewNotEqual": "Note, preview don't behave exactly like actual project. They're just preview.",
     "DisplayDateTimeHere": "Date and Time picker isn't available in preview.",
-    "PreviewNotIncluded": "Not Available in preview."
+    "PreviewNotIncluded": "Not Available in preview.",
+    "CurrVer": "Local Version",
+    "NewestVer": "Newest Version"
   },
   "export": {
     "name": "Export Template"

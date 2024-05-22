@@ -10,6 +10,8 @@ pub const UPDATE_VER: bool = true;
 pub const PROJECT_NAME: &'static str = "P";
 pub const TEMPLATE_NAME: &'static str = "T";
 
+pub const SAMPLE_VERFILE: &'static str = "sample_currver.json.zl";
+
 #[derive(Debug)]
 pub enum CRUD {
   Create = 0,
